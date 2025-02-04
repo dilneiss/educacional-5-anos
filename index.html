@@ -814,6 +814,9 @@
             const revealedLetters = document.querySelectorAll('#target-word .revealed');
             const nextIndex = revealedLetters.length;
 
+            // Narra a letra clicada
+            speak(letterElement.textContent);
+
             if(nextIndex < targetLetters.length) {
                 const correctLetter = targetLetters[nextIndex];
 
