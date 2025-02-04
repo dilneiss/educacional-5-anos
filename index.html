@@ -122,17 +122,16 @@
     </div>
 
     <script>
-        // Sistema de nome do jogador
-        let playerName = localStorage.getItem('playerName') || '';
-        if(!playerName) {
-            playerName = prompt('Qual é o seu nome?', 'Amiguinho').trim();
-            localStorage.setItem('playerName', playerName);
-        }
+        // Sistema de nome do jogador - Sempre pede ao recarregar
+        localStorage.removeItem('playerName');
+        localStorage.removeItem('stars');
+
+        let playerName = prompt('Qual é o seu nome?', 'Amiguinho').trim();
         document.getElementById('player-name').textContent = playerName;
 
-        // Sistema de estrelas
-        let stars = localStorage.getItem('stars') ? Math.max(0, parseInt(localStorage.getItem('stars'))) : 0;
-        let previousStars = stars;
+        // Sistema de estrelas - Sempre começa do zero
+        let stars = 0;
+        let previousStars = 0;
         document.getElementById('stars-count').textContent = stars;
 
         const numbers = Array.from({length: 20}, (_, i) => i + 1);
