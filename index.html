@@ -146,6 +146,94 @@
         .scrambled-letters {
             margin: 20px;
         }
+
+        /* Jogo das Sombras */
+        .shadow-container {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px;
+        }
+        .shadow-item {
+            width: 150px;
+            height: 150px;
+            margin: 10px;
+            cursor: move;
+            transition: transform 0.3s;
+        }
+        .shadow-slot {
+            width: 150px;
+            height: 150px;
+            margin: 10px;
+            background: #E0E0E0;
+            border-radius: 15px;
+        }
+
+        /* Quebra-Cabeça Numérico */
+        .puzzle-piece {
+            width: 80px;
+            height: 80px;
+            margin: 5px;
+            background: #FFB74D;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            cursor: pointer;
+            border-radius: 10px;
+        }
+
+        /* Classificação por Cores */
+        .color-bin {
+            width: 100px;
+            height: 100px;
+            margin: 10px;
+            border: 3px dashed #000;
+            border-radius: 15px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .color-item {
+            width: 60px;
+            height: 60px;
+            margin: 5px;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        /* Estação Meteorológica */
+        .weather-card {
+            background: #FFF;
+            padding: 20px;
+            margin: 20px;
+            border-radius: 15px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            display: inline-block;
+            width: 250px;
+        }
+
+        .weather-items {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .weather-item {
+            font-size: 30px;
+            padding: 10px;
+            cursor: pointer;
+            border-radius: 10px;
+            transition: all 0.3s;
+            background: #F5F5F5;
+        }
+
+        @keyframes shake {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            50% { transform: translateX(5px); }
+            100% { transform: translateX(0); }
+        }
     </style>
 </head>
 <body>
@@ -153,10 +241,14 @@
         <h1>🎮 Vamos Aprender! 🌈</h1>
         
         <div id="main-menu">
-            <div class="game-mode" onclick="startGame('numbers')">🔢 Encontrar Números</div>
-            <div class="game-mode" onclick="startGame('letters')">🔤 Letras e Emojis</div>
-            <div class="game-mode" onclick="startGame('counting')">🍎 Contar Emojis</div>
-            <div class="game-mode" onclick="startGame('word')">🔤 Montar Palavras</div>
+            <div class="game-mode" onclick="startGame('numbers')">🔢 Números</div>
+            <div class="game-mode" onclick="startGame('letters')">🔤 Letras</div>
+            <div class="game-mode" onclick="startGame('counting')">🍎 Contar</div>
+            <div class="game-mode" onclick="startGame('word')">🧩 Palavras</div>
+            <div class="game-mode" onclick="startGame('shadows')">🎭 Sombras</div>
+            <div class="game-mode" onclick="startGame('puzzle')">🧩 Quebra cabeça Números</div>
+            <div class="game-mode" onclick="startGame('colors')">🎨 Cores</div>
+            <div class="game-mode" onclick="startGame('weather')">☔ Clima</div>
         </div>
 
         <div id="game-area" style="display: none;">
@@ -389,6 +481,10 @@
             else if(mode === 'letters') initLettersGame();
             else if(mode === 'counting') initCountingGame();
             else if(mode === 'word') initWordGame();
+            else if(mode === 'shadows') initShadowGame();
+            else if(mode === 'puzzle') initPuzzleGame();
+            else if(mode === 'colors') initColorGame();
+            else if(mode === 'weather') initWeatherGame();
         }
 
         function showMainMenu() {
@@ -598,6 +694,188 @@
                     showFeedback('😊 Tente novamente!', false);
                     speak("Essa não é a letra correta");
                 }
+            }
+        }
+
+        function initShadowGame() {
+            const items = ['🐱', '🚗', '🏠', '🍎'];
+            const content = document.getElementById('content');
+            content.innerHTML = '<h2>Combine as sombras:</h2>';
+
+            // Itens arrastáveis
+            content.innerHTML += '<div class="shadow-container">' +
+                items.map(item => `
+                    <div class="shadow-item" draggable="true" ondragstart="drag(event)">
+                        <div style="font-size: 80px">${item}</div>
+                    </div>
+                `).join('') + '</div>';
+
+            // Áreas de soltar
+            content.innerHTML += '<div class="shadow-container">' +
+                shuffle(items).map(item => `
+                    <div class="shadow-slot" ondrop="dropShadow(event, '${item}')"
+                        ondragover="allowDrop(event)"></div>
+                `).join('') + '</div>';
+        }
+
+        // Jogo 2: Quebra-Cabeça Numérico
+        function initPuzzleGame() {
+            const content = document.getElementById('content');
+            content.innerHTML = '<h2>Complete o quebra-cabeça:</h2>';
+
+            const numbers = shuffle([1, 2, 3, 4, 5]);
+            const quantities = shuffle(['🍎🍎🍎', '⭐️⭐️', '🎈🎈🎈🎈', '🐱🐱', '🚗']);
+
+            content.innerHTML += numbers.map(num => `
+                <div class="puzzle-piece" onclick="matchNumber(${num})">${num}</div>
+            `).join('');
+
+            content.innerHTML += '<div style="margin:20px">' +
+                quantities.map(q => `
+                    <div class="puzzle-piece">${q}</div>
+                `).join('') + '</div>';
+        }
+
+        // Jogo 3: Classificação por Cores
+        function initColorGame() {
+            const colors = ['#FF0000', '#00FF00', '#0000FF'];
+            const content = document.getElementById('content');
+            content.innerHTML = '<h2>Separe por cores:</h2>';
+
+            // Itens coloridos
+            content.innerHTML += shuffle(colors)
+                .map(c => `<div class="color-item" style="background:${c}"
+                    draggable="true" ondragstart="dragColor(event, '${c}')"></div>`)
+                .join('');
+
+            // Caixas de classificação
+            content.innerHTML += '<div style="margin-top:30px">' +
+                colors.map(c => `
+                    <div class="color-bin" style="border-color:${c}"
+                        ondrop="dropColor(event, '${c}')" ondragover="allowDrop(event)">
+                        ${c}
+                    </div>
+                `).join('') + '</div>';
+        }
+
+        // Jogo 4: Estação Meteorológica
+        function initWeatherGame() {
+            const weatherData = [
+                { icon: '☀️', correctItems: ['🕶️', '🎩', '🧴'], title: 'Ensolarado' },
+                { icon: '🌧️', correctItems: ['☂️', '🧥', '🥾'], title: 'Chuvoso' },
+                { icon: '❄️', correctItems: ['🧤', '🧣', '🎿'], title: 'Frio' }
+            ];
+
+            const content = document.getElementById('content');
+
+            // Escolhe um clima aleatório
+            const currentWeather = shuffle(weatherData)[0];
+
+            // Cria todas as opções possíveis (corretas + incorretas)
+            const incorrectItems = ['🎸', '📘', '🎈', '🎪', '🎭', '🎨'];
+            const allItems = shuffle([...currentWeather.correctItems, ...shuffle(incorrectItems).slice(0, 3)]);
+
+            content.innerHTML = `
+        <h2>Escolha os itens para o clima:</h2>
+        <div class="weather-card">
+            <div style="font-size:60px">${currentWeather.icon}</div>
+            <h3>${currentWeather.title}</h3>
+            <div class="weather-items" id="weather-items">
+                ${allItems.map(item => `
+                    <div class="weather-item"
+                         data-item="${item}"
+                         onclick="handleWeatherItem(this, '${item}', '${currentWeather.icon}')">
+                        ${item}
+                    </div>
+                `).join('')}
+            </div>
+        </div>
+    `;
+
+            // Adiciona contador de acertos ao estado global
+            window.weatherGameState = {
+                correctCount: 0,
+                totalCorrect: currentWeather.correctItems.length,
+                currentIcon: currentWeather.icon
+            };
+        }
+
+        function handleWeatherItem(element, item, correctIcon) {
+            if (element.classList.contains('selected')) {
+                return; // Impede selecionar o mesmo item duas vezes
+            }
+
+            const correctItems = {
+                '☀️': ['🕶️', '🎩', '🧴'],
+                '🌧️': ['☂️', '🧥', '🥾'],
+                '❄️': ['🧤', '🧣', '🎿']
+            }[correctIcon];
+
+            if (correctItems.includes(item)) {
+                element.classList.add('selected');
+                element.style.background = '#C8E6C9';
+                element.style.transform = 'scale(1.1)';
+                element.style.border = '2px solid #4CAF50';
+                showFeedback('✔️ Item correto!', true);
+
+                // Incrementa o contador de acertos
+                window.weatherGameState.correctCount++;
+
+                // Verifica se completou todos os itens corretos
+                if (window.weatherGameState.correctCount === window.weatherGameState.totalCorrect) {
+                    updateStars(1);
+                    showFeedback('🎉 Parabéns! Você completou o desafio!', true);
+                    speak('Parabéns! Você acertou todos os itens!');
+                    setTimeout(() => startGame('weather'), 2000);
+                }
+            } else {
+                element.style.background = '#FFCDD2';
+                element.style.animation = 'shake 0.5s';
+                showFeedback('❌ Não é para este clima', false);
+                setTimeout(() => {
+                    element.style.background = '';
+                    element.style.animation = '';
+                }, 1000);
+            }
+        }
+
+        // Funções de arrastar/soltar genéricas
+        function allowDrop(ev) {
+            ev.preventDefault();
+        }
+
+        function drag(ev) {
+            ev.dataTransfer.setData("text", ev.target.innerHTML);
+        }
+
+        let draggedColor = '';
+
+        function dragColor(ev, color) {
+            draggedColor = color;
+        }
+
+        function dropColor(ev, targetColor) {
+            if(draggedColor === targetColor) {
+                ev.target.style.backgroundColor = draggedColor;
+                showFeedback('🌟 Correto!', true);
+                updateStars(1);
+            } else {
+                showFeedback('😊 Tente outra vez', false);
+            }
+        }
+
+        function checkWeatherItem(item, correctIcon) {
+            const isValid = {
+                '🕶️': '☀️', '🎩': '☀️',
+                '☂️': '🌧️', '🧥': '🌧️',
+                '🧤': '❄️', '🧣': '❄️'
+            }[item] === correctIcon;
+
+            if(isValid) {
+                showFeedback('🌈 Combinação perfeita!', true);
+                updateStars(1);
+            } else {
+                showFeedback('💡 Não é para esse clima', false);
             }
         }
 
