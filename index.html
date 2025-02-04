@@ -167,6 +167,21 @@
             background: #E0E0E0;
             border-radius: 15px;
         }
+        .shadow-match {
+            background: #C8E6C9 !important;
+            border: 3px solid #4CAF50 !important;
+        }
+
+        .shadow-mismatch {
+            background: #FFCDD2 !important;
+            border: 3px solid #C62828 !important;
+            animation: shake 0.5s;
+        }
+
+        .dragging {
+            opacity: 0.5;
+            transform: scale(0.9);
+        }
 
         /* Classificação por Cores */
         .color-bin {
@@ -809,22 +824,73 @@
         function initShadowGame() {
             const items = ['🐱', '🚗', '🏠', '🍎'];
             const content = document.getElementById('content');
-            content.innerHTML = '<h2>Combine as sombras:</h2>';
+            content.innerHTML = '<h2>Arraste os itens para suas sombras:</h2>';
 
-            // Itens arrastáveis
-            content.innerHTML += '<div class="shadow-container">' +
-                items.map(item => `
-                    <div class="shadow-item" draggable="true" ondragstart="drag(event)">
-                        <div style="font-size: 80px">${item}</div>
-                    </div>
-                `).join('') + '</div>';
-
-            // Áreas de soltar
+            // Áreas de soltar primeiro
             content.innerHTML += '<div class="shadow-container">' +
                 shuffle(items).map(item => `
-                    <div class="shadow-slot" ondrop="dropShadow(event, '${item}')"
-                        ondragover="allowDrop(event)"></div>
-                `).join('') + '</div>';
+            <div class="shadow-slot"
+                 data-expected="${item}"
+                 ondrop="dropShadow(event, '${item}')"
+                 ondragover="allowDrop(event)">
+                <div style="opacity:0.3; font-size:80px">${item}</div>
+            </div>
+        `).join('') + '</div>';
+
+            // Itens arrastáveis depois
+            content.innerHTML += '<div class="shadow-container">' +
+                shuffle(items).map(item => `
+            <div class="shadow-item"
+                 draggable="true"
+                 ondragstart="startDrag(event, '${item}')"
+                 ondragend="endDrag(event)">
+                <div style="font-size: 80px">${item}</div>
+            </div>
+        `).join('') + '</div>';
+
+            window.shadowGameState = {
+                correctMatches: 0,
+                totalItems: items.length
+            };
+        }
+
+        let draggedItem = null;
+
+        function startDrag(ev, emoji) {
+            draggedItem = emoji;
+            ev.target.classList.add('dragging');
+            ev.dataTransfer.setData("text/plain", emoji);
+        }
+
+        function endDrag(ev) {
+            ev.target.classList.remove('dragging');
+        }
+
+        function allowDrop(ev) {
+            ev.preventDefault();
+        }
+
+        function dropShadow(ev, expectedEmoji) {
+            ev.preventDefault();
+            const slot = ev.target.closest('.shadow-slot');
+
+            if (draggedItem === expectedEmoji) {
+                slot.innerHTML = `<div style="font-size:80px">${draggedItem}</div>`;
+                slot.classList.add('shadow-match');
+                slot.classList.remove('shadow-slot');
+                window.shadowGameState.correctMatches++;
+
+                if(window.shadowGameState.correctMatches === window.shadowGameState.totalItems) {
+                    updateStars(1);
+                    showFeedback('🎉 Parabéns! Todas sombras combinadas!', true);
+                    setTimeout(() => startGame('shadows'), 2000);
+                }
+            } else {
+                slot.classList.add('shadow-mismatch');
+                setTimeout(() => slot.classList.remove('shadow-mismatch'), 1000);
+            }
+
+            draggedItem = null;
         }
 
         // Jogo 2: Quebra-Cabeça Numérico
@@ -904,7 +970,6 @@
                 if (window.puzzleGameState.correctMatches === window.puzzleGameState.totalPairs) {
                     updateStars(1);
                     showFeedback('🎉 Parabéns! Você completou o quebra-cabeça!', true);
-                    speak('Parabéns! Você completou o desafio!');
                     setTimeout(() => startGame('puzzle'), 2000);
                 }
             } else {
@@ -1053,13 +1118,13 @@
                 if (window.weatherGameState.correctCount === window.weatherGameState.totalCorrect) {
                     updateStars(1);
                     showFeedback('🎉 Parabéns! Você completou o desafio!', true);
-                    speak('Parabéns! Você acertou todos os itens!');
                     setTimeout(() => startGame('weather'), 2000);
                 }
             } else {
                 element.style.background = '#FFCDD2';
                 element.style.animation = 'shake 0.5s';
                 showFeedback('❌ Não é para este clima', false);
+                speak("Não é para este clima");
                 setTimeout(() => {
                     element.style.background = '';
                     element.style.animation = '';
@@ -1108,7 +1173,6 @@
                 if (window.colorGameState.correctMatches === window.colorGameState.totalColors) {
                     updateStars(1);
                     showFeedback('🎉 Parabéns! Você completou todas as cores!', true);
-                    speak('Parabéns! Você completou o desafio das cores!');
 
                     // Reinicia o jogo após 2 segundos
                     setTimeout(() => {
@@ -1147,7 +1211,7 @@
                 document.getElementById('stars-count').textContent = stars;
                 
                 if(change > 0) {
-                    speak(`Parabéns! Agora você tem ${stars} estrelas!`);
+                    speak(`Muito bem!`);
                 } else if(change < 0 && stars > 0) {
                     speak('Não desista! Continue tentando!');
                 }
