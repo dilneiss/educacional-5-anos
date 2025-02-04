@@ -184,21 +184,37 @@
 
         /* Classificação por Cores */
         .color-bin {
-            width: 100px;
-            height: 100px;
+            width: 120px;
+            height: 120px;
             margin: 10px;
             border: 3px dashed #000;
             border-radius: 15px;
-            display: inline-flex;
+            display: flex;
             align-items: center;
             justify-content: center;
+            transition: all 0.3s ease;
+            background-color: white;
         }
+
+        .color-bin span {
+            font-size: 16px;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(255,255,255,0.8);
+        }
+        
         .color-item {
             width: 60px;
             height: 60px;
-            margin: 5px;
             border-radius: 50%;
             cursor: pointer;
+            transition: all 0.3s ease;
+            border: 3px solid #fff;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .color-item:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
         }
 
         /* Estação Meteorológica */
@@ -738,24 +754,58 @@
 
         // Jogo 3: Classificação por Cores
         function initColorGame() {
-            const colors = ['#FF0000', '#00FF00', '#0000FF'];
+            // Array com várias cores possíveis
+            const allColors = [
+                { name: 'Vermelho', hex: '#FF0000' },
+                { name: 'Azul', hex: '#0000FF' },
+                { name: 'Verde', hex: '#00FF00' },
+                { name: 'Amarelo', hex: '#FFD700' },
+                { name: 'Roxo', hex: '#800080' },
+                { name: 'Laranja', hex: '#FFA500' },
+                { name: 'Rosa', hex: '#FF69B4' },
+                { name: 'Marrom', hex: '#8B4513' }
+            ];
+
+            // Seleciona 3 cores aleatórias para cada rodada
+            const roundColors = shuffle(allColors).slice(0, 3);
+
             const content = document.getElementById('content');
-            content.innerHTML = '<h2>Separe por cores:</h2>';
+            content.innerHTML = '<h2>Arraste as cores para as caixas corretas:</h2>';
 
-            // Itens coloridos
-            content.innerHTML += shuffle(colors)
-                .map(c => `<div class="color-item" style="background:${c}"
-                    draggable="true" ondragstart="dragColor(event, '${c}')"></div>`)
-                .join('');
+            // Container para as bolas coloridas no topo
+            content.innerHTML += `
+        <div style="margin: 20px; display: flex; justify-content: center; gap: 15px;">
+            ${roundColors.map(color => `
+                <div class="color-item"
+                     style="background:${color.hex}"
+                     draggable="true"
+                     ondragstart="dragColor(event, '${color.hex}')"
+                     data-colorname="${color.name}">
+                </div>
+            `).join('')}
+        </div>
+    `;
 
-            // Caixas de classificação
-            content.innerHTML += '<div style="margin-top:30px">' +
-                colors.map(c => `
-                    <div class="color-bin" style="border-color:${c}"
-                        ondrop="dropColor(event, '${c}')" ondragover="allowDrop(event)">
-                        ${c}
-                    </div>
-                `).join('') + '</div>';
+            // Container para as caixas de classificação
+            content.innerHTML += `
+        <div style="margin-top:30px; display: flex; justify-content: center; gap: 20px;">
+            ${roundColors.map(color => `
+                <div class="color-bin"
+                     style="border-color:${color.hex}"
+                     ondrop="dropColor(event, '${color.hex}')"
+                     ondragover="allowDrop(event)"
+                     data-filled="false">
+                     <span style="color: ${color.hex}">${color.name}</span>
+                </div>
+            `).join('')}
+        </div>
+    `;
+
+            // Inicializa o estado do jogo
+            window.colorGameState = {
+                totalColors: roundColors.length,
+                correctMatches: 0
+            };
         }
 
         // Jogo 4: Estação Meteorológica
@@ -852,15 +902,47 @@
 
         function dragColor(ev, color) {
             draggedColor = color;
+            ev.dataTransfer.setData("text/plain", color);
+            // Adiciona efeito visual durante o arrasto
+            ev.target.style.opacity = '0.5';
         }
 
         function dropColor(ev, targetColor) {
-            if(draggedColor === targetColor) {
-                ev.target.style.backgroundColor = draggedColor;
-                showFeedback('🌟 Correto!', true);
-                updateStars(1);
+            ev.preventDefault();
+            // Restaura opacidade do item arrastado
+            document.querySelectorAll('.color-item').forEach(item => item.style.opacity = '1');
+
+            const bin = ev.target.closest('.color-bin');
+
+            // Verifica se a caixa já está preenchida
+            if (bin.getAttribute('data-filled') === 'true') {
+                showFeedback('Esta caixa já está preenchida!', false);
+                return;
+            }
+
+            if (draggedColor === targetColor) {
+                bin.style.backgroundColor = draggedColor;
+                bin.setAttribute('data-filled', 'true');
+                window.colorGameState.correctMatches++;
+                showFeedback('🌟 Cor correta!', true);
+
+                // Verifica se todas as cores foram corretamente classificadas
+                if (window.colorGameState.correctMatches === window.colorGameState.totalColors) {
+                    updateStars(1);
+                    showFeedback('🎉 Parabéns! Você completou todas as cores!', true);
+                    speak('Parabéns! Você completou o desafio das cores!');
+
+                    // Reinicia o jogo após 2 segundos
+                    setTimeout(() => {
+                        startGame('colors');
+                    }, 2000);
+                }
             } else {
-                showFeedback('😊 Tente outra vez', false);
+                showFeedback('😊 Tente outra cor', false);
+                bin.style.animation = 'shake 0.5s';
+                setTimeout(() => {
+                    bin.style.animation = '';
+                }, 500);
             }
         }
 
