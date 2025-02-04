@@ -538,62 +538,66 @@
             // Seleciona um emoji aleatório
             const allEmojis = Object.values(emojiDatabase).flat();
             const randomEmoji = shuffle(allEmojis)[0];
-            const targetWord = randomEmoji.nome.toUpperCase().replace(/[^A-Z]/g, ''); // Remove espaços e caracteres especiais
+            const originalName = randomEmoji.nome.toUpperCase();
 
-            // Cria a exibição do alvo com letras apagadas
+            // Processa as letras mantendo acentos
+            const targetLetters = Array.from(originalName).filter(c => c !== ' ' && c !== '-');
+
+            // Cria a exibição do alvo
             let targetDisplay = '';
-            for(let i = 0; i < targetWord.length; i++) {
-                targetDisplay += `<span class="letter-box" id="target-letter-${i}">${targetWord[i]}</span>`;
-            }
+            targetLetters.forEach((letter, index) => {
+                targetDisplay += `<span class="letter-box" id="target-letter-${index}">${letter}</span>`;
+            });
 
             content.innerHTML += `
-                <div class="word-target">
-                    ${randomEmoji.emoji} <div id="target-word">${targetDisplay}</div>
-                </div>
-                <div class="scrambled-letters" id="scrambled-letters"></div>
-            `;
+        <div class="word-target">
+            ${randomEmoji.emoji} <div id="target-word">${targetDisplay}</div>
+        </div>
+        <div class="scrambled-letters" id="scrambled-letters"></div>
+    `;
 
-            // Prepara as letras embaralhadas (somente as da palavra)
-            let letters = targetWord.split('');
-            letters = shuffle(letters);
+            // Prepara as letras embaralhadas (exatamente as da palavra)
+            let scrambledLetters = shuffle([...targetLetters]);
 
             // Exibe as letras embaralhadas
             const lettersContainer = document.getElementById('scrambled-letters');
-            letters.forEach((letter, index) => {
+            scrambledLetters.forEach((letter) => {
                 const div = document.createElement('div');
                 div.className = 'word-letter';
                 div.textContent = letter;
-                div.dataset.letter = letter;
                 div.onclick = function() {
-                    handleLetterClick(this, targetWord);
+                    handleLetterClick(this, targetLetters);
                 };
                 lettersContainer.appendChild(div);
             });
 
-            speak(`Monte a palavra: ${targetWord}`);
+            speak(`Monte a palavra: ${randomEmoji.nome}`); // Usa o nome original com acentos
         }
 
-        function handleLetterClick(letterElement, targetWord) {
-            // Encontra a próxima letra faltante
-            const targetLetters = document.querySelectorAll('#target-word .letter-box:not(.revealed)');
+        function handleLetterClick(letterElement, targetLetters) {
+            const revealedLetters = document.querySelectorAll('#target-word .revealed');
+            const nextIndex = revealedLetters.length;
 
-            // Verifica se a letra clicada corresponde à próxima letra faltante
-            if(targetLetters.length > 0 && letterElement.textContent === targetLetters[0].textContent) {
-                // Revela a letra no alvo
-                targetLetters[0].classList.add('revealed');
-                // Esconde a letra clicada
-                letterElement.style.visibility = 'hidden';
+            if(nextIndex < targetLetters.length) {
+                const correctLetter = targetLetters[nextIndex];
 
-                // Verifica se completou
-                if(document.querySelectorAll('#target-word .letter-box:not(.revealed)').length === 0) {
-                    showFeedback('🎉 Parabéns! Palavra correta!', true);
-                    updateStars(2);
-                    speak("Palavra correta! Muito bem!");
-                    setTimeout(() => startGame('word'), 2000);
+                if(letterElement.textContent === correctLetter) {
+                    // Revela a letra correta
+                    document.getElementById(`target-letter-${nextIndex}`).classList.add('revealed');
+                    // Esconde a letra clicada
+                    letterElement.style.visibility = 'hidden';
+
+                    // Verifica se completou
+                    if(nextIndex === targetLetters.length - 1) {
+                        showFeedback('🎉 Parabéns! Palavra correta!', true);
+                        updateStars(1);
+                        speak("Palavra correta! Muito bem!");
+                        setTimeout(() => startGame('word'), 2000);
+                    }
+                } else {
+                    showFeedback('😊 Tente novamente!', false);
+                    speak("Essa não é a letra correta");
                 }
-            } else {
-                showFeedback('😊 Tente novamente!', false);
-                speak("Essa não é a letra correta");
             }
         }
 
