@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Jogo Educativo Infantil</title>
+    <style>
+        body {
+            font-family: 'Comic Sans MS', cursive;
+            background-color: #FFF3E0;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+        }
+        .game-container {
+            max-width: 800px;
+            margin: 0 auto;
+            min-height: 100vh;
+            position: relative;
+        }
+        .game-mode {
+            background-color: #81D4FA;
+            border-radius: 20px;
+            padding: 20px;
+            margin: 15px;
+            cursor: pointer;
+            font-size: 28px;
+            color: #000;
+            transition: transform 0.2s;
+        }
+        .game-mode:hover {
+            transform: scale(1.05);
+        }
+        .number-option, .emoji-option {
+            background-color: #C8E6C9;
+            width: 120px;
+            height: 120px;
+            margin: 10px;
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            border-radius: 15px;
+            cursor: pointer;
+            border: 3px solid #000;
+        }
+        .emoji-name {
+            font-size: 14px;
+            margin-top: 5px;
+        }
+        .target-display {
+            font-size: 80px;
+            margin: 20px;
+            padding: 20px;
+            background-color: #FFF9C4;
+            border-radius: 15px;
+            display: inline-block;
+        }
+        .feedback {
+            font-size: 40px;
+            margin: 20px;
+            min-height: 60px;
+        }
+        .emoji-grid {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px;
+        }
+        button {
+            font-size: 24px;
+            padding: 15px 30px;
+            margin: 15px;
+            border-radius: 15px;
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            cursor: pointer;
+        }
+        .stars-container {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 40px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 10px 20px;
+            border-radius: 15px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        .player-name {
+            font-size: 24px;
+            color: #2E7D32;
+            font-weight: bold;
+        }
+        
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>🎮 Vamos Aprender! 🌈</h1>
+        
+        <div id="main-menu">
+            <div class="game-mode" onclick="startGame('numbers')">🔢 Encontrar Números</div>
+            <div class="game-mode" onclick="startGame('letters')">🔤 Letras e Emojis</div>
+            <div class="game-mode" onclick="startGame('counting')">🍎 Contar Emojis</div>
+        </div>
+
+        <div id="game-area" style="display: none;">
+            <div id="content"></div>
+            <div id="feedback" class="feedback"></div>
+            <button onclick="showMainMenu()">Voltar ao Menu</button>
+        </div>
+    </div>
+
+    <div class="stars-container" id="stars">⭐ 0</div>
+
+    <script>
+        let stars = localStorage.getItem('stars') ? Math.max(0, parseInt(localStorage.getItem('stars'))) : 0;
+        let previousStars = stars;
+        const numbers = Array.from({length: 20}, (_, i) => i + 1);
+        const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+        
+        // Banco de dados CORRIGIDO com primeira letra em português
+        const emojiDatabase = {
+    "A": [
+        {"emoji": "✈️", "nome": "Avião"},
+        {"emoji": "🌳", "nome": "Árvore"},
+        {"emoji": "🎨", "nome": "Arte"},
+        {"emoji": "🏹", "nome": "Arco e Flecha"},
+        {"emoji": "🐜", "nome": "Aranha"},
+        {"emoji": "⚓", "nome": "Âncora"},
+        {"emoji": "🎭", "nome": "Ator"},
+        {"emoji": "🚑", "nome": "Ambulância"},
+        {"emoji": "🌈", "nome": "Arco-íris"},
+        {"emoji": "🍚", "nome": "Arroz"}
+    ],
+    "B": [
+        {"emoji": "🎈", "nome": "Balão"},
+        {"emoji": "🚲", "nome": "Bicicleta"},
+        {"emoji": "🍌", "nome": "Banana"},
+        {"emoji": "🔋", "nome": "Bateria"},
+        {"emoji": "🏀", "nome": "Basquete"},
+        {"emoji": "🐝", "nome": "Abelha"},
+        {"emoji": "🍟", "nome": "Batata Frita"},
+        {"emoji": "⚖", "nome": "Balança"},
+        {"emoji": "🍆", "nome": "Berinjela"},
+        {"emoji": "⚽", "nome": "Bola"}
+    ],
+    "C": [
+        {"emoji": "🏡", "nome": "Casa"},
+        {"emoji": "🏰", "nome": "Castelo"},
+        {"emoji": "🏙️", "nome": "Cidade"},
+        {"emoji": "🐍", "nome": "Cobra"},
+        {"emoji": "🐶", "nome": "Cachorro"},
+        {"emoji": "☕", "nome": "Café"},
+        {"emoji": "🍵", "nome": "Chá"},
+        {"emoji": "🚗", "nome": "Carro"},
+        {"emoji": "🎠", "nome": "Carrossel"},
+        {"emoji": "🦌", "nome": "Cervo"},
+        {"emoji": "🥕", "nome": "Cenoura"},
+        {"emoji": "🔑", "nome": "Chave"},
+        {"emoji": "🦉", "nome": "Coruja"},
+        {"emoji": "🏃", "nome": "Corrida"}
+    ],
+    "D": [
+        {"emoji": "🎲", "nome": "Dado"},
+        {"emoji": "🐉", "nome": "Dragão"},
+        {"emoji": "💎", "nome": "Diamante"},
+        {"emoji": "🎯", "nome": "Dardo"},
+        {"emoji": "📅", "nome": "Data"},        
+    ],
+    "E": [
+        {"emoji": "⭐", "nome": "Estrela"},
+        {"emoji": "📧", "nome": "E-mail"},
+        {"emoji": "🐘", "nome": "Elefante"},
+        {"emoji": "🔌", "nome": "Energia"},
+        {"emoji": "🛤", "nome": "Estrada"},        
+    ],
+    "F": [
+        {"emoji": "🎗", "nome": "Fita"},
+        {"emoji": "🌸", "nome": "Flor"},
+        {"emoji": "🐜", "nome": "Formiga"},
+        {"emoji": "🔥", "nome": "Fogo"},
+        {"emoji": "🎺", "nome": "Flauta"},
+        {"emoji": "🏁", "nome": "Final"},
+        {"emoji": "🍂", "nome": "Folha"},
+        {"emoji": "🚀", "nome": "Foguete"},
+        {"emoji": "🌹", "nome": "Flor"}
+    ],
+    "G": [
+        {"emoji": "🐬", "nome": "Golfinho"},
+        {"emoji": "🐱", "nome": "Gato"},
+        {"emoji": "🦒", "nome": "Girafa"},
+        {"emoji": "☂️", "nome": "Guarda-chuva"},
+        {"emoji": "🎸", "nome": "Guitarra"},
+        {"emoji": "🥅", "nome": "Gol"},
+        {"emoji": "🏌️", "nome": "Golfe"}
+    ],
+    "H": [
+        {"emoji": "🏥", "nome": "Hospital"},
+        {"emoji": "🚁", "nome": "Helicóptero"},
+        {"emoji": "🐹", "nome": "Hamster"}
+    ],
+    "I": [
+        {"emoji": "🏝", "nome": "Ilha"},
+        {"emoji": "💡", "nome": "Ideia"},
+        {"emoji": "📱", "nome": "Internet"},
+        {"emoji": "🖼", "nome": "Imagem"}
+    ],
+    "J": [
+        {"emoji": "🎷", "nome": "Jazz"},
+        {"emoji": "🚙", "nome": "Jipe"}
+    ],
+    "K": [
+        {"emoji": "🥝", "nome": "Kiwi"},
+        {"emoji": "🤹", "nome": "Karatê"},
+        {"emoji": "🥋", "nome": "Kimono"}
+    ],
+    "L": [
+        {"emoji": "🍋", "nome": "Limão"},
+        {"emoji": "📚", "nome": "Livro"},
+        {"emoji": "💡", "nome": "Lâmpada"},
+        {"emoji": "🦁", "nome": "Leão"},
+        {"emoji": "🌙", "nome": "Lua"},
+        {"emoji": "🍊", "nome": "Laranja"},
+        {"emoji": "🏞️", "nome": "Lago"},
+        {"emoji": "🛳", "nome": "Lancha"}
+    ],
+    "M": [
+        {"emoji": "🎶", "nome": "Música"},
+        {"emoji": "🎤", "nome": "Microfone"},
+        {"emoji": "🍎", "nome": "Maçã"},
+        {"emoji": "🐵", "nome": "Macaco"},
+        {"emoji": "🍈", "nome": "Melão"},
+        {"emoji": "🌊", "nome": "Mar"},
+        {"emoji": "🏔", "nome": "Montanha"},
+        {"emoji": "🗺", "nome": "Mapa"},
+        {"emoji": "✉️", "nome": "Mensagem"},
+        {"emoji": "🚇", "nome": "Metrô"},
+        {"emoji": "🦇", "nome": "Morcego"},
+        {"emoji": "🔨", "nome": "Machado"}
+    ],
+    "N": [
+        {"emoji": "❄️", "nome": "Neve"},
+        {"emoji": "🚢", "nome": "Navio"}
+    ],
+    "O": [
+        {"emoji": "🥚", "nome": "Ovo"},
+        {"emoji": "🏢", "nome": "Oficina"},
+        {"emoji": "🎨", "nome": "Obra de Arte"},
+        {"emoji": "🚌", "nome": "Ônibus"}
+    ],
+    "P": [
+        {"emoji": "🐠", "nome": "Peixe"},
+        {"emoji": "🍕", "nome": "Pizza"},
+        {"emoji": "🐧", "nome": "Pinguim"},
+        {"emoji": "🎁", "nome": "Presente"},
+        {"emoji": "🚪", "nome": "Porta"},
+        {"emoji": "🐙", "nome": "Polvo"},
+        {"emoji": "📦", "nome": "Pacote"},
+        {"emoji": "🏆", "nome": "Prêmio"},
+        {"emoji": "🥞", "nome": "Panqueca"},
+        {"emoji": "🥖", "nome": "Pão"}
+    ],
+    "Q": [
+        {"emoji": "👑", "nome": "Queijo"},
+        {"emoji": "🃏", "nome": "Quebra-cabeça"},
+        {"emoji": "🖼", "nome": "Quadro"}
+    ],
+    "R": [
+        {"emoji": "🦊", "nome": "Raposa"},
+        {"emoji": "📻", "nome": "Rádio"},
+        {"emoji": "🦏", "nome": "Rinoceronte"},
+        {"emoji": "🤖", "nome": "Robo"},
+    ],
+    "S": [
+        {"emoji": "🚦", "nome": "Semáforo"},
+        {"emoji": "🌞", "nome": "Sol"},
+        {"emoji": "🥗", "nome": "Salada"},
+        {"emoji": "🔔", "nome": "Sino de Natal"}
+    ],
+    "T": [
+        {"emoji": "🎩", "nome": "Teatro"},
+        {"emoji": "🌮", "nome": "Taco"},
+        {"emoji": "🚆", "nome": "Trem"},
+        {"emoji": "🎹", "nome": "Teclado"},
+        {"emoji": "🎺", "nome": "Trompete"},
+        {"emoji": "📞", "nome": "Telefone"},
+        {"emoji": "🌍", "nome": "Terra"},
+        {"emoji": "🏆", "nome": "Troféu"},
+        {"emoji": "🥁", "nome": "Tambor"}
+    ],
+    "U": [
+        {"emoji": "🦄", "nome": "Unicórnio"},
+        {"emoji": "🍇", "nome": "Uva"}
+    ],
+    "V": [
+        {"emoji": "🎻", "nome": "Violino"},
+        {"emoji": "🌋", "nome": "Vulcão"},
+        {"emoji": "🍷", "nome": "Vinho"},
+        {"emoji": "🎮", "nome": "Videogame"},
+        {"emoji": "📹", "nome": "Vídeo"},
+        {"emoji": "🚐", "nome": "Van"},
+        {"emoji": "🔊", "nome": "Volume"}        
+    ],
+    "X": [
+        {"emoji": "❌", "nome": "Xis"}
+    ],
+    "Z": [
+        {"emoji": "🦓", "nome": "Zebra"}
+    ]
+};
+
+        let currentGame = null;
+        let speechSynth = window.speechSynthesis;
+
+        function startGame(mode) {
+            document.getElementById('main-menu').style.display = 'none';
+            document.getElementById('game-area').style.display = 'block';
+            document.getElementById('feedback').textContent = '';
+            currentGame = mode;
+
+            if(mode === 'numbers') initNumbersGame();
+            else if(mode === 'letters') initLettersGame();
+            else if(mode === 'counting') initCountingGame();
+        }
+
+        function showMainMenu() {
+            if(stars > previousStars) {
+                speak(`Você tem ${stars} estrelas! Muito bem!`);
+                previousStars = stars;
+            } else if(stars < previousStars && stars > 0) {
+                speak(`Agora você tem ${stars} estrelas. Vamos recuperar!`);
+                previousStars = stars;
+            }
+            
+            document.getElementById('main-menu').style.display = 'block';
+            document.getElementById('game-area').style.display = 'none';
+        }
+
+        function initNumbersGame() {
+            const content = document.getElementById('content');
+            const targetNumber = numbers[Math.floor(Math.random() * 20)];
+            
+            content.innerHTML = `
+                <h2>Encontre o número:</h2>
+                <div class="target-display">${targetNumber}</div>
+                <div>Clique no número igual ao mostrado acima</div>
+            `;
+
+            const options = shuffle([targetNumber, ...shuffle(numbers.filter(n => n !== targetNumber)).slice(0, 4)]);
+            options.forEach(num => {
+                const div = document.createElement('div');
+                div.className = 'number-option';
+                div.textContent = num;
+                div.onclick = () => checkNumber(num === targetNumber);
+                content.appendChild(div);
+            });
+            
+            speak(`Encontre o número ${targetNumber}`);
+        }
+
+        function initLettersGame() {
+            const content = document.getElementById('content');
+            const validLetters = Object.keys(emojiDatabase);
+            const targetLetter = validLetters[Math.floor(Math.random() * validLetters.length)];
+            const validEmojis = emojiDatabase[targetLetter];
+            
+            content.innerHTML = `
+                <h2>Encontre emojis que começam com:</h2>
+                <div class="target-display">${targetLetter}</div>
+                <div class="emoji-grid"></div>
+            `;
+
+            const grid = document.querySelector('.emoji-grid');
+            const allEmojis = Object.values(emojiDatabase).flat();
+            
+            const correctOptions = shuffle([...validEmojis]).slice(0, 3);
+            const incorrectOptions = shuffle(allEmojis.filter(e => !validEmojis.includes(e))).slice(0, 7);
+            const mixedOptions = shuffle([...correctOptions, ...incorrectOptions]);
+
+            mixedOptions.forEach(emojiObj => {
+                const div = document.createElement('div');
+                div.className = 'emoji-option';
+                div.innerHTML = `
+                    <div>${emojiObj.emoji}</div>
+                    <div class="emoji-name">${emojiObj.nome}</div>
+                `;
+                div.onclick = () => checkEmoji(validEmojis.includes(emojiObj), emojiObj.nome);
+                grid.appendChild(div);
+            });
+
+            speak(`Encontre coisas que começam com a letra ${targetLetter}`);
+        }
+
+        function initCountingGame() {
+            const content = document.getElementById('content');
+            const targetCount = Math.floor(Math.random() * 20) + 1;
+            const targetEmoji = shuffle(['🍎', '⭐', '🐻', '🎈', '🍪'])[0];
+            
+            content.innerHTML = `
+                <h2>Conte até:</h2>
+                <div class="target-display">${targetCount} ${targetEmoji}</div>
+                <div id="counter">0</div>
+                <div class="emoji-grid"></div>
+            `;
+
+            const grid = document.querySelector('.emoji-grid');
+            const options = shuffle([targetEmoji, ...shuffle(['🐶','🍉','🚗','🎮','🍕','🏀','🐠','🍩','🚂','🌻']).slice(0, 9)]);
+            
+            options.forEach(emoji => {
+                const div = document.createElement('div');
+                div.className = 'emoji-option';
+                div.textContent = emoji;
+                div.onclick = () => handleCountClick(emoji === targetEmoji, targetCount);
+                grid.appendChild(div);
+            });
+
+            speak(`Clique ${targetCount} vezes no ${getEmojiName(targetEmoji)}`);
+        }
+
+        function handleCountClick(isCorrect, target) {
+            if(!isCorrect) {
+                speak("Esse não é o emoji correto!");
+                updateStars(-1);
+                showFeedback('❌ Emoji errado!', false);
+                return;
+            }
+
+            const counter = document.getElementById('counter');
+            let count = parseInt(counter.textContent) + 1;
+            counter.textContent = count;
+            speak(count.toString());
+
+            if(count === target) {
+                updateStars(1);
+                showFeedback('🎉 Parabéns! Contagem correta!', true);
+                setTimeout(() => startGame('counting'), 2000);
+            }
+        }
+
+        function checkNumber(isCorrect) {
+            if(isCorrect) {
+                updateStars(1);
+                showFeedback('🎯 Correto! Você é demais!', true);
+                speak("Parabéns! Número correto!");
+                setTimeout(() => startGame('numbers'), 2000);
+            } else {
+                updateStars(-1);
+                showFeedback('🤔 Tente novamente!', false);
+                speak("Ops! Esse não é o número");
+            }
+        }
+
+        function checkEmoji(isCorrect, nome) {
+            if(isCorrect) {
+                updateStars(1);
+                showFeedback('🌈 Certo! Combinação perfeita!', true);
+                speak(`Isso mesmo! ${nome} começa com ${nome[0]}!`);
+                setTimeout(() => startGame('letters'), 2000);
+            } else {
+                updateStars(-1);
+                showFeedback(`💡 "${nome}" começa com ${nome[0].toUpperCase()}!`, false);
+                speak(`Ops! ${nome} começa com ${nome[0].toUpperCase()}!`);
+            }
+        }
+
+        function updateStars(change) {
+            const newStars = Math.max(0, stars + change);
+            if(newStars !== stars) {
+                stars = newStars;
+                localStorage.setItem('stars', stars.toString());
+                document.getElementById('stars').textContent = `⭐ ${stars}`;
+                
+                if(change > 0) {
+                    speak(`Parabéns! Agora você tem ${stars} estrelas!`);
+                } else if(change < 0 && stars > 0) {
+                    speak('Não desista! Continue tentando!');
+                }
+            }
+        }
+
+        function showFeedback(message, isCorrect) {
+            const feedback = document.getElementById('feedback');
+            feedback.textContent = message;
+            feedback.style.color = isCorrect ? '#2E7D32' : '#C62828';
+        }
+
+        function speak(text) {
+            if(speechSynth.speaking) speechSynth.cancel();
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'pt-BR';
+            utterance.rate = 0.9;
+            speechSynth.speak(utterance);
+        }
+
+        function shuffle(array) {
+            return array.sort(() => Math.random() - 0.5);
+        }
+
+        function getEmojiName(emoji) {
+            const names = {
+                '🍎': 'maçã', '⭐': 'estrela', '🐻': 'urso',
+                '🎈': 'balão', '🍪': 'biscoito', '🐶': 'cachorro',
+                '🍉': 'melancia', '🚗': 'carro', '🎮': 'videogame',
+                '🍕': 'pizza', '🏀': 'bola', '🐠': 'peixe',
+                '🍩': 'rosquinha', '🚂': 'trem', '🌻': 'girassol'
+            };
+            return names[emoji] || 'objeto';
+        }
+
+        document.getElementById('stars').textContent = `⭐ ${stars}`;
+    </script>
+</body>
+</html>
