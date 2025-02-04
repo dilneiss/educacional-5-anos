@@ -168,20 +168,6 @@
             border-radius: 15px;
         }
 
-        /* Quebra-Cabeça Numérico */
-        .puzzle-piece {
-            width: 80px;
-            height: 80px;
-            margin: 5px;
-            background: #FFB74D;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 30px;
-            cursor: pointer;
-            border-radius: 10px;
-        }
-
         /* Classificação por Cores */
         .color-bin {
             width: 120px;
@@ -201,7 +187,7 @@
             font-weight: bold;
             text-shadow: 1px 1px 2px rgba(255,255,255,0.8);
         }
-        
+
         .color-item {
             width: 60px;
             height: 60px;
@@ -243,6 +229,113 @@
             transition: all 0.3s;
             background: #F5F5F5;
         }
+
+        /**
+        Quebra-cabeça
+         */
+        .numbers-container,
+        .quantities-container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin: 20px auto;
+            max-width: 800px;
+        }
+
+        .puzzle-piece {
+            width: 130px;
+            height: 130px;
+            font-size: 30px;
+            margin: 5px;
+            background: #FFB74D;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 3px solid transparent;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .number-piece {
+            font-size: 36px;
+            font-weight: bold;
+            background: #81D4FA;
+        }
+
+        .emoji-piece {
+            background: transparent !important;
+            padding: 5px;
+        }
+
+        .emoji-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(30px, 1fr));
+            gap: 0;
+            width: 100%;
+            height: 100%;
+            padding: 0;
+            justify-content: center;
+            align-content: center;
+        }
+
+        .emoji-cell {
+            font-size: calc(-15px + 1.5vw); /* Tamanho dinâmico */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2px !important;
+            margin: 0;
+        }
+
+        .emoji-piece .emoji-grid {
+            grid-auto-flow: dense;
+            justify-items: center;
+        }
+
+        @media (max-width: 600px) {
+            .puzzle-piece {
+                width: 100px;
+                height: 100px;
+            }
+
+            .emoji-cell {
+                font-size: 20px;
+            }
+        }
+
+        .puzzle-piece:hover {
+            transform: scale(1.05);
+        }
+
+        .puzzle-piece.selected {
+            border-color: #4CAF50;
+            box-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
+        }
+
+        .puzzle-piece.matched {
+            background: #C8E6C9;
+            cursor: default;
+            border-color: #4CAF50;
+        }
+
+        .puzzle-piece.matched .emoji-cell {
+            background: rgba(76, 175, 80, 0.1);
+        }
+
+        .puzzle-piece.wrong {
+            animation: shake 0.5s;
+            background: #FFCDD2;
+        }
+
+        .puzzle-piece.wrong .emoji-cell {
+            background: rgba(244, 67, 54, 0.1);
+        }
+
 
         @keyframes shake {
             0% { transform: translateX(0); }
@@ -736,20 +829,99 @@
 
         // Jogo 2: Quebra-Cabeça Numérico
         function initPuzzleGame() {
+            window.puzzleGameState = {
+                selectedNumber: null,
+                correctMatches: 0,
+                totalPairs: 5
+            };
+
             const content = document.getElementById('content');
-            content.innerHTML = '<h2>Complete o quebra-cabeça:</h2>';
+            content.innerHTML = '<h2>Combine os números com a quantidade correta:</h2>';
 
-            const numbers = shuffle([1, 2, 3, 4, 5]);
-            const quantities = shuffle(['🍎🍎🍎', '⭐️⭐️', '🎈🎈🎈🎈', '🐱🐱', '🚗']);
+            // Gera números aleatórios de 1 a 10
+            const numbers = shuffle([...Array(10)].map((_, i) => i + 1)).slice(0, 5);
 
-            content.innerHTML += numbers.map(num => `
-                <div class="puzzle-piece" onclick="matchNumber(${num})">${num}</div>
-            `).join('');
+            // Define os emojis disponíveis
+            const emojis = ['🍎', '⭐', '🎈', '🐱', '🚗', '🎮', '🍕', '🐶', '🌺', '🎨'];
 
-            content.innerHTML += '<div style="margin:20px">' +
-                quantities.map(q => `
-                    <div class="puzzle-piece">${q}</div>
-                `).join('') + '</div>';
+            // Container para os números
+            content.innerHTML += `
+        <div class="numbers-container">
+            ${numbers.map(num => `
+                <div class="puzzle-piece number-piece"
+                     onclick="selectNumber(this, ${num})"
+                     data-number="${num}">
+                    ${num}
+                </div>
+            `).join('')}
+        </div>`;
+
+            // Container para os grupos de emojis
+            content.innerHTML += `
+        <div class="quantities-container">
+            ${shuffle(numbers).map(num => `
+                <div class="puzzle-piece emoji-piece"
+                     onclick="matchQuantity(this, ${num})"
+                     data-number="${num}">
+                    <div class="emoji-grid">
+                        ${Array(num).fill(emojis[num - 1]).map(emoji => `
+                            <div class="emoji-cell">${emoji}</div>
+                        `).join('')}
+                    </div>
+                </div>
+            `).join('')}
+        </div>`;
+
+            speak(`Conte o número de figuras e combine os números com a quantidade correta de emojis`);
+
+        }
+
+        function selectNumber(element, number) {
+            // Limpa seleção anterior
+            document.querySelectorAll('.number-piece').forEach(piece => {
+                piece.classList.remove('selected');
+            });
+
+            // Seleciona o novo número
+            element.classList.add('selected');
+            window.puzzleGameState.selectedNumber = number;
+        }
+
+        function matchQuantity(element, quantity) {
+            if (window.puzzleGameState.selectedNumber === null) {
+                showFeedback('Selecione um número primeiro!', false);
+                return;
+            }
+
+            if (quantity === window.puzzleGameState.selectedNumber) {
+                // Par correto encontrado
+                element.classList.add('matched');
+                document.querySelector(`.number-piece[data-number="${quantity}"]`).classList.add('matched');
+                window.puzzleGameState.correctMatches++;
+                showFeedback('🎯 Combinação correta!', true);
+
+                // Verifica se completou todos os pares
+                if (window.puzzleGameState.correctMatches === window.puzzleGameState.totalPairs) {
+                    updateStars(1);
+                    showFeedback('🎉 Parabéns! Você completou o quebra-cabeça!', true);
+                    speak('Parabéns! Você completou o desafio!');
+                    setTimeout(() => startGame('puzzle'), 2000);
+                }
+            } else {
+                showFeedback('❌ Tente novamente!', false);
+                element.classList.add('wrong');
+                setTimeout(() => {
+                    element.classList.remove('wrong');
+                }, 500);
+            }
+
+            // Limpa a seleção após cada tentativa
+            window.puzzleGameState.selectedNumber = null;
+            document.querySelectorAll('.number-piece').forEach(piece => {
+                if (!piece.classList.contains('matched')) {
+                    piece.classList.remove('selected');
+                }
+            });
         }
 
         // Jogo 3: Classificação por Cores
@@ -806,6 +978,9 @@
                 totalColors: roundColors.length,
                 correctMatches: 0
             };
+
+            speak(`Combine as cores acima nas caixas correspondentes`);
+
         }
 
         // Jogo 4: Estação Meteorológica
@@ -848,6 +1023,9 @@
                 totalCorrect: currentWeather.correctItems.length,
                 currentIcon: currentWeather.icon
             };
+
+            speak(`Selecione as figuras que você usaria para o clima `+currentWeather.title);
+
         }
 
         function handleWeatherItem(element, item, correctIcon) {
