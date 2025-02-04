@@ -97,6 +97,55 @@
             color: #2E7D32;
             font-weight: bold;
         }
+        .word-letter {
+            background-color: #FFD700;
+            width: 60px;
+            height: 60px;
+            margin: 5px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            border-radius: 10px;
+            cursor: pointer;
+            border: 2px solid #000;
+        }
+
+        .word-target {
+            font-size: 40px;
+            margin: 20px;
+            color: #888;
+            opacity: 0.7;
+        }
+
+        .word-container {
+            min-height: 100px;
+            margin: 20px;
+        }
+
+        .correct-word {
+            color: #2E7D32 !important;
+            opacity: 1 !important;
+        }
+
+        .letter-box {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            margin: 5px;
+            font-size: 24px;
+            color: #666;
+            border-bottom: 3px solid #999;
+        }
+
+        .revealed {
+            color: #2E7D32 !important;
+            border-bottom: 3px solid #2E7D32;
+        }
+
+        .scrambled-letters {
+            margin: 20px;
+        }
     </style>
 </head>
 <body>
@@ -107,6 +156,7 @@
             <div class="game-mode" onclick="startGame('numbers')">🔢 Encontrar Números</div>
             <div class="game-mode" onclick="startGame('letters')">🔤 Letras e Emojis</div>
             <div class="game-mode" onclick="startGame('counting')">🍎 Contar Emojis</div>
+            <div class="game-mode" onclick="startGame('word')">🔤 Montar Palavras</div>
         </div>
 
         <div id="game-area" style="display: none;">
@@ -274,7 +324,6 @@
         {"emoji": "🚪", "nome": "Porta"},
         {"emoji": "🐙", "nome": "Polvo"},
         {"emoji": "📦", "nome": "Pacote"},
-        {"emoji": "🏆", "nome": "Prêmio"},
         {"emoji": "🥞", "nome": "Panqueca"},
         {"emoji": "🥖", "nome": "Pão"}
     ],
@@ -339,6 +388,7 @@
             if(mode === 'numbers') initNumbersGame();
             else if(mode === 'letters') initLettersGame();
             else if(mode === 'counting') initCountingGame();
+            else if(mode === 'word') initWordGame();
         }
 
         function showMainMenu() {
@@ -478,6 +528,72 @@
                 updateStars(-1);
                 showFeedback(`💡 "${nome}" começa com ${nome[0].toUpperCase()}!`, false);
                 speak(`Ops! ${nome} começa com ${nome[0].toUpperCase()}!`);
+            }
+        }
+
+        function initWordGame() {
+            const content = document.getElementById('content');
+            content.innerHTML = '<h2>Monte a palavra do emoji:</h2>';
+
+            // Seleciona um emoji aleatório
+            const allEmojis = Object.values(emojiDatabase).flat();
+            const randomEmoji = shuffle(allEmojis)[0];
+            const targetWord = randomEmoji.nome.toUpperCase().replace(/[^A-Z]/g, ''); // Remove espaços e caracteres especiais
+
+            // Cria a exibição do alvo com letras apagadas
+            let targetDisplay = '';
+            for(let i = 0; i < targetWord.length; i++) {
+                targetDisplay += `<span class="letter-box" id="target-letter-${i}">${targetWord[i]}</span>`;
+            }
+
+            content.innerHTML += `
+                <div class="word-target">
+                    ${randomEmoji.emoji} <div id="target-word">${targetDisplay}</div>
+                </div>
+                <div class="scrambled-letters" id="scrambled-letters"></div>
+            `;
+
+            // Prepara as letras embaralhadas (somente as da palavra)
+            let letters = targetWord.split('');
+            letters = shuffle(letters);
+
+            // Exibe as letras embaralhadas
+            const lettersContainer = document.getElementById('scrambled-letters');
+            letters.forEach((letter, index) => {
+                const div = document.createElement('div');
+                div.className = 'word-letter';
+                div.textContent = letter;
+                div.dataset.letter = letter;
+                div.onclick = function() {
+                    handleLetterClick(this, targetWord);
+                };
+                lettersContainer.appendChild(div);
+            });
+
+            speak(`Monte a palavra: ${targetWord}`);
+        }
+
+        function handleLetterClick(letterElement, targetWord) {
+            // Encontra a próxima letra faltante
+            const targetLetters = document.querySelectorAll('#target-word .letter-box:not(.revealed)');
+
+            // Verifica se a letra clicada corresponde à próxima letra faltante
+            if(targetLetters.length > 0 && letterElement.textContent === targetLetters[0].textContent) {
+                // Revela a letra no alvo
+                targetLetters[0].classList.add('revealed');
+                // Esconde a letra clicada
+                letterElement.style.visibility = 'hidden';
+
+                // Verifica se completou
+                if(document.querySelectorAll('#target-word .letter-box:not(.revealed)').length === 0) {
+                    showFeedback('🎉 Parabéns! Palavra correta!', true);
+                    updateStars(2);
+                    speak("Palavra correta! Muito bem!");
+                    setTimeout(() => startGame('word'), 2000);
+                }
+            } else {
+                showFeedback('😊 Tente novamente!', false);
+                speak("Essa não é a letra correta");
             }
         }
 
