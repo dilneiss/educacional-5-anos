@@ -65,8 +65,21 @@
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
-            gap: 10px;
+            gap: 15px;
             margin: 20px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .puzzle-emoji-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(30px, 1fr));
+            gap: 0;
+            width: 100%;
+            height: 100%;
+            padding: 0;
+            justify-content: center;
+            align-content: center;
         }
         button {
             font-size: 24px;
@@ -287,17 +300,6 @@
             padding: 5px;
         }
 
-        .emoji-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(30px, 1fr));
-            gap: 0;
-            width: 100%;
-            height: 100%;
-            padding: 0;
-            justify-content: center;
-            align-content: center;
-        }
-
         .emoji-cell {
             font-size: calc(-15px + 1.5vw); /* Tamanho dinâmico */
             display: flex;
@@ -349,6 +351,18 @@
 
         .puzzle-piece.wrong .emoji-cell {
             background: rgba(244, 67, 54, 0.1);
+        }
+
+        counting-game .emoji-option {
+            width: 100px;
+            height: 100px;
+            margin: 5px;
+            font-size: 40px;
+        }
+
+        .counting-game .emoji-grid {
+            gap: 10px;
+            padding: 15px;
         }
 
 
@@ -683,12 +697,14 @@
             const content = document.getElementById('content');
             const targetCount = Math.floor(Math.random() * 20) + 1;
             const targetEmoji = shuffle(['🍎', '⭐', '🐻', '🎈', '🍪'])[0];
-            
+
             content.innerHTML = `
-                <h2>Conte até:</h2>
-                <div class="target-display">${targetCount} ${targetEmoji}</div>
-                <div id="counter">0</div>
-                <div class="emoji-grid"></div>
+                <div class="counting-game">
+                    <h2>Conte até:</h2>
+                    <div class="target-display">${targetCount} ${targetEmoji}</div>
+                    <div id="counter">0</div>
+                    <div class="emoji-grid"></div>
+                </div>
             `;
 
             const grid = document.querySelector('.emoji-grid');
@@ -852,6 +868,9 @@
                 correctMatches: 0,
                 totalItems: items.length
             };
+
+            speak("Arraste os itens para suas figuras identicas");
+
         }
 
         let draggedItem = null;
@@ -929,7 +948,7 @@
                 <div class="puzzle-piece emoji-piece"
                      onclick="matchQuantity(this, ${num})"
                      data-number="${num}">
-                    <div class="emoji-grid">
+                    <div class="puzzle-emoji-grid">
                         ${Array(num).fill(emojis[num - 1]).map(emoji => `
                             <div class="emoji-cell">${emoji}</div>
                         `).join('')}
