@@ -97,7 +97,6 @@
             color: #2E7D32;
             font-weight: bold;
         }
-        
     </style>
 </head>
 <body>
@@ -117,15 +116,28 @@
         </div>
     </div>
 
-    <div class="stars-container" id="stars">⭐ 0</div>
+    <div class="stars-container" id="stars">
+        <span class="player-name" id="player-name"></span>
+        <div>⭐ <span id="stars-count">0</span></div>
+    </div>
 
     <script>
+        // Sistema de nome do jogador
+        let playerName = localStorage.getItem('playerName') || '';
+        if(!playerName) {
+            playerName = prompt('Qual é o seu nome?', 'Amiguinho').trim();
+            localStorage.setItem('playerName', playerName);
+        }
+        document.getElementById('player-name').textContent = playerName;
+
+        // Sistema de estrelas
         let stars = localStorage.getItem('stars') ? Math.max(0, parseInt(localStorage.getItem('stars'))) : 0;
         let previousStars = stars;
+        document.getElementById('stars-count').textContent = stars;
+
         const numbers = Array.from({length: 20}, (_, i) => i + 1);
         const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
         
-        // Banco de dados CORRIGIDO com primeira letra em português
         const emojiDatabase = {
     "A": [
         {"emoji": "✈️", "nome": "Avião"},
@@ -332,10 +344,10 @@
 
         function showMainMenu() {
             if(stars > previousStars) {
-                speak(`Você tem ${stars} estrelas! Muito bem!`);
+                speak(`${playerName}, você tem ${stars} estrelas! Muito bem!`); // Nome apenas aqui
                 previousStars = stars;
             } else if(stars < previousStars && stars > 0) {
-                speak(`Agora você tem ${stars} estrelas. Vamos recuperar!`);
+                speak(`${playerName}, agora você tem ${stars} estrelas. Vamos recuperar!`); // Nome apenas aqui
                 previousStars = stars;
             }
             
@@ -475,7 +487,7 @@
             if(newStars !== stars) {
                 stars = newStars;
                 localStorage.setItem('stars', stars.toString());
-                document.getElementById('stars').textContent = `⭐ ${stars}`;
+                document.getElementById('stars-count').textContent = stars;
                 
                 if(change > 0) {
                     speak(`Parabéns! Agora você tem ${stars} estrelas!`);
@@ -513,8 +525,6 @@
             };
             return names[emoji] || 'objeto';
         }
-
-        document.getElementById('stars').textContent = `⭐ ${stars}`;
     </script>
 </body>
 </html>
