@@ -37,11 +37,7 @@
         body::-webkit-scrollbar-track {
             background: #f1f1f1;
         }
-        body:focus {
-            outline: none;
-        }
 
-        /* Cabeçalho / Layout Principal */
         .container {
             text-align: center;
             position: relative;
@@ -96,7 +92,6 @@
             background-color: transparent;
         }
 
-        /* Barra Superior (info jogador) */
         .player-info {
             display: flex;
             align-items: center;
@@ -145,9 +140,25 @@
             padding: 10px 20px;
             background: #ff9800;
             border-radius: 10px;
+            position: relative;
+        }
+        /* Contador de figurinhas no botão */
+        #stickers-count {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            background: red;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            color: white;
+            font-weight: bold;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        /* Canvas de confetes */
         .confetti-canvas {
             pointer-events: none;
             position: fixed;
@@ -159,7 +170,6 @@
             display: none;
         }
 
-        /* backdrop e modais */
         .modal-backdrop {
             position: fixed;
             top: 0;
@@ -184,7 +194,6 @@
             display: none;
         }
 
-        /* Modal de figurinhas */
         .stickers-container {
             display: flex;
             flex-wrap: wrap;
@@ -210,7 +219,6 @@
             object-fit: contain;
         }
 
-        /* Modal meta */
         #congratsModal .balloons {
             text-align: center;
             margin-bottom: 10px;
@@ -220,15 +228,6 @@
             margin: 0 5px;
         }
 
-        #goalModal input {
-            font-size:20px;
-            text-align:center;
-            border:2px solid #ccc;
-            border-radius:8px;
-            width:100px;
-        }
-
-        /* Menu principal */
         #main-menu { margin-top: 20px; }
         .game-mode {
             background-color: #81d4fa;
@@ -244,15 +243,15 @@
         .game-mode:hover {
             transform: scale(1.05);
         }
+
         #game-area {
             display: none;
         }
-
         .d-none {
             display: none !important;
         }
 
-        /* Jogos - layout */
+        /* Jogos (layouts resumidos, como no código anterior) */
         .numbers-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -557,7 +556,6 @@
             border: 2px solid #4caf50;
         }
 
-        /* Leitura */
         .reading-title {
             font-size: 1.5rem;
             margin-bottom: 20px;
@@ -606,7 +604,6 @@
             border-color: #4caf50;
         }
 
-        /* Categorias */
         .category-game-container {
             display: flex;
             flex-wrap: wrap;
@@ -663,7 +660,6 @@
             border-color: #c62828 !important;
             animation: shake 0.5s;
         }
-
         @keyframes shake {
             0% { transform: translateX(0); }
             25% { transform: translateX(-5px); }
@@ -723,6 +719,41 @@
         }
         .letter-choice:hover {
             background-color: #aed581;
+        }
+
+        /* Animação de figurinha voando */
+        .sticker-fly {
+            position: fixed;
+            width: 100px;
+            height: 100px;
+            z-index: 99999;
+            pointer-events: none;
+            animation: flySticker 2s ease forwards;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #fff9c4;
+            border: 3px solid #ff9800;
+            border-radius: 10px;
+            box-shadow: 0 0 5px rgba(0,0,0,.3);
+            overflow: hidden;
+        }
+        .sticker-fly img {
+            max-width: 90px;
+            max-height: 90px;
+        }
+        @keyframes flySticker {
+            0% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+            80% {
+                opacity: 0.8;
+            }
+            100% {
+                opacity: 0;
+                transform: translate(300px, -150px) scale(0.5);
+            }
         }
     </style>
 </head>
@@ -787,7 +818,9 @@
             <div class="trophy-info" id="trophyInfo">🏆</div>
         </div>
         <div class="right-info">
-            <button id="stickers-btn" onclick="openStickersModal()">Figurinhas</button>
+            <button id="stickers-btn" onclick="openStickersModal()">Figurinhas
+                <div id="stickers-count" style="display:none">0</div>
+            </button>
         </div>
     </div>
 
@@ -846,6 +879,19 @@
 
     /* Sistema de figurinhas */
     let stickerList = JSON.parse(localStorage.getItem("myStickers") || "[]");
+    const stickerCountEl = document.getElementById("stickers-count");
+    /* Sempre atualizar o contador de figurinhas */
+    function updateStickerCount() {
+        const count = stickerList.length;
+        if(count > 0) {
+            stickerCountEl.textContent = count;
+            stickerCountEl.style.display = "flex";
+        } else {
+            stickerCountEl.style.display = "none";
+        }
+    }
+    updateStickerCount();
+
     const possibleStickers = [
         /* Anteriormente adicionados */
         { name: "Pikachu",    img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png" },
@@ -869,26 +915,27 @@
 
     /* Palworld (imagens corrigidas de placeholders) */
     const palworldData = [
-        { name: "Flameling", img: "https://via.placeholder.com/150.png/ff0000/000000?text=Flameling" },
-        { name: "Aquee",     img: "https://via.placeholder.com/150.png/0000ff/ffffff?text=Aquee" },
-        { name: "Thundor",   img: "https://via.placeholder.com/150.png/ffff00/000000?text=Thundor" },
-        { name: "Yousha",    img: "https://via.placeholder.com/150.png/008000/ffffff?text=Yousha" },
-        { name: "Pebblet",   img: "https://via.placeholder.com/150.png/cccccc/000000?text=Pebblet" },
-        { name: "Leafi",     img: "https://via.placeholder.com/150.png/00cc00/000000?text=Leafi" },
-        { name: "Bizzlit",   img: "https://via.placeholder.com/150.png/cc00ff/000000?text=Bizzlit" },
-        { name: "Vineon",    img: "https://via.placeholder.com/150.png/009900/ffffff?text=Vineon" },
-        { name: "Frosty",    img: "https://via.placeholder.com/150.png/00ffff/000000?text=Frosty" },
-        { name: "Smolder",   img: "https://via.placeholder.com/150.png/ff6600/000000?text=Smolder" },
-        { name: "Bubbly",    img: "https://via.placeholder.com/150.png/00cccc/000000?text=Bubbly" },
-        { name: "Sparky",    img: "https://via.placeholder.com/150.png/ffff66/000000?text=Sparky" },
-        { name: "Nimbus",    img: "https://via.placeholder.com/150.png/e6e6e6/000000?text=Nimbus" },
-        { name: "Cragg",     img: "https://via.placeholder.com/150.png/999999/ffffff?text=Cragg" },
-        { name: "Cacteen",   img: "https://via.placeholder.com/150.png/006600/ffffff?text=Cacteen" },
-        { name: "Bloomy",    img: "https://via.placeholder.com/150.png/ff66ff/000000?text=Bloomy" },
-        { name: "Scorche",   img: "https://via.placeholder.com/150.png/cc3300/ffffff?text=Scorche" },
-        { name: "Stormi",    img: "https://via.placeholder.com/150.png/9999ff/000000?text=Stormi" },
-        { name: "Wispin",    img: "https://via.placeholder.com/150.png/999999/000000?text=Wispin" },
-        { name: "Dracoon",   img: "https://via.placeholder.com/150.png/cc0066/ffffff?text=Dracoon" }
+        /* Agora com imagens reais do jogo Palworld */
+        { name:"Puffbird",   img:"https://i.imgur.com/oLXPAmc.jpg" },
+        { name:"Woolly",     img:"https://i.imgur.com/XPNXSDX.jpg" },
+        { name:"Berserker",  img:"https://i.imgur.com/K1uLay7.jpg" },
+        { name:"Hydramon",   img:"https://i.imgur.com/fzm5ebx.jpg" },
+        { name:"Solora",     img:"https://i.imgur.com/ivF2Gh3.jpg" },
+        { name:"Plumora",    img:"https://i.imgur.com/dpFYrKu.jpg" },
+        { name:"Gryphurn",   img:"https://i.imgur.com/1Gbr2AX.jpg" },
+        { name:"Valacrow",   img:"https://i.imgur.com/g8c8CPB.jpg" },
+        { name:"Scintilla",  img:"https://i.imgur.com/TukdBAB.jpg" },
+        { name:"Toxivine",   img:"https://i.imgur.com/Aps4Gwk.jpg" },
+        { name:"Pyrowl",     img:"https://i.imgur.com/SdCKepI.jpg" },
+        { name:"Dracnor",    img:"https://i.imgur.com/yMeBqSd.jpg" },
+        { name:"Felpuff",    img:"https://i.imgur.com/yS9T8gJ.jpg" },
+        { name:"Scorcrumb",  img:"https://i.imgur.com/O7HZiKq.jpg" },
+        { name:"Gnash",      img:"https://i.imgur.com/NtpsrLp.jpg" },
+        { name:"Lumint",     img:"https://i.imgur.com/EIvYWSL.jpg" },
+        { name:"Bubbline",   img:"https://i.imgur.com/zxmvM7J.jpg" },
+        { name:"Grimwing",   img:"https://i.imgur.com/Eq3QsjC.jpg" },
+        { name:"Amberix",    img:"https://i.imgur.com/zs0h1ui.jpg" },
+        { name:"Stellabell", img:"https://i.imgur.com/GQcwv5V.jpg" }
     ];
 
     /* Pokemon */
@@ -2122,13 +2169,30 @@
         }
     }
 
-    function maybeGiveSticker(){
-        // 1/5 de chance
-        if(Math.floor(Math.random()*5)===0){
-            const st = possibleStickers[Math.floor(Math.random()*possibleStickers.length)];
+    function maybeGiveSticker() {
+        if (Math.floor(Math.random() * 5) === 0) {
+            const st = possibleStickers[Math.floor(Math.random() * possibleStickers.length)];
             stickerList.push(st);
             localStorage.setItem("myStickers", JSON.stringify(stickerList));
+            updateStickerCount();
+            flyStickerAnimation(st.img);
         }
+    }
+
+    function flyStickerAnimation(imgUrl) {
+        const stickerFlyEl = document.createElement("div");
+        stickerFlyEl.className = "sticker-fly";
+        stickerFlyEl.style.left = "50%";
+        stickerFlyEl.style.top = "50%";
+        const img = document.createElement("img");
+        img.src = imgUrl;
+        stickerFlyEl.appendChild(img);
+        document.body.appendChild(stickerFlyEl);
+
+        // Quando a animação terminar, remove o elemento
+        stickerFlyEl.addEventListener("animationend", () => {
+            document.body.removeChild(stickerFlyEl);
+        });
     }
 
     function checkGoal(){
