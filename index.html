@@ -24,9 +24,8 @@
             -moz-user-select: none;
             -ms-user-select: none;
             user-select: none;
-        }
-        body, html {
             height: 100%;
+            width: 100%;
         }
         body::-webkit-scrollbar {
             width: 8px;
@@ -42,7 +41,8 @@
         .game-container {
             display: flex;
             flex-direction: column;
-            height: 100%;
+            height: 100vh;
+            overflow: hidden;
         }
 
         /* Top bar (contém info do jogador + botão de voltar + etc.) */
@@ -57,22 +57,22 @@
             z-index: 10;
         }
 
-        /* Botão de voltar discreto, parte da top bar */
+        /* Botão de voltar discreto */
         #backToMenuBtn {
             font-size: 18px;
             background: transparent;
             border: none;
             color: #666;
             cursor: pointer;
+            padding: 4px;
         }
 
-        /* Informações do jogador (nome, estrelas, troféu, etc.) */
+        /* Informações do jogador */
         .player-info {
             display: flex;
             align-items: center;
             gap: 10px;
             flex-wrap: wrap;
-            /* Para evitar quebra quando o nome ou as estrelas forem grandes, permitir wrap */
             max-width: 80%;
         }
         .player-name {
@@ -84,13 +84,14 @@
         }
         .stars-info {
             display: flex;
+            flex-direction: column; /* Para quebrar linha e colocar o número de estrelas abaixo */
             align-items: center;
-            gap: 3px;
-            font-size: 18px;
-            white-space: nowrap;
+            font-size: 16px;
+            line-height: 1.1;
         }
-        .stars-info span:last-child {
+        .stars-info span:first-child {
             font-size: 18px;
+            margin-bottom: 2px;
         }
         .trophy-info {
             font-size: 20px;
@@ -98,7 +99,7 @@
             display: none;
         }
 
-        /* Botão de figurinhas na top bar */
+        /* Botão de figurinhas */
         #stickers-btn {
             font-size: 14px;
             padding: 6px 12px;
@@ -126,7 +127,7 @@
             justify-content: center;
         }
 
-        /* Área de conteudo (abaixo do top bar) - ocupando o restante da tela */
+        /* Área principal */
         #mainContent {
             flex: 1;
             display: flex;
@@ -134,17 +135,16 @@
             overflow: hidden;
         }
 
-        /* Título grande só na tela inicial */
+        /* Tela inicial */
+        .container {
+            text-align: center;
+            padding: 10px;
+        }
         .main-title {
             font-size: 2rem;
             font-weight: bold;
             color: #ff5722;
             margin: 20px 0 10px;
-        }
-
-        /* Centralizando o conteúdo da tela inicial */
-        .container {
-            text-align: center;
         }
         #start-menu {
             margin-top: 10px;
@@ -152,9 +152,9 @@
         .start-menu-btn {
             width: 200px;
             font-size: 18px;
-            display: inline-block;
             margin: 10px auto;
             padding: 10px 0;
+            display: block;
         }
         .start-menu-input {
             font-size: 18px;
@@ -167,7 +167,7 @@
             margin-bottom: 15px;
         }
 
-        /* Feedback de acertos/erros */
+        /* Área de feedback */
         .feedback {
             font-size: 1rem;
             margin: 0.5rem 0;
@@ -186,44 +186,54 @@
         .btn-info    { background-color: #00bcd4; color: #fff; }
         .btn-success { background-color: #4caf50; color: #fff; }
 
-        /* Esconder */
-        .d-none {
-            display: none !important;
-        }
+        .d-none { display: none !important; }
 
-        /* Menu principal de jogos */
+        /* MENU PRINCIPAL DE JOGOS */
         #main-menu {
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
             gap: 10px;
             margin-top: 10px;
+            overflow-y: auto;
+            /* permitir rolagem se muitos jogos */
+            max-height: calc(100vh - 150px);
+            padding: 10px;
         }
         .game-mode {
             background-color: #81d4fa;
             border-radius: 10px;
-            padding: 10px;
+            padding: 8px;
             cursor: pointer;
             border: 3px solid #000;
-            width: 150px;
-            text-align: center;
-            font-size: 1rem;
+            width: 120px; /* Largura fixa */
+            height: 70px; /* Altura fixa para padronizar */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
             transition: transform 0.2s;
-            margin: 10px;
-            word-wrap: break-word;
+            overflow: hidden; /* para não quebrar linha */
+            text-overflow: ellipsis;
+            white-space: nowrap; /* não quebrar o nome do jogo */
         }
         .game-mode:hover {
             transform: scale(1.05);
         }
+        .game-mode div {
+            /* Exibimos o nome numa linha e as estrelas na outra */
+            display: block;
+            text-align: center;
+            width: 100%;
+        }
 
-        /* Área do jogo (conteúdo) - manter tudo o que já existia, mas reduzir tamanhos para caber na tela sem scroll */
+        /* Área do jogo */
         #game-area {
             flex: 1;
-            overflow: hidden; /* Impede rolagem */
+            overflow: hidden;
             display: none;
             padding: 5px;
         }
-        /* Container interno do jogo -> definimos um layout de "display: flex; flex-direction: column; height: 100%;" se necessário */
         #content {
             font-size: 1rem;
             flex: 1;
@@ -237,62 +247,78 @@
             margin-bottom: 5px;
             text-align: center;
         }
-
-        /* Botão VOLTAR AO MENU agora fica na top bar, então não precisa de estilo grande no meio do jogo */
-        .hidden-when-playing {
-            /* para ocultar certos elementos quando estiver jogando */
-        }
+        .hidden-when-playing { }
 
         /**********************************************
-         * REDUZINDO DIMENSÕES PARA CABER NA TELA
+         * JOGO ENCONTRE O NÚMERO
          **********************************************/
-
-        /* 1) Para grids com opções (letras, emojis etc.) */
-        .emoji-grid,
+        /* Aumentamos para 20 opções, organizando em 4 col x 5 row para caber na tela */
         .numbers-grid {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            align-items: center;
-            gap: 5px;
-            /* Forçar altura limitada, para não rolar */
-            max-height: 40vh;
-            overflow: hidden;
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            grid-gap: 5px;
+            max-width: 95%;
+            margin-bottom: 5px;
         }
-        .emoji-option,
         .number-option {
             background-color: #c8e6c9;
-            width: 60px;
-            height: 60px;
+            width: 50px;
+            height: 50px;
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
             font-size: 1rem;
             border-radius: 8px;
             border: 2px solid #000;
             cursor: pointer;
-            text-align: center;
         }
-        .emoji-name {
-            font-size: 0.6rem;
-            margin-top: 2px;
-        }
-
-        /* Alvo do jogo de números */
         .target-number {
             background-color: #ffd700;
             width: 60px;
             height: 60px;
             border-radius: 8px;
-            font-size: 1rem;
+            font-size: 1.2rem;
             border: 2px solid #000;
             display: flex;
             align-items: center;
             justify-content: center;
         }
 
-        /* Contagem */
+        /**********************************************
+         * JOGO ENCONTRE EMOJIS (LETRAS)
+         **********************************************/
+        /* 4 por linha, total 16 */
+        .emoji-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-gap: 5px;
+            max-width: 95%;
+            margin-bottom: 5px;
+        }
+        .emoji-option {
+            background-color: #c8e6c9;
+            width: 65px;
+            height: 65px;
+            border-radius: 8px;
+            border: 2px solid #000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            cursor: pointer;
+            text-align: center;
+            overflow: hidden;
+        }
+        .emoji-name {
+            font-size: 0.7rem;
+            margin-top: 1px;
+        }
+
+        /**********************************************
+         * JOGO CONTAR
+         **********************************************/
+        /* 4 por linha, total 16 */
         .counting-target {
             display: flex;
             gap: 5px;
@@ -315,13 +341,39 @@
             font-size: 1.2rem;
             margin: 5px;
         }
+        .counting-emoji-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-gap: 5px;
+            max-width: 95%;
+            margin-bottom: 5px;
+        }
+        .count-emoji-option {
+            background-color: #c8e6c9;
+            width: 65px;
+            height: 65px;
+            border-radius: 8px;
+            border: 2px solid #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            cursor: pointer;
+        }
 
-        /* Montando palavras */
+        /**********************************************
+         * JOGO MONTE A PALAVRA
+         **********************************************/
         .word-target {
             font-size: 1rem;
             margin: 5px;
             color: #555;
             text-align: center;
+        }
+        .target-emoji-big {
+            font-size: 2.5rem; /* Maior */
+            display: block;
+            margin-bottom: 5px;
         }
         .letter-box {
             width: 30px;
@@ -338,13 +390,13 @@
             flex-wrap: wrap;
             justify-content: center;
             gap: 5px;
-            max-height: 30vh;
-            overflow: hidden;
+            max-width: 95%;
+            margin-bottom: 5px;
         }
         .word-letter {
             background-color: #ffd700;
-            width: 40px;
-            height: 40px;
+            width: 45px;
+            height: 45px;
             border-radius: 5px;
             font-size: 1.2rem;
             border: 2px solid #000;
@@ -358,13 +410,15 @@
             border-bottom: 2px solid #2e7d32;
         }
 
-        /* Sombras - dividir em duas colunas lado a lado, cada 50% da tela, sem rolagem */
+        /**********************************************
+         * JOGO SOMBRAS
+         **********************************************/
         .shadow-container-wrapper {
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
             width: 100%;
-            height: 60vh;
+            height: 65vh;
             overflow: hidden;
         }
         .shadow-column {
@@ -375,7 +429,7 @@
             justify-content: flex-start;
             width: 48%;
             gap: 5px;
-            max-height: 60vh;
+            max-height: 65vh;
         }
         .shadow-slot,
         .shadow-item {
@@ -407,24 +461,25 @@
             animation: shake 0.5s;
         }
 
-        /* Quebra-cabeça */
+        /**********************************************
+         * JOGO QUEBRA-CABEÇA (combinar número com emojis)
+         **********************************************/
         .numbers-container {
             display: flex;
             justify-content: center;
             gap: 5px;
             margin: 5px 0;
-            flex-wrap: nowrap; /* todos em uma linha */
+            flex-wrap: nowrap;
             overflow: hidden;
-            max-width: 100%;
+            max-width: 95%;
         }
         .quantities-container {
-            display: flex;
-            justify-content: center;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr); /* 3 por linha */
             gap: 5px;
-            flex-wrap: wrap;
-            max-height: 40vh;
-            overflow: hidden;
+            max-width: 95%;
             margin-bottom: 5px;
+            justify-items: center;
         }
         .puzzle-piece {
             width: 60px;
@@ -447,16 +502,21 @@
         .emoji-piece {
             border-color: #000;
             background: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         .puzzle-emoji-grid {
             display: flex;
             flex-wrap: wrap;
             gap: 2px;
+            justify-content: center;
+            align-items: center;
         }
         .emoji-cell {
-            font-size: 1rem;
-            width: 16px;
-            height: 16px;
+            font-size: 1.2rem;
+            width: 18px;
+            height: 18px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -466,47 +526,65 @@
             border-color: #4caf50 !important;
         }
 
-        /* Cores */
-        .color-item {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            margin: 5px;
-            border: 2px solid #fff;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+        /**********************************************
+         * JOGO CORES
+         **********************************************/
+        .color-area {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            max-width: 95%;
         }
-        .color-bin {
+        .color-item {
             width: 60px;
             height: 60px;
+            border-radius: 50%;
+            border: 2px solid #fff;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+            cursor: pointer;
+        }
+        .color-bin {
+            width: 70px;
+            height: 70px;
             border: 2px dashed #000;
             border-radius: 8px;
+            background-color: white;
+            font-size: 0.8rem;
+            padding: 2px;
             display: flex;
             align-items: center;
             justify-content: center;
-            background-color: white;
-            margin: 5px;
-            font-size: 0.7rem;
-            text-align: center;
-            padding: 2px;
             cursor: pointer;
         }
 
-        /* Clima */
+        /**********************************************
+         * JOGO CLIMA
+         **********************************************/
         .weather-card {
-            width: 180px;
-            margin: 5px;
+            width: 90%;
+            max-width: 400px;
+            margin: 5px auto;
             padding: 10px;
             border-radius: 8px;
             background: #fff;
             box-shadow: 0 0 5px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .weather-icon {
+            font-size: 3rem;
+        }
+        .weather-title {
+            font-size: 1.2rem;
+            margin: 5px 0;
         }
         .weather-items {
             display: flex;
             flex-wrap: wrap;
-            gap: 5px;
+            gap: 8px;
             justify-content: center;
             margin-top: 5px;
-            max-width: 180px;
         }
         .weather-item {
             font-size: 1.5rem;
@@ -516,15 +594,18 @@
             cursor: pointer;
         }
 
-        /* Categorias */
+        /**********************************************
+         * JOGO CATEGORIAS
+         **********************************************/
         .category-game-container {
             display: flex;
             flex-wrap: nowrap;
             gap: 5px;
             justify-content: center;
-            margin: 0 auto;
+            margin: 5px auto;
             width: 100%;
             overflow: hidden;
+            max-width: 95%;
         }
         .category-bin {
             width: 90px;
@@ -565,7 +646,9 @@
             animation: shake 0.5s;
         }
 
-        /* Ler */
+        /**********************************************
+         * JOGO FORMAR A PALAVRA (LEITURA)
+         **********************************************/
         .reading-title {
             font-size: 1rem;
             margin-bottom: 5px;
@@ -576,6 +659,7 @@
             justify-content: center;
             gap: 5px;
             margin-bottom: 5px;
+            max-width: 95%;
         }
         .reading-syllable {
             background-color: #ffd54f;
@@ -587,13 +671,15 @@
         }
         .reading-result {
             display: flex;
-            gap: 2px;
+            gap: 5px;
             justify-content: center;
             margin-bottom: 5px;
+            flex-wrap: wrap;
+            max-width: 95%;
         }
         .reading-result-syllable {
-            width: 30px;
-            height: 30px;
+            width: 35px;
+            height: 35px;
             background-color: #fff9c4;
             border: 2px solid #000;
             border-radius: 5px;
@@ -603,38 +689,44 @@
             justify-content: center;
         }
 
-        /* Palworld / Pokemon */
+        /**********************************************
+         * PALWORLD / POKEMON
+         **********************************************/
         .pal-list, .pokemon-list {
             display: flex;
             justify-content: center;
             align-items: center;
             margin-bottom: 5px;
+            width: 100%;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
         }
         .pal-item, .pokemon-item {
-            width: 120px;
+            width: 100%;
             background-color: #fff9c4;
             border: 2px solid #000;
             border-radius: 8px;
             padding: 5px;
             text-align: center;
-            margin: 0 5px;
+            box-sizing: border-box;
         }
         .pal-item img, .pokemon-item img {
             max-width: 100%;
-            max-height: 80px;
+            max-height: 100px;
             object-fit: contain;
         }
         .pal-name, .pokemon-name {
-            font-size: 0.9rem;
-            margin: 5px 0 0;
+            font-size: 1rem;
+            margin-top: 5px;
         }
         .letters-options {
             display: flex;
             flex-wrap: wrap;
             gap: 5px;
             justify-content: center;
-            max-height: 40vh;
-            overflow: hidden;
+            max-width: 95%;
+            margin: 0 auto;
         }
         .letter-choice {
             background-color: #c8e6c9;
@@ -795,7 +887,7 @@
         <button id="backToMenuBtn" onclick="cancelNextGameAndMenu()" style="display:none;">← Menu</button>
     </div>
 
-    <!-- Conteúdo principal logo/telas -->
+    <!-- Conteúdo principal -->
     <div id="mainContent">
         <!-- TELA INICIAL -->
         <div class="container" id="startScreen">
@@ -830,7 +922,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    /* Script de funcionalidade do jogo - praticamente o mesmo, apenas ajustamos estilos e escondemos/exibimos o título quando necessário */
+    /* Script principal, ajustando conforme pedidos */
 
     document.addEventListener('selectstart', (e) => e.preventDefault());
     document.addEventListener('contextmenu', (e) => e.preventDefault());
@@ -874,6 +966,7 @@
     }
     updateStickerCount();
 
+    /* Figurinhas possíveis */
     const possibleStickers = [
         { name: "Pikachu",    img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png" },
         { name: "Charmander", img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/4.png" },
@@ -929,7 +1022,7 @@
         { name: "Raticate",   img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/20.png" },
     ];
 
-    /* Elementos DOM principais */
+    /* Elementos DOM */
     const startMenuEl       = document.getElementById("start-menu");
     const continueBtnContainer = document.getElementById("continue-btn-container");
     const continueGameBtn   = document.getElementById("continueGameBtn");
@@ -1040,26 +1133,36 @@
         mainMenuEl.innerHTML = "";
 
         const gameConfigs = [
-            { id: "numbers",   label: "🔢 Números" },
-            { id: "letters",   label: "🔤 Letras" },
-            { id: "counting",  label: "🍎 Contar" },
-            { id: "word",      label: "🧩 Palavras" },
-            { id: "shadows",   label: "🎭 Sombras" },
-            { id: "puzzle",    label: "🧩 Quebra cabeça" },
-            { id: "colors",    label: "🎨 Cores" },
-            { id: "weather",   label: "☔ Clima" },
-            { id: "categories",label: "🚀 Categorias" },
-            { id: "reading",   label: "📖 Ler" },
-            { id: "palworld",  label: "🐾 Palworld" },
-            { id: "pokemon",   label: "🦊 Pokemon" }
+            { id: "numbers",   label: "Números" },
+            { id: "letters",   label: "Letras" },
+            { id: "counting",  label: "Contar" },
+            { id: "word",      label: "Palavras" },
+            { id: "shadows",   label: "Sombras" },
+            { id: "puzzle",    label: "Quebra-cabeça" },
+            { id: "colors",    label: "Cores" },
+            { id: "weather",   label: "Clima" },
+            { id: "categories",label: "Categorias" },
+            { id: "reading",   label: "Formar Palavra" },
+            { id: "palworld",  label: "Palworld" },
+            { id: "pokemon",   label: "Pokemon" }
         ];
 
         gameConfigs.forEach((cfg) => {
             const starsInThisGame = gameStars[cfg.id] || 0;
+
             const gmDiv = document.createElement("div");
             gmDiv.className = "game-mode";
-            gmDiv.innerText = `${cfg.label} (${starsInThisGame}⭐)`;
             gmDiv.onclick = () => startGame(cfg.id);
+
+            const titleDiv = document.createElement("div");
+            titleDiv.textContent = cfg.label;
+
+            const starDiv = document.createElement("div");
+            starDiv.textContent = `(${starsInThisGame}⭐)`;
+
+            gmDiv.appendChild(titleDiv);
+            gmDiv.appendChild(starDiv);
+
             mainMenuEl.appendChild(gmDiv);
         });
     }
@@ -1071,7 +1174,6 @@
         mainMenuEl.classList.remove("d-none");
         gameAreaEl.classList.add("d-none");
 
-        /* Exibir top info e esconder título grande */
         mainTitleEl.style.display = "none";
         playerInfoContainer.classList.remove("d-none");
         backToMenuBtn.style.display = "none";
@@ -1098,7 +1200,7 @@
         mainMenuEl.classList.add("d-none");
         gameAreaEl.classList.remove("d-none");
         gameAreaEl.style.display = "block";
-        backToMenuBtn.style.display = "inline"; /* Exibe o botão de voltar no topo */
+        backToMenuBtn.style.display = "inline";
 
         document.getElementById("feedback").textContent = "";
         document.getElementById("content").innerHTML = "";
@@ -1126,17 +1228,17 @@
         }, delay);
     }
 
-    /* ============================
-       AQUI VÃO OS JOGOS
-    ============================ */
-    /* 1) NÚMEROS */
+    /**********************
+     * 1) NÚMEROS (20 opções)
+     **********************/
     function initNumbersGame() {
         const content = document.getElementById("content");
-        let targetNumber = Math.floor(Math.random() * 40) + 1;
+        let targetNumber = Math.floor(Math.random() * 100) + 1; // random até 100
         while (targetNumber === lastNumber) {
-            targetNumber = Math.floor(Math.random() * 40) + 1;
+            targetNumber = Math.floor(Math.random() * 100) + 1;
         }
         lastNumber = targetNumber;
+
         content.innerHTML = `
       <h2>Encontre o número:</h2>
       <div style="display:flex; justify-content:center; margin-bottom:5px;">
@@ -1144,10 +1246,11 @@
       </div>
       <div class="numbers-grid" id="numbers-grid"></div>
     `;
-        let possibleNumbers = Array.from({length:80},(_,i)=> i+1);
+
+        let possibleNumbers = Array.from({length:200},(_,i)=> i+1); // grande range
         const options = shuffle([
             targetNumber,
-            ...shuffle(possibleNumbers.filter((n) => n !== targetNumber)).slice(0,5)
+            ...shuffle(possibleNumbers.filter((n) => n !== targetNumber)).slice(0,19) // total 20
         ]);
         const grid = document.getElementById("numbers-grid");
         options.forEach((num) => {
@@ -1176,7 +1279,9 @@
         }
     }
 
-    /* 2) LETRAS */
+    /**********************
+     * 2) LETRAS (16 opções / 4 col)
+     **********************/
     const emojiDatabase = {
         A: [{ emoji: "✈️", nome: "Avião" }, { emoji: "🌳", nome: "Árvore" }, { emoji: "🎨", nome: "Arte" },
             { emoji: "🏹", nome: "Arco e Flecha" }, { emoji: "🐜", nome: "Aranha" }, { emoji: "⚓", nome: "Âncora" },
@@ -1237,22 +1342,27 @@
     function initLettersGame() {
         const content = document.getElementById("content");
         const validLetters = Object.keys(emojiDatabase);
+
         let targetLetter = validLetters[Math.floor(Math.random() * validLetters.length)];
         while (targetLetter === lastLetter) {
             targetLetter = validLetters[Math.floor(Math.random() * validLetters.length)];
         }
         lastLetter = targetLetter;
+
         const validEmojis = emojiDatabase[targetLetter];
         content.innerHTML = `
       <h2>Encontre emojis que começam com:</h2>
-      <div style="font-size:2rem;">${targetLetter}</div>
-      <div class="emoji-grid"></div>
+      <div style="font-size:2rem; margin-bottom:5px;">${targetLetter}</div>
+      <div class="emoji-grid" id="emoji-grid"></div>
     `;
-        const grid = content.querySelector(".emoji-grid");
+        const grid = content.querySelector("#emoji-grid");
         const allEmojis = Object.values(emojiDatabase).flat();
-        const correctOptions = shuffle([...validEmojis]).slice(0,3);
-        const incorrectOptions = shuffle(allEmojis.filter((e) => !validEmojis.includes(e))).slice(0,7);
-        const mixedOptions = shuffle([...correctOptions, ...incorrectOptions]);
+
+        // 16 total
+        const correctOptions = shuffle([...validEmojis]).slice(0,3); // 3 corretos
+        const incorrectOptions = shuffle(allEmojis.filter((e) => !validEmojis.includes(e))).slice(0,13);
+        const mixedOptions = shuffle([...correctOptions, ...incorrectOptions]); // total 16
+
         mixedOptions.forEach((emojiObj) => {
             const div = document.createElement("div");
             div.className = "emoji-option";
@@ -1282,16 +1392,20 @@
         }
     }
 
-    /* 3) CONTAR */
+    /**********************
+     * 3) CONTAR (16 opções / 4 col)
+     **********************/
     function initCountingGame() {
         const content = document.getElementById("content");
-        let targetCount = Math.floor(Math.random() * 20) + 1;
+        let targetCount = Math.floor(Math.random() * 10) + 1;
         while (targetCount === lastCount) {
-            targetCount = Math.floor(Math.random() * 20) + 1;
+            targetCount = Math.floor(Math.random() * 10) + 1;
         }
         lastCount = targetCount;
-        const possibleEmojis = ["🍎", "⭐", "🐻", "🎈", "🍪"];
+
+        const possibleEmojis = ["🍎","⭐","🐻","🎈","🍪","🐶","🍉","🚗","🎮","🍕","🏀","🐠","🍩","🚂","🌻","🐱"];
         const targetEmoji = shuffle(possibleEmojis)[0];
+
         content.innerHTML = `
       <h2>Conte até:</h2>
       <div class="counting-target">
@@ -1299,17 +1413,16 @@
         <div class="count-box">${targetEmoji}</div>
       </div>
       <div id="counter">0</div>
-      <div class="emoji-grid"></div>
+      <div class="counting-emoji-grid" id="countingGrid"></div>
     `;
-        const grid = content.querySelector(".emoji-grid");
-        const distractors = [
-            "🐶","🍉","🚗","🎮","🍕","🏀","🐠","🍩","🚂","🌻",
-            "🐱","🦊","🐰","🐔","🚑","🦁"
-        ];
-        const options = shuffle([ targetEmoji, ...shuffle(distractors).slice(0,9) ]);
-        options.forEach((emoji) => {
+        const grid = content.querySelector("#countingGrid");
+
+        // 16 total => 1 correto + 15 distractors
+        const distractors = shuffle(possibleEmojis.filter(e => e !== targetEmoji));
+        const finalOptions = shuffle([targetEmoji, ...distractors.slice(0,15)]);
+        finalOptions.forEach((emoji) => {
             const div = document.createElement("div");
-            div.className = "emoji-option";
+            div.className = "count-emoji-option";
             div.textContent = emoji;
             div.onclick = () => {
                 if(locked) return;
@@ -1342,35 +1455,42 @@
             "🍎": "maçã","⭐": "estrela","🐻": "urso","🎈": "balão","🍪": "biscoito",
             "🐶": "cachorro","🍉": "melancia","🚗": "carro","🎮": "videogame","🍕": "pizza",
             "🏀": "bola","🐠": "peixe","🍩": "rosquinha","🚂": "trem","🌻": "girassol",
-            "🐱": "gato","🦊": "raposa","🐰": "coelho","🐔": "galinha","🚑": "ambulância",
-            "🦁": "leão"
+            "🐱": "gato"
         };
         return names[emoji] || "objeto";
     }
 
-    /* 4) PALAVRAS */
+    /**********************
+     * 4) MONTE A PALAVRA
+     **********************/
     function initWordGame() {
         const content = document.getElementById("content");
         content.innerHTML = "<h2>Monte a palavra do emoji:</h2>";
+
         const allEmojis = Object.values(emojiDatabase).flat();
         let randomEmoji = shuffle(allEmojis)[0];
         while (randomEmoji === lastWordEmoji) {
             randomEmoji = shuffle(allEmojis)[0];
         }
         lastWordEmoji = randomEmoji;
+
         const originalName = randomEmoji.nome.toUpperCase();
         const targetLetters = Array.from(originalName).filter(c => c!==" " && c!=="-");
+
+        content.innerHTML += `
+      <div class="word-target">
+        <div class="target-emoji-big">${randomEmoji.emoji}</div>
+        <div id="target-word"></div>
+      </div>
+      <div class="scrambled-letters" id="scrambled-letters"></div>
+    `;
+
         let targetDisplay = "";
         targetLetters.forEach((letter, i) => {
             targetDisplay += `<span class="letter-box" id="target-letter-${i}">${letter}</span>`;
         });
-        content.innerHTML += `
-      <div class="word-target">
-        ${randomEmoji.emoji}
-        <div id="target-word">${targetDisplay}</div>
-      </div>
-      <div class="scrambled-letters" id="scrambled-letters"></div>
-    `;
+        document.getElementById("target-word").innerHTML = targetDisplay;
+
         let scrambledLetters = shuffle([...targetLetters]);
         const lettersContainer = document.getElementById("scrambled-letters");
         scrambledLetters.forEach((letter) => {
@@ -1408,7 +1528,9 @@
         }
     }
 
-    /* 5) SOMBRAS */
+    /**********************
+     * 5) SOMBRAS
+     **********************/
     function initShadowGame() {
         const content = document.getElementById("content");
         content.innerHTML = "<h2>Toque em um emoji e depois em sua sombra:</h2>";
@@ -1419,14 +1541,13 @@
             chosenEmojis = shuffle(uniqueEmojis).slice(0,4);
         }
         lastShadowSet = chosenEmojis;
+
         content.innerHTML += `
       <div class="shadow-container-wrapper">
         <div class="shadow-column" id="shadow-slots">
           ${chosenEmojis.map(e=>`
             <div class="shadow-slot" data-expected="${e}"
-                 onclick="selectShadowSlot(this,'${e}')">
-              ${e}
-            </div>
+                 onclick="selectShadowSlot(this,'${e}')"></div>
           `).join("")}
         </div>
         <div class="shadow-column" id="shadow-items">
@@ -1462,11 +1583,13 @@
         const selectedEl = window.shadowGameState.selectedElement;
         if(!selected) return;
         if(selected === expectedEmoji){
+            // Apenas acender a cor, sem diminuir tamanho
             slotEl.classList.add("shadow-match");
-            slotEl.classList.remove("shadow-slot");
-            window.shadowGameState.correctMatches++;
+            // remover item do lado direito
             if(selectedEl) selectedEl.style.display = "none";
+            window.shadowGameState.correctMatches++;
             showFeedback("Correto!", true);
+
             if(window.shadowGameState.correctMatches === window.shadowGameState.totalItems){
                 locked = true;
                 updateStars(1);
@@ -1484,7 +1607,9 @@
         window.shadowGameState.selectedElement=null;
     }
 
-    /* 6) QUEBRA CABEÇA */
+    /**********************
+     * 6) QUEBRA-CABEÇA
+     **********************/
     function initPuzzleGame() {
         window.puzzleGameState = {
             selectedNumber:null,
@@ -1498,7 +1623,9 @@
             randomNums = shuffle([...Array(9)].map((_,i)=> i+1)).slice(0,5);
         }
         lastPuzzleSet = randomNums;
+
         const emojis = ["🍎","⭐","🎈","🐱","🚗","🎮","🍕","🐶","🌺"];
+
         content.innerHTML += `
       <div class="numbers-container">
         ${randomNums.map(num=>`
@@ -1560,7 +1687,9 @@
         });
     }
 
-    /* 7) CORES */
+    /**********************
+     * 7) CORES
+     **********************/
     function initColorGame() {
         const allColors = [
             { name: "Vermelho", hex:"#FF0000" },
@@ -1574,13 +1703,15 @@
         ];
         const content = document.getElementById("content");
         content.innerHTML = "<h2>Toque em uma cor e depois na caixa correta:</h2>";
+
         let roundColors = shuffle(allColors).slice(0,3);
         while(JSON.stringify(roundColors)===JSON.stringify(lastColorsSet)){
             roundColors = shuffle(allColors).slice(0,3);
         }
         lastColorsSet = roundColors;
+
         content.innerHTML += `
-      <div style="display:flex; justify-content:center; flex-wrap:wrap; gap:5px; margin-bottom:5px;" id="color-items">
+      <div class="color-area" id="colorItems">
         ${roundColors.map(c=>`
           <div class="color-item"
                style="background:${c.hex}"
@@ -1588,7 +1719,7 @@
                onclick="selectColorItem(this,'${c.hex}')"></div>
         `).join("")}
       </div>
-      <div style="display:flex; justify-content:center; flex-wrap:wrap; gap:5px;" id="color-bins">
+      <div class="color-area" id="colorBins">
         ${roundColors.map(c=>`
           <div class="color-bin"
                style="border-color:${c.hex}"
@@ -1653,7 +1784,9 @@
         window.colorGameState.selectedElement=null;
     }
 
-    /* 8) CLIMA */
+    /**********************
+     * 8) CLIMA
+     **********************/
     function initWeatherGame(){
         const weatherData = [
             { icon:"☀️", correctItems:["🕶️","🎩","🧴"], title:"Ensolarado" },
@@ -1666,13 +1799,15 @@
             currentWeather = weatherData[Math.floor(Math.random()*weatherData.length)];
         }
         lastWeather = currentWeather;
-        const incorrectItems = ["🎸","📘","🎈","🎪","🎭","🎨"];
+
+        const incorrectItems = ["🎸","📘","🎈","🎪","🎭","🎨","🍕","🚲"];
         const allItems = shuffle([...currentWeather.correctItems, ...shuffle(incorrectItems).slice(0,3)]);
+
         content.innerHTML=`
       <h2>Escolha os itens para o clima:</h2>
       <div class="weather-card">
-        <div style="font-size:40px">${currentWeather.icon}</div>
-        <h3 style="font-size:1rem; margin-top:5px;">${currentWeather.title}</h3>
+        <div class="weather-icon">${currentWeather.icon}</div>
+        <div class="weather-title">${currentWeather.title}</div>
         <div class="weather-items" id="weather-items">
           ${allItems.map(item=>`
             <div class="weather-item"
@@ -1721,7 +1856,9 @@
         }
     }
 
-    /* 9) CATEGORIAS */
+    /**********************
+     * 9) CATEGORIAS
+     **********************/
     function initCategoryGame(){
         const content = document.getElementById("content");
         content.innerHTML="<h2>Classifique os itens em suas categorias:</h2>";
@@ -1741,23 +1878,46 @@
                     "🚝","🚞","🚊","🛩️","🚤","⛴️","🚢","🛥️","🛳️","🚀","🚁","🚡","🚠","🚟","🦼"]
             }
         ];
+
+        /* pegar 5 itens de cada + 3 extras distrações */
         const allCategoryItems = [];
         categories.forEach(cat=>{
             const shuffledItems = shuffle([...cat.items]);
             const selectedItems = shuffledItems.slice(0,5);
             selectedItems.forEach(i=> allCategoryItems.push({ emoji:i, category: cat.name }));
         });
+
+        // +3 extra de qualquer lugar
+        const allPossibleCategoryEmojis = categories.flatMap(cat => cat.items);
+        // remover do 'allPossibleCategoryEmojis' o que já foi usado
+        const usedSet = new Set(allCategoryItems.map(e => e.emoji));
+        const remaining = allPossibleCategoryEmojis.filter(e => !usedSet.has(e));
+        const extra3 = shuffle(remaining).slice(0,3);
+        // essas 3 viram "objetos" sem categoria certa (ou com category = "none")
+        extra3.forEach(e => {
+            allCategoryItems.push({ emoji: e, category: "none" });
+        });
+
         const currentSet=JSON.stringify(allCategoryItems);
         if(currentSet===JSON.stringify(lastCategoriesSet)){
+            // repetiu => reembaralhar
+            // no real scenario, muito improvável, mas ok
             allCategoryItems.length=0;
             categories.forEach(cat=>{
-                const shuffled=shuffle([...cat.items]);
-                const fiveItems=shuffled.slice(0,5);
-                fiveItems.forEach(i=> allCategoryItems.push({emoji:i, category:cat.name}));
+                const sh=shuffle([...cat.items]);
+                const sel=sh.slice(0,5);
+                sel.forEach(i=> allCategoryItems.push({ emoji:i, category: cat.name }));
+            });
+            const used2 = new Set(allCategoryItems.map(e => e.emoji));
+            const remain2 = allPossibleCategoryEmojis.filter(e => !used2.has(e));
+            const extraAgain = shuffle(remain2).slice(0,3);
+            extraAgain.forEach(e => {
+                allCategoryItems.push({ emoji:e, category:"none" });
             });
         }
         lastCategoriesSet = allCategoryItems;
-        let html = `<div class="category-game-container" style="justify-content:center; margin-bottom:5px;">`;
+
+        let html = `<div class="category-game-container" style="margin-bottom:5px;">`;
         categories.forEach(cat=>{
             html += `
         <div class="category-bin"
@@ -1783,8 +1943,9 @@
         });
         html += `</div>`;
         content.innerHTML += html;
+
         window.categoryGameState = {
-            totalItems: allCategoryItems.length,
+            totalItems: allCategoryItems.filter(e=> e.category!=="none").length, // só conta os que têm cat
             correct:0,
             selectedItem:null,
             selectedElement:null
@@ -1808,16 +1969,20 @@
         const selItem = window.categoryGameState.selectedItem;
         const selEl   = window.categoryGameState.selectedElement;
         if(!selItem) return;
+
         if(selItem.category===targetCategory){
             binEl.classList.add("category-matched");
             const filledCount = parseInt(binEl.getAttribute("data-filled"))+1;
             binEl.setAttribute("data-filled",filledCount);
+
             const binContainer = binEl.querySelector(".bin-items-container");
             const newEmojiDiv = document.createElement("div");
             newEmojiDiv.style.fontSize="1.2rem";
             newEmojiDiv.textContent=selItem.emoji;
             binContainer.appendChild(newEmojiDiv);
-            selEl.classList.add("hidden-item");
+
+            selEl.style.display = "none"; // sumir da lista de alternativas
+
             window.categoryGameState.correct++;
             showFeedback("Correto!", true);
             speak(`Muito bem! ${selItem.emoji} é da categoria ${targetCategory}`);
@@ -1839,7 +2004,9 @@
         window.categoryGameState.selectedElement=null;
     }
 
-    /* 10) LEITURA */
+    /**********************
+     * 10) FORMAR PALAVRA (LEITURA)
+     **********************/
     const readingWords = [
         { word:"barata",   syllables:["ba","ra","ta"] },
         { word:"banana",   syllables:["ba","na","na"] },
@@ -1865,6 +2032,7 @@
             randomWord = shuffle(readingWords)[0];
         }
         lastReadingWord = randomWord;
+
         const originalSyllables = [...randomWord.syllables];
         const scrambled = shuffle([...randomWord.syllables]);
         window.readingGameState={
@@ -1917,7 +2085,9 @@
         }
     }
 
-    /* Palworld */
+    /**********************
+     * PALWORLD
+     **********************/
     function initPalworldGame(){
         const content = document.getElementById("content");
         content.innerHTML="<h2>Encontre a primeira letra do Pal:</h2>";
@@ -1964,7 +2134,9 @@
         }
     }
 
-    /* Pokemon */
+    /**********************
+     * POKEMON
+     **********************/
     function initPokemonGame(){
         const content = document.getElementById("content");
         content.innerHTML="<h2>Encontre a primeira letra do Pokemon:</h2>";
@@ -2011,7 +2183,9 @@
         }
     }
 
-    /* Funções auxiliares */
+    /**********************
+     * FUNÇÕES AUXILIARES
+     **********************/
     function speak(text){
         if(speechSynth.speaking) speechSynth.cancel();
         const utt = new SpeechSynthesisUtterance(text);
