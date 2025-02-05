@@ -15,7 +15,31 @@
         .container {
             text-align: center;
         }
-
+        .main-title {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #ff5722;
+            margin: 40px 0 20px;
+        }
+        #start-menu {
+            display: none;
+            margin-top: 30px;
+        }
+        .start-menu-btn {
+            width: 250px;
+            display: inline-block;
+            margin: 20px auto;
+        }
+        .start-menu-input {
+            font-size: 24px;
+            border-radius: 8px;
+            border: 2px solid #ccc;
+            padding: 8px 10px;
+            width: 300px;
+            max-width: 80%;
+            text-align: center;
+            margin-bottom: 20px;
+        }
         button {
             font-size: 24px;
             padding: 15px 30px;
@@ -34,7 +58,7 @@
         }
 
         .game-mode {
-            background-color: #81D4FA;
+            background-color: #81d4fa;
             border-radius: 20px;
             padding: 20px;
             margin: 10px;
@@ -58,12 +82,12 @@
             background: rgba(255, 255, 255, 0.9);
             padding: 10px 20px;
             border-radius: 15px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.2);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
             margin-bottom: 20px;
         }
         .player-name {
             font-size: 24px;
-            color: #2E7D32;
+            color: #2e7d32;
             font-weight: bold;
             margin: 0;
         }
@@ -513,13 +537,44 @@
             border-color: #C62828 !important;
             animation: shake 0.5s;
         }
+
+        .d-none {
+            display: none !important;
+        }
     </style>
 </head>
 <body class="d-flex flex-column min-vh-100">
 
 <div class="container flex-grow-1">
 
-    <div class="player-info">
+    <!-- Título no topo para destaque, estilo "Super Mario" (inspirado) -->
+    <h1 class="main-title">Vamos Aprender!</h1>
+
+    <!-- Menu inicial -->
+    <div id="start-menu">
+        <div id="continue-btn-container">
+            <!-- Botão de continuar (só mostra se tiver name salvo) -->
+            <button class="btn btn-primary start-menu-btn" id="continueGameBtn">
+                Continuar Jogo
+            </button>
+        </div>
+        <button class="btn btn-success start-menu-btn" id="newGameBtn">
+            Novo Jogo
+        </button>
+
+        <!-- Campo para digitar nome do jogador (só aparece ao iniciar um novo jogo) -->
+        <div class="d-none" id="newGameForm">
+            <p>Digite seu nome para começar:</p>
+            <input type="text" id="playerNameInput" class="start-menu-input" />
+            <br />
+            <button id="startNewGameBtn" class="btn btn-warning">
+                Iniciar
+            </button>
+        </div>
+    </div>
+
+    <!-- Info do jogador (nome e estrelas) -->
+    <div class="player-info d-none" id="playerInfoContainer">
         <div class="player-name" id="player-name"></div>
         <div class="stars-info">
             <span>⭐</span>
@@ -527,9 +582,8 @@
         </div>
     </div>
 
-    <h1 class="text-center my-4">🎮 Vamos Aprender! 🌈</h1>
-
-    <div id="main-menu">
+    <!-- Menu principal de modos de jogo -->
+    <div id="main-menu" class="d-none">
         <div class="row g-2">
             <div class="col-12 col-sm-6 col-lg-4">
                 <div class="game-mode" onclick="startGame('numbers')">🔢 Números</div>
@@ -561,26 +615,135 @@
         </div>
     </div>
 
+    <!-- Área de jogo -->
     <div id="game-area" class="d-none">
         <div id="content" class="my-4"></div>
         <div id="feedback" class="feedback text-center"></div>
         <div class="text-center my-3">
-            <button class="btn btn-lg btn-primary" onclick="showMainMenu()">Voltar ao Menu</button>
+            <button class="btn btn-lg btn-primary" onclick="showMainMenu()">
+                Voltar ao Menu
+            </button>
         </div>
     </div>
+
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    localStorage.removeItem('playerName');
-    localStorage.removeItem('stars');
+    // Lê dados salvos
+    let savedName = localStorage.getItem('playerName') || '';
+    let savedStars = parseInt(localStorage.getItem('stars') || '0', 10);
 
-    let playerName = prompt('Qual é o seu nome?', 'Amiguinho').trim();
-    document.getElementById('player-name').textContent = playerName;
+    let playerName = savedName;
+    let stars = savedStars;
+    let previousStars = stars;
+    let currentGame = null;
+    let speechSynth = window.speechSynthesis;
 
-    let stars = 0;
-    let previousStars = 0;
-    document.getElementById('stars-count').textContent = stars;
+    // ELEMENTOS
+    const startMenuEl = document.getElementById('start-menu');
+    const continueBtnContainer = document.getElementById('continue-btn-container');
+    const continueGameBtn = document.getElementById('continueGameBtn');
+    const newGameBtn = document.getElementById('newGameBtn');
+    const newGameForm = document.getElementById('newGameForm');
+    const playerNameInput = document.getElementById('playerNameInput');
+    const startNewGameBtn = document.getElementById('startNewGameBtn');
+
+    const playerInfoContainer = document.getElementById('playerInfoContainer');
+    const playerNameEl = document.getElementById('player-name');
+    const starsCountEl = document.getElementById('stars-count');
+
+    const mainMenuEl = document.getElementById('main-menu');
+    const gameAreaEl = document.getElementById('game-area');
+
+    // 1. Exibir a tela inicial (start-menu) ao carregar
+    window.onload = function() {
+        showStartMenu();
+    };
+
+    function showStartMenu() {
+        // Exibe menu inicial
+        startMenuEl.style.display = 'block';
+
+        // Se não houver name salvo, esconde o botão "Continuar"
+        if (!savedName) {
+            continueBtnContainer.style.display = 'none';
+        } else {
+            continueBtnContainer.style.display = 'block';
+        }
+
+        // Oculta o resto
+        mainMenuEl.classList.add('d-none');
+        playerInfoContainer.classList.add('d-none');
+        gameAreaEl.classList.add('d-none');
+
+        // Preenche o input com o nome anterior (UX)
+        playerNameInput.value = savedName;
+    }
+
+    // Botão "Continuar" Jogo
+    continueGameBtn.onclick = function() {
+        // Reusa o nome salvo e estrelas salvas
+        playerName = savedName;
+        stars = savedStars;
+        previousStars = stars;
+        localStorage.setItem('stars', String(stars));
+        localStorage.setItem('playerName', playerName);
+
+        // Exibe o menu principal e info do jogador
+        startMenuEl.style.display = 'none';
+        showPlayerInfo();
+        showMainMenu();
+    };
+
+    // Botão "Novo Jogo"
+    newGameBtn.onclick = function() {
+        // Mostra form para inserir nome
+        newGameForm.classList.remove('d-none');
+    };
+
+    // Botão "Iniciar" (depois de digitar nome)
+    startNewGameBtn.onclick = function() {
+        const chosenName = playerNameInput.value.trim();
+        if (!chosenName) {
+            alert('Por favor, informe um nome para iniciar!');
+            return;
+        }
+        // Reseta jogo e salva nome
+        playerName = chosenName;
+        stars = 0;
+        previousStars = 0;
+        savedName = playerName;
+        savedStars = stars;
+        localStorage.setItem('playerName', playerName);
+        localStorage.setItem('stars', String(stars));
+
+        // Fecha menu inicial e exibe o menu principal
+        startMenuEl.style.display = 'none';
+        showPlayerInfo();
+        showMainMenu();
+    };
+
+    // Exibe o menu principal e info do jogador (pós-início)
+    function showMainMenu() {
+        gameAreaEl.classList.add('d-none');
+        mainMenuEl.classList.remove('d-none');
+
+        if(stars > previousStars) {
+            speak(`${playerName}, você tem ${stars} estrelas! Muito bem!`);
+            previousStars = stars;
+        } else if(stars < previousStars && stars > 0) {
+            speak(`${playerName}, agora você tem ${stars} estrelas. Vamos recuperar!`);
+            previousStars = stars;
+        }
+    }
+
+    function showPlayerInfo() {
+        // Atualiza DOM com nome e estrelas
+        playerInfoContainer.classList.remove('d-none');
+        playerNameEl.textContent = playerName;
+        starsCountEl.textContent = stars;
+    }
 
     const numbers = Array.from({length: 20}, (_, i) => i + 1);
 
@@ -773,11 +936,8 @@
         ]
     };
 
-    let currentGame = null;
-    let speechSynth = window.speechSynthesis;
-
     function startGame(mode) {
-        document.getElementById('main-menu').style.display = 'none';
+        mainMenuEl.classList.add('d-none');
         const gameArea = document.getElementById('game-area');
         gameArea.classList.remove('d-none');
         gameArea.style.display = 'block';
@@ -794,21 +954,6 @@
         else if(mode === 'colors') initColorGame();
         else if(mode === 'weather') initWeatherGame();
         else if(mode === 'categories') initCategoryGame();
-    }
-
-    function showMainMenu() {
-        if(stars > previousStars) {
-            speak(`${playerName}, você tem ${stars} estrelas! Muito bem!`);
-            previousStars = stars;
-        } else if(stars < previousStars && stars > 0) {
-            speak(`${playerName}, agora você tem ${stars} estrelas. Vamos recuperar!`);
-            previousStars = stars;
-        }
-
-        document.getElementById('main-menu').style.display = 'block';
-        const gameArea = document.getElementById('game-area');
-        gameArea.classList.add('d-none');
-        gameArea.style.display = 'none';
     }
 
     /* Jogo de Números */
