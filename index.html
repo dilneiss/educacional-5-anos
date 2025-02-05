@@ -726,9 +726,8 @@
             position: fixed;
             width: 100px;
             height: 100px;
-            z-index: 99999;
             pointer-events: none;
-            animation: flySticker 2s ease forwards;
+            z-index: 99999;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -737,6 +736,7 @@
             border-radius: 10px;
             box-shadow: 0 0 5px rgba(0,0,0,.3);
             overflow: hidden;
+            transition: transform 1.5s ease, opacity 1.5s ease;
         }
         .sticker-fly img {
             max-width: 90px;
@@ -807,7 +807,7 @@
         </div>
     </div>
 
-    <!-- INFORMAÇÕES DO JOGADOR E BOTÕES -->
+    <!-- INFORMAÇÕES DO JOGADOR -->
     <div class="player-info d-none" id="playerInfoContainer">
         <div class="left-info">
             <div class="player-name" id="player-name"></div>
@@ -915,27 +915,16 @@
 
     /* Palworld (imagens corrigidas de placeholders) */
     const palworldData = [
-        /* Agora com imagens reais do jogo Palworld */
-        { name:"Puffbird",   img:"https://i.imgur.com/oLXPAmc.jpg" },
-        { name:"Woolly",     img:"https://i.imgur.com/XPNXSDX.jpg" },
-        { name:"Berserker",  img:"https://i.imgur.com/K1uLay7.jpg" },
-        { name:"Hydramon",   img:"https://i.imgur.com/fzm5ebx.jpg" },
-        { name:"Solora",     img:"https://i.imgur.com/ivF2Gh3.jpg" },
-        { name:"Plumora",    img:"https://i.imgur.com/dpFYrKu.jpg" },
-        { name:"Gryphurn",   img:"https://i.imgur.com/1Gbr2AX.jpg" },
-        { name:"Valacrow",   img:"https://i.imgur.com/g8c8CPB.jpg" },
-        { name:"Scintilla",  img:"https://i.imgur.com/TukdBAB.jpg" },
-        { name:"Toxivine",   img:"https://i.imgur.com/Aps4Gwk.jpg" },
-        { name:"Pyrowl",     img:"https://i.imgur.com/SdCKepI.jpg" },
-        { name:"Dracnor",    img:"https://i.imgur.com/yMeBqSd.jpg" },
-        { name:"Felpuff",    img:"https://i.imgur.com/yS9T8gJ.jpg" },
-        { name:"Scorcrumb",  img:"https://i.imgur.com/O7HZiKq.jpg" },
-        { name:"Gnash",      img:"https://i.imgur.com/NtpsrLp.jpg" },
-        { name:"Lumint",     img:"https://i.imgur.com/EIvYWSL.jpg" },
-        { name:"Bubbline",   img:"https://i.imgur.com/zxmvM7J.jpg" },
-        { name:"Grimwing",   img:"https://i.imgur.com/Eq3QsjC.jpg" },
-        { name:"Amberix",    img:"https://i.imgur.com/zs0h1ui.jpg" },
-        { name:"Stellabell", img:"https://i.imgur.com/GQcwv5V.jpg" }
+        { name:"Sheeep",   img:"https://cdn.cloudflare.steamstatic.com/steam/apps/1623730/ss_6961956feb56959c47a4121b2b0f03ff5ecd4abf.600x338.jpg" },
+        { name:"Helixir",  img:"https://cdn.cloudflare.steamstatic.com/steam/apps/1623730/ss_d776a0d111ec7f8ac4a9ee86046c2084db1cfeb1.600x338.jpg" },
+        { name:"Eagleon",  img:"https://cdn.cloudflare.steamstatic.com/steam/apps/1623730/ss_9a224f580e509637a974758d82ef473b847dd968.600x338.jpg" },
+        { name:"Miasmer",  img:"https://cdn.cloudflare.steamstatic.com/steam/apps/1623730/ss_69aa3f41462505a259d691b361bff03bfab0f180.600x338.jpg" },
+        { name:"Dinoshock",img:"https://cdn.cloudflare.steamstatic.com/steam/apps/1623730/ss_59077a86c90cc3de74f9830930f7f735c5b42a1d.600x338.jpg" },
+        { name:"Fawna",    img:"https://cdn.cloudflare.steamstatic.com/steam/apps/1623730/ss_2a8a45dbc6de9fe8afc467cea3671fdd21bc90bf.600x338.jpg" },
+        { name:"Turtorch", img:"https://cdn.cloudflare.steamstatic.com/steam/apps/1623730/ss_25b878e3dd43afa0fb6c004a9f48696de1ea1353.600x338.jpg" },
+        { name:"Glacimp",  img:"https://cdn.cloudflare.steamstatic.com/steam/apps/1623730/ss_a46cde3ca1f5267b46adceb986d6c74d8aa6ce3f.600x338.jpg" },
+        { name:"Skyray",   img:"https://cdn.cloudflare.steamstatic.com/steam/apps/1623730/ss_7fa7f2f88b49815a71b10f116f91883874df2622.600x338.jpg" },
+        { name:"Alpheet",  img:"https://cdn.cloudflare.steamstatic.com/steam/apps/1623730/ss_4cb4474518917338d65d0df90573c5b37472b3af.600x338.jpg" },
     ];
 
     /* Pokemon */
@@ -1043,8 +1032,13 @@
         hasReachedGoal = false;
         localStorage.setItem("hasReachedGoal", "false");
 
-        gameStars = {};
-        localStorage.setItem("gameStars", "{}");
+        gameStars = {};  // Zera as estrelas por jogo
+        localStorage.setItem("gameStars", JSON.stringify(gameStars));
+
+        // Zerar figurinhas ao recomeçar
+        stickerList = [];
+        localStorage.removeItem("myStickers");
+        updateStickerCount();
 
         startMenuEl.style.display = "none";
         showPlayerInfo();
@@ -1059,8 +1053,11 @@
         trophyInfoEl.style.display = hasReachedGoal ? "inline-block" : "none";
     }
 
-    function buildMainMenu() {
-        mainMenuEl.classList.remove("d-none");
+    function buildMainMenu(showMenu = true) {
+
+        if (showMenu) {
+            mainMenuEl.classList.remove("d-none");
+        }
         gamesListEl.innerHTML = "";
 
         const gameConfigs = [
@@ -2148,50 +2145,74 @@
         fdb.style.color= isCorrect ? "#2E7D32" : "#C62828";
     }
 
-    function updateStars(change){
-        const newStars = Math.max(0, stars+change);
-        if(newStars!==stars){
-            stars=newStars;
-            localStorage.setItem("stars",String(stars));
-            starsCountEl.textContent=stars;
+    function updateStars(change) {
+        const newStars = Math.max(0, stars + change);
+        if (newStars !== stars) {
+            stars = newStars;
+            localStorage.setItem("stars", String(stars));
+            starsCountEl.textContent = stars;
 
-            if(!gameStars[currentGame]) gameStars[currentGame]=0;
-            gameStars[currentGame]= Math.max(0, gameStars[currentGame]+change);
+            // Atualiza quantas estrelas esse jogo tem
+            if(!gameStars[currentGame]) {
+                gameStars[currentGame] = 0;
+            }
+            gameStars[currentGame] = Math.max(0, gameStars[currentGame] + change);
             localStorage.setItem("gameStars", JSON.stringify(gameStars));
 
-            if(change>0){
+            if (change > 0) {
                 speak("Muito bem!");
                 maybeGiveSticker();
-            } else if(change<0 && stars>0){
+            } else if (change < 0 && stars > 0) {
                 speak("Não desista! Continue tentando!");
             }
             checkGoal();
+            buildMainMenu(false); // atualiza o menu com a nova contagem
         }
     }
 
-    function maybeGiveSticker() {
-        if (Math.floor(Math.random() * 5) === 0) {
-            const st = possibleStickers[Math.floor(Math.random() * possibleStickers.length)];
+    function maybeGiveSticker(){
+        // 1/5 de chance
+        if(Math.floor(Math.random()*5)===0){
+            const st = possibleStickers[Math.floor(Math.random()* possibleStickers.length)];
             stickerList.push(st);
             localStorage.setItem("myStickers", JSON.stringify(stickerList));
             updateStickerCount();
-            flyStickerAnimation(st.img);
+            createStickerFly(st.img);
         }
     }
 
-    function flyStickerAnimation(imgUrl) {
+    /* Animação da figurinha: sai do centro da tela e vai até o botão de figurinhas */
+    function createStickerFly(imgUrl){
         const stickerFlyEl = document.createElement("div");
         stickerFlyEl.className = "sticker-fly";
-        stickerFlyEl.style.left = "50%";
-        stickerFlyEl.style.top = "50%";
+
+        // Posição inicial (centro da tela)
+        const startX = window.innerWidth / 2 - 50; // 100px de largura, então -50
+        const startY = window.innerHeight / 2 - 50;
+        stickerFlyEl.style.left = `${startX}px`;
+        stickerFlyEl.style.top  = `${startY}px`;
+
         const img = document.createElement("img");
         img.src = imgUrl;
         stickerFlyEl.appendChild(img);
         document.body.appendChild(stickerFlyEl);
 
-        // Quando a animação terminar, remove o elemento
-        stickerFlyEl.addEventListener("animationend", () => {
-            document.body.removeChild(stickerFlyEl);
+        // Forçar reflow para transição
+        stickerFlyEl.getBoundingClientRect();
+
+        // Destino: o botão de figurinhas
+        const btnRect = document.getElementById("stickers-btn").getBoundingClientRect();
+        const destX = btnRect.left + (btnRect.width/2) - 50; // -50 pois a figurinha tem 100px de largura
+        const destY = btnRect.top  - 50; // voa para cima do botão
+
+        // Aplicar transição
+        stickerFlyEl.style.transform = `translate(${destX - startX}px, ${destY - startY}px) scale(0.3)`;
+        stickerFlyEl.style.opacity = "0";
+
+        stickerFlyEl.addEventListener("transitionend", ()=>{
+            if(stickerFlyEl.parentNode) {
+                stickerFlyEl.parentNode.removeChild(stickerFlyEl);
+            }
         });
     }
 
@@ -2287,8 +2308,8 @@
             const div = document.createElement("div");
             div.className="sticker-item";
             const img = document.createElement("img");
-            img.src= st.img;
-            img.alt= st.name;
+            img.src=st.img;
+            img.alt=st.name;
             div.appendChild(img);
             container.appendChild(div);
         });
@@ -2296,7 +2317,6 @@
         backdrop.style.display="block";
         modal.style.display="block";
     }
-
     function closeStickersModal(){
         const modal = document.getElementById("stickers-modal");
         const backdrop = document.getElementById("modal-backdrop");
