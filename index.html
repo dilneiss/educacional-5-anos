@@ -1857,58 +1857,75 @@
     function initCategoryGame(){
         const content = document.getElementById("content");
         content.innerHTML="<h2>Classifique os itens em suas categorias:</h2>";
+
         const categories = [
             {
                 name:"Animais", icon:"🐶",
-                items:["🐱","🐙","🐶","🐷","🦊","🦁","🐯","🐺","🐸","🦓","🦒","🐵","🐼","🐹","🐰",
-                    "🐻","🐨","🐔","🦆","🦅","🦉","🐢","🐍","🦋","🦇","🦔","🦣","🐊","🐛","🦕","🦖"]
+                items:[
+                    "🐱","🐙","🐶","🐷","🦊","🦁","🐯","🐺","🐸","🦓","🦒","🐵","🐼","🐹","🐰",
+                    "🐻","🐨","🐔","🦆","🦅","🦉","🐢","🐍","🦋","🦇","🦔","🦣","🐊","🐛","🦕","🦖"
+                ]
             },
             {
                 name:"Frutas", icon:"🍎",
-                items:["🍎","🍌","🍇","🍊","🥝","🍐","🍍","🍑","🍒","🍉","🍓","🥭","🍅","🍏","🍋","🥥","🫐"]
+                items:[
+                    "🍎","🍌","🍇","🍊","🥝","🍐","🍍","🍑","🍒","🍉","🍓","🥭","🍅","🍏","🍋","🥥","🫐"
+                ]
             },
             {
                 name:"Veículos", icon:"🚗",
-                items:["🚗","✈️","🚲","🚌","⛵","🚕","🚙","🚎","🏎️","🚓","🚑","🚒","🚐","🛵","🏍️","🚂","🚆","🚇",
-                    "🚝","🚞","🚊","🛩️","🚤","⛴️","🚢","🛥️","🛳️","🚀","🚁","🚡","🚠","🚟","🦼"]
+                items:[
+                    "🚗","✈️","🚲","🚌","⛵","🚕","🚙","🚎","🏎️","🚓","🚑","🚒","🚐","🛵","🏍️","🚂","🚆",
+                    "🚇","🚝","🚞","🚊","🛩️","🚤","⛴️","🚢","🛥️","🛳️","🚀","🚁","🚡","🚠","🚟","🦼"
+                ]
             }
         ];
 
-        /* pegar 5 itens de cada */
-        const allCategoryItems = [];
-        categories.forEach(cat=>{
-            const shuffledItems = shuffle([...cat.items]);
-            const selectedItems = shuffledItems.slice(0,5);
-            selectedItems.forEach(i=> allCategoryItems.push({ emoji:i, category: cat.name }));
-        });
-
-        // +5 extras
-        const allPossibleCategoryEmojis = categories.flatMap(cat => cat.items);
-        const usedSet = new Set(allCategoryItems.map(e => e.emoji));
-        const remaining = allPossibleCategoryEmojis.filter(e => !usedSet.has(e));
-        const extra5 = shuffle(remaining).slice(0,5);
-        extra5.forEach(e => {
-            allCategoryItems.push({ emoji: e, category: "none" });
-        });
-
-        const currentSet=JSON.stringify(allCategoryItems);
-        if(currentSet===JSON.stringify(lastCategoriesSet)){
-            // reembaralhar se por acaso cair igual
-            allCategoryItems.length=0;
-            categories.forEach(cat=>{
-                const sh=shuffle([...cat.items]);
-                const sel=sh.slice(0,5);
-                sel.forEach(i=> allCategoryItems.push({ emoji:i, category: cat.name }));
-            });
-            const used2 = new Set(allCategoryItems.map(e => e.emoji));
-            const remain2 = allPossibleCategoryEmojis.filter(e => !used2.has(e));
-            const extraAgain = shuffle(remain2).slice(0,5);
-            extraAgain.forEach(e => {
-                allCategoryItems.push({ emoji:e, category:"none" });
-            });
+        // 1) Montar uma estrutura global de todos os emojis com sua respectiva categoria
+        const allCategoryData = [];
+        for(const cat of categories){
+            for(const em of cat.items){
+                allCategoryData.push({ emoji: em, category: cat.name });
+            }
         }
-        lastCategoriesSet = allCategoryItems;
+        // 2) Pegar 5 itens de cada categoria (total 15) para irem como corretos
+        const chosenItems = [];
+        categories.forEach(cat => {
+            const shuffled = shuffle(cat.items);
+            const selected = shuffled.slice(0,5);
+            // push com { emoji, category: cat.name }
+            selected.forEach( em => {
+                chosenItems.push({ emoji: em, category: cat.name });
+            });
+        });
+        // 3) Precisamos de extras, mas apenas do *pool* de categorias.
+        //    Removemos do pool os 15 já usados e selecionamos +5
+        const usedSet = new Set(chosenItems.map(obj => obj.emoji));
+        const remainingPool = allCategoryData.filter(obj => !usedSet.has(obj.emoji));
+        const extra5 = shuffle(remainingPool).slice(0,5);
+        // 4) Juntamos
+        const finalItems = chosenItems.concat(extra5);
 
+        // Evitar repetição exata do jogo anterior
+        const currentSet=JSON.stringify(finalItems.map(i=>i.emoji).sort());
+        if(currentSet === JSON.stringify(lastCategoriesSet?.map(i=>i.emoji).sort())){
+            // Se "igual" ao anterior, embaralha novamente (caso raro)
+            finalItems.length=0;
+            // re-pegar
+            const chosenItemsAgain=[];
+            categories.forEach(cat => {
+                const sh=shuffle(cat.items);
+                const sel=sh.slice(0,5);
+                sel.forEach(em => chosenItemsAgain.push({ emoji: em, category: cat.name }));
+            });
+            const used2 = new Set(chosenItemsAgain.map(o => o.emoji));
+            const remain2 = allCategoryData.filter(o => !used2.has(o.emoji));
+            const extraAgain = shuffle(remain2).slice(0,5);
+            finalItems.push(...chosenItemsAgain, ...extraAgain);
+        }
+        lastCategoriesSet = finalItems; // para referência
+
+        // Montamos as bins
         let html = `<div class="category-game-container" style="margin-bottom:5px;">`;
         categories.forEach(cat=>{
             html += `
@@ -1922,8 +1939,11 @@
       `;
         });
         html += `</div>`;
+
+        // Montamos a lista de itens
         html += `<div class="category-game-container" style="flex-wrap:wrap;" id="cat-items-container">`;
-        shuffle(allCategoryItems).forEach(obj=>{
+        const shuffledFinal = shuffle(finalItems);
+        shuffledFinal.forEach(obj=>{
             html += `
         <div class="category-item"
              data-emoji="${obj.emoji}"
@@ -1934,14 +1954,18 @@
       `;
         });
         html += `</div>`;
-        content.innerHTML += html;
 
+        content.innerHTML = "<h2>Classifique os itens em suas categorias:</h2>" + html;
+
+        // Precisamos contar quantos são realmente "corretos" (aqueles que pertencem a cada cat)
+        const totalCorrect = chosenItems.length; // 5 de cada cat = 15
         window.categoryGameState = {
-            totalItems: allCategoryItems.filter(e=> e.category!=="none").length,
+            totalItems: totalCorrect,
             correct:0,
             selectedItem:null,
             selectedElement:null
         };
+
         speak("Toque em um item e depois na categoria correta");
     }
     function selectCategoryItem(el){
@@ -1956,21 +1980,23 @@
         window.categoryGameState.selectedElement=el;
         el.style.opacity="0.5";
     }
-    function placeInCategory(binEl, targetCategory){
-        if(locked) return;
+    function placeInCategory(binEl, targetCategory) {
+        if (locked) return;
         const selItem = window.categoryGameState.selectedItem;
         const selEl   = window.categoryGameState.selectedElement;
-        if(!selItem) return;
+        if (!selItem) return;
 
-        if(selItem.category===targetCategory){
+        window.categoryGameState.placedCount++;
+
+        if (selItem.category === targetCategory) {
             binEl.classList.add("category-matched");
-            const filledCount = parseInt(binEl.getAttribute("data-filled"))+1;
-            binEl.setAttribute("data-filled",filledCount);
+            const filledCount = parseInt(binEl.getAttribute("data-filled")) + 1;
+            binEl.setAttribute("data-filled", filledCount);
 
             const binContainer = binEl.querySelector(".bin-items-container");
             const newEmojiDiv = document.createElement("div");
-            newEmojiDiv.style.fontSize="1.2rem";
-            newEmojiDiv.textContent=selItem.emoji;
+            newEmojiDiv.style.fontSize = "1.2rem";
+            newEmojiDiv.textContent = selItem.emoji;
             binContainer.appendChild(newEmojiDiv);
 
             selEl.style.display = "none";
@@ -1978,23 +2004,34 @@
             window.categoryGameState.correct++;
             showFeedback("Correto!", true);
             speak(`Muito bem! ${selItem.emoji} é da categoria ${targetCategory}`);
-            if(window.categoryGameState.correct===window.categoryGameState.totalItems){
-                locked=true;
-                updateStars(1);
-                showFeedback("Categorias completadas!", true);
-                scheduleReplayGame("categories");
-            }
         } else {
             binEl.classList.add("category-wrong");
-            setTimeout(()=> binEl.classList.remove("category-wrong"),800);
+            setTimeout(() => binEl.classList.remove("category-wrong"), 800);
             showFeedback("Categoria incorreta!", false);
-            updateStars(-1);
             speak("Essa não é a categoria certa");
+            updateStars(-1);
         }
-        if(selEl) selEl.style.opacity="1";
-        window.categoryGameState.selectedItem=null;
-        window.categoryGameState.selectedElement=null;
+
+        if (selEl) selEl.style.opacity = "1";
+        window.categoryGameState.selectedItem = null;
+        window.categoryGameState.selectedElement = null;
+
+        if (window.categoryGameState.placedCount === window.categoryGameState.finalCount) {
+            if (window.categoryGameState.correct === window.categoryGameState.totalItems) {
+                showFeedback("Categorias completadas!", true);
+                updateStars(1);
+                locked = true;
+                // Dê um tempinho para exibir a mensagem e depois recomeçar
+                setTimeout(() => {
+                    scheduleReplayGame("categories");
+                }, 1200);
+            } else {
+                showFeedback("Alguns itens estão em categorias erradas. Verifique novamente!", false);
+                speak("Alguns itens ainda estão errados. Corrija antes de terminar.");
+            }
+        }
     }
+
 
     /**********************
      * 10) FORMAR PALAVRA (LEITURA)
