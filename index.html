@@ -12,24 +12,63 @@
             rel="stylesheet"
     />
     <style>
-        /* Bloquear seleção de texto e toque prolongado */
         body {
             -webkit-user-select: none;
             -moz-user-select: none;
             -ms-user-select: none;
             user-select: none;
             -webkit-touch-callout: none;
+            margin-bottom: 80px;
+            background-color: #fff3e0;
+            font-family: "Arial", sans-serif;
+        }
+        body:before {
+            content: "";
+            background: url("https://cdn.pixabay.com/photo/2016/02/19/11/36/board-1209499_960_720.jpg") center/cover no-repeat;
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            left: 0;
+            top: 0;
+            opacity: 0.05;
+            pointer-events: none;
         }
 
-        /* Layout */
+        /* Bloquear contexto e destaque */
+        html, body {
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
         body {
-            font-family: "Arial", sans-serif;
-            background-color: #fff3e0;
-            margin-bottom: 80px;
+            margin: 0;
+            padding: 0;
+        }
+        body::-webkit-scrollbar {
+            width: 8px;
+        }
+        body::-webkit-scrollbar-thumb {
+            background: #888;
+        }
+        body::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        body:focus {
+            outline: none;
+        }
+        body:active,
+        body:hover,
+        body:focus-within {
+            outline: none;
         }
 
         .container {
             text-align: center;
+            position: relative;
+            z-index: 1;
         }
         .main-title {
             font-size: 3rem;
@@ -38,7 +77,6 @@
             margin: 40px 0 20px;
         }
         #start-menu {
-            display: none;
             margin-top: 30px;
         }
         .start-menu-btn {
@@ -56,44 +94,29 @@
             text-align: center;
             margin-bottom: 20px;
         }
-        button {
-            font-size: 24px;
-            padding: 15px 30px;
-            margin: 15px;
-            border-radius: 15px;
-            background-color: #4caf50;
-            border: none;
-            color: white;
-            cursor: pointer;
-        }
-
         .feedback {
             font-size: 1.5rem;
             margin: 1rem 0;
             min-height: 60px;
         }
-
-        .game-mode {
-            background-color: #81d4fa;
-            border-radius: 20px;
-            padding: 20px;
-            margin: 10px;
+        button {
+            font-size: 24px;
+            padding: 15px 30px;
+            margin: 15px;
+            border-radius: 15px;
+            border: none;
+            color: white;
             cursor: pointer;
-            font-size: 1.5rem;
-            transition: transform 0.2s;
-            border: 3px solid #000;
         }
-        .game-mode:hover {
-            transform: scale(1.05);
-        }
+        .btn-success { background-color: #4caf50; }
+        .btn-primary { background-color: #2196f3; }
+        .btn-warning { background-color: #ffc107; }
+        .btn-danger { background-color: #f44336; }
+        .btn-info { background-color: #00bcd4; }
 
-        #game-area {
-            display: none;
-        }
-
+        /* Barra superior */
         .player-info {
             display: flex;
-            justify-content: space-around;
             align-items: center;
             background: rgba(255, 255, 255, 0.9);
             padding: 10px 20px;
@@ -101,6 +124,12 @@
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
             margin-bottom: 20px;
             position: relative;
+            justify-content: space-between;
+        }
+        .player-info .left-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
         }
         .player-name {
             font-size: 24px;
@@ -117,28 +146,38 @@
         .stars-info span {
             font-size: 28px;
         }
+        .trophy-info {
+            margin-left: 20px;
+            font-size: 28px;
+            color: #ffbf00;
+            display: none; /* só aparece depois que meta for atingida */
+        }
 
-        /* Botão e Modal de Figurinhas */
+        .right-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
         #stickers-btn {
-            position: absolute;
-            top: 50%;
-            right: 10px;
-            transform: translateY(-50%);
-            font-size: 20px;
+            font-size: 16px;
             padding: 10px 20px;
             background: #ff9800;
+            border-radius: 10px;
         }
-        .modal-backdrop {
+
+        /* Modal e backdrop */
+        .modal-backdrop,
+        .modal-confetti {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
+            z-index: 9998;
             background-color: rgba(0, 0, 0, 0.5);
             display: none;
-            z-index: 9998;
         }
-        .stickers-modal {
+        .modal-base {
             position: fixed;
             top: 50%;
             left: 50%;
@@ -151,6 +190,8 @@
             max-width: 500px;
             display: none;
         }
+
+        /* Modal figurinhas */
         .stickers-modal h3 {
             margin-bottom: 20px;
         }
@@ -159,91 +200,76 @@
             flex-wrap: wrap;
             gap: 10px;
             justify-content: center;
+            margin-bottom: 15px;
         }
         .sticker-item {
-            font-size: 24px;
+            width: 100px;
+            height: 100px;
             background: #ffeb3b;
-            padding: 10px;
+            padding: 5px;
             border-radius: 8px;
             box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
             cursor: default;
-        }
-
-        /* Categorias */
-        .category-game-container {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 20px;
-            margin-top: 30px;
-        }
-        .category-bin {
-            width: 180px;
-            min-height: 150px;
-            border: 3px dashed #000;
-            border-radius: 15px;
-            background-color: #ffffff;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 10px;
-            gap: 10px;
-            transition: background 0.3s;
-        }
-        .category-label {
-            font-size: 1.2rem;
-            font-weight: bold;
-        }
-        .bin-items-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 5px;
-            justify-content: center;
-            min-height: 50px;
-        }
-
-        .category-item {
-            width: 80px;
-            height: 80px;
-            margin: 5px;
-            border-radius: 10px;
-            font-size: 2rem;
-            border: 3px solid #000;
-            background-color: #c8e6c9;
             display: flex;
             align-items: center;
             justify-content: center;
+        }
+        .sticker-item img {
+            max-width: 90%;
+            max-height: 90%;
+            object-fit: contain;
+        }
+
+        /* Modal meta */
+        #goalModal h2 {
+            margin-bottom: 20px;
+        }
+        /* Quando atinge meta */
+        #congratsModal .balloons {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        #congratsModal .balloons img {
+            width: 100px;
+            margin: 0 5px;
+        }
+        .confetti-canvas {
+            pointer-events: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 9999;
+            display: none;
+        }
+
+        /* Lista de jogos */
+        #main-menu { margin-top: 20px; }
+        .game-mode {
+            background-color: #81d4fa;
+            border-radius: 20px;
+            padding: 20px;
+            margin: 10px;
             cursor: pointer;
+            font-size: 1.5rem;
+            transition: transform 0.2s;
+            border: 3px solid #000;
+            text-align: center;
         }
-        .category-item.hidden-item {
-            visibility: hidden;
-        }
-        .category-matched {
-            background-color: #c8e6c9 !important;
-            border-color: #4caf50 !important;
-        }
-        .category-wrong {
-            background-color: #ffcdd2 !important;
-            border-color: #c62828 !important;
-            animation: shake 0.5s;
+        .game-mode:hover {
+            transform: scale(1.05);
         }
 
-        @keyframes shake {
-            0% {
-                transform: translateX(0);
-            }
-            25% {
-                transform: translateX(-5px);
-            }
-            50% {
-                transform: translateX(5px);
-            }
-            100% {
-                transform: translateX(0);
-            }
+        #game-area {
+            display: none;
         }
 
-        /* Outros jogos */
+        .d-none {
+            display: none !important;
+        }
+
+        /* Diversos layouts dos jogos */
         .numbers-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -324,12 +350,6 @@
             align-items: center;
             justify-content: center;
         }
-        .counting-game .emoji-option {
-            width: 100px;
-            height: 100px;
-            margin: 5px;
-            font-size: 40px;
-        }
 
         .word-letter {
             background-color: #ffd700;
@@ -407,8 +427,8 @@
             background: #c8e6c9 !important;
             border: 3px solid #4caf50 !important;
             opacity: 1 !important;
-            font-size: 80px !important; /* garantir tamanho do emoji */
-            width: 150px !important; /* manter tamanho */
+            font-size: 80px !important;
+            width: 150px !important;
         }
         .shadow-mismatch {
             background: #ffcdd2 !important;
@@ -554,11 +574,6 @@
             border: 2px solid #4caf50;
         }
 
-        .d-none {
-            display: none !important;
-        }
-
-        /* ---- Jogo de Leitura ---- */
         .reading-title {
             font-size: 1.5rem;
             margin-bottom: 20px;
@@ -606,15 +621,168 @@
             background-color: #c8e6c9;
             border-color: #4caf50;
         }
+
+        /* Categorias */
+        .category-game-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .category-bin {
+            width: 180px;
+            min-height: 150px;
+            border: 3px dashed #000;
+            border-radius: 15px;
+            background-color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 10px;
+            gap: 10px;
+            transition: background 0.3s;
+        }
+        .category-label {
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+        .bin-items-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            justify-content: center;
+            min-height: 50px;
+        }
+        .category-item {
+            width: 80px;
+            height: 80px;
+            margin: 5px;
+            border-radius: 10px;
+            font-size: 2rem;
+            border: 3px solid #000;
+            background-color: #c8e6c9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+        .category-item.hidden-item {
+            visibility: hidden;
+        }
+        .category-matched {
+            background-color: #c8e6c9 !important;
+            border-color: #4caf50 !important;
+        }
+        .category-wrong {
+            background-color: #ffcdd2 !important;
+            border-color: #c62828 !important;
+            animation: shake 0.5s;
+        }
+
+        @keyframes shake {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            50% { transform: translateX(5px); }
+            100% { transform: translateX(0); }
+        }
+
+        /* Jogos Palworld e Pokemon */
+        .pal-list, .pokemon-list {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 20px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .pal-item, .pokemon-item {
+            width: 150px;
+            background-color: #fff9c4;
+            border: 3px solid #000;
+            border-radius: 10px;
+            padding: 10px;
+            text-align: center;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
+        }
+        .pal-item img, .pokemon-item img {
+            max-width: 100%;
+            max-height: 100px;
+            object-fit: contain;
+        }
+        .pal-name, .pokemon-name {
+            margin: 10px 0 5px;
+            font-weight: bold;
+            font-size: 18px;
+        }
+        .letters-options {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+        .letter-choice {
+            background-color: #c8e6c9;
+            width: 60px;
+            height: 60px;
+            border-radius: 10px;
+            font-size: 2rem;
+            border: 3px solid #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+        .letter-choice:hover {
+            background-color: #aed581;
+        }
     </style>
 </head>
-<body class="d-flex flex-column min-vh-100" oncontextmenu="return false;" >
+<body oncontextmenu="return false;">
 
+<!-- Canvas para confetes -->
+<canvas class="confetti-canvas" id="confettiCanvas"></canvas>
+
+<!-- BACKDROP GERAL -->
 <div class="modal-backdrop" id="modal-backdrop"></div>
-<div class="stickers-modal" id="stickers-modal">
+
+<!-- MODAL FIGURINHAS -->
+<div class="modal-base" id="stickers-modal">
     <h3>Minhas Figurinhas</h3>
     <div class="stickers-container" id="stickers-container"></div>
     <button class="btn btn-danger" onclick="closeStickersModal()">Fechar</button>
+</div>
+
+<!-- MODAL DE DEFINIR META -->
+<div class="modal-base" id="goalModal">
+    <h2>Defina sua meta de estrelas</h2>
+    <input
+            type="number"
+            min="1"
+            max="9999"
+            id="goalInput"
+            style="font-size:20px; text-align:center; border:2px solid #ccc; border-radius:8px; width:100px;"
+    />
+    <br><br>
+    <button class="btn btn-primary" onclick="setGoal()">Definir</button>
+</div>
+
+<!-- MODAL DE PARABÉNS AO ATINGIR META -->
+<div class="modal-base" id="congratsModal">
+    <h2>Parabéns!</h2>
+    <div class="balloons">
+        <img src="https://cdn-icons-png.flaticon.com/512/2553/2553619.png" alt="Balloon">
+        <img src="https://cdn-icons-png.flaticon.com/512/2553/2553619.png" alt="Balloon">
+        <img src="https://cdn-icons-png.flaticon.com/512/2553/2553619.png" alt="Balloon">
+    </div>
+    <p>Você atingiu sua meta de estrelas!</p>
+    <div style="margin-top: 20px;">
+        <button class="btn btn-info" onclick="continueAfterGoal()">Continuar Jogando</button>
+        <button class="btn btn-danger" onclick="restartGame()">Recomeçar</button>
+    </div>
 </div>
 
 <div class="container flex-grow-1">
@@ -622,40 +790,34 @@
 
     <div id="start-menu">
         <div id="continue-btn-container">
-            <button class="btn btn-primary start-menu-btn" id="continueGameBtn">
-                Continuar Jogo
-            </button>
+            <button class="btn btn-primary start-menu-btn" id="continueGameBtn">Continuar Jogo</button>
         </div>
-        <button class="btn btn-success start-menu-btn" id="newGameBtn">
-            Novo Jogo
-        </button>
+        <button class="btn btn-success start-menu-btn" id="newGameBtn">Novo Jogo</button>
 
         <div class="d-none" id="newGameForm">
             <p>Digite seu nome para começar:</p>
-            <input
-                    type="text"
-                    id="playerNameInput"
-                    class="start-menu-input"
-            />
+            <input type="text" id="playerNameInput" class="start-menu-input" />
+            <p>Quantas estrelas quer ganhar?</p>
+            <input type="number" id="playerGoalInput" class="start-menu-input" style="width:150px;" min="1" max="9999" />
             <br />
-            <button id="startNewGameBtn" class="btn btn-warning">
-                Iniciar
-            </button>
+            <button id="startNewGameBtn" class="btn btn-warning">Iniciar</button>
         </div>
     </div>
 
     <div class="player-info d-none" id="playerInfoContainer">
-        <div class="player-name" id="player-name"></div>
-        <div class="stars-info">
-            <span>⭐</span>
-            <span id="stars-count">0</span>
+        <div class="left-info">
+            <div class="player-name" id="player-name"></div>
+            <div class="stars-info">
+                <span>⭐</span>
+                <span id="stars-count">0</span>
+            </div>
+            <div class="trophy-info" id="trophyInfo">🏆</div>
         </div>
-        <button id="stickers-btn" onclick="openStickersModal()">
-            Figurinhas
-        </button>
+        <div class="right-info">
+            <button id="stickers-btn" onclick="openStickersModal()">Figurinhas</button>
+        </div>
     </div>
 
-    <!-- Menu principal (dinâmico) -->
     <div id="main-menu" class="d-none">
         <div class="row g-2" id="games-list"></div>
     </div>
@@ -664,9 +826,7 @@
         <div id="content" class="my-4"></div>
         <div id="feedback" class="feedback text-center"></div>
         <div class="text-center my-3">
-            <button class="btn btn-lg btn-primary" onclick="cancelNextGameAndMenu()">
-                Voltar ao Menu
-            </button>
+            <button class="btn btn-lg btn-primary" onclick="cancelNextGameAndMenu()">Voltar ao Menu</button>
         </div>
     </div>
 </div>
@@ -675,19 +835,20 @@
         src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
 ></script>
 <script>
-    /* Bloquear destaque e arrasto de texto no toque */
     document.addEventListener('selectstart', (e) => e.preventDefault());
-    /* Bloquear contextmenu do mouse */
     document.addEventListener('contextmenu', (e) => e.preventDefault());
 
     let savedName = localStorage.getItem("playerName") || "";
     let savedStars = parseInt(localStorage.getItem("stars") || "0", 10);
+    let savedGoal = parseInt(localStorage.getItem("playerGoal") || "0", 10);
+    let hasReachedGoal = (localStorage.getItem("hasReachedGoal") === "true");
 
     let playerName = savedName;
     let stars = savedStars;
     let previousStars = stars;
     let currentGame = null;
     let speechSynth = window.speechSynthesis;
+    let nextGameTimeout = null;
 
     /* Históricos para evitar repetição de mesma jogada */
     let lastNumber = null;
@@ -701,22 +862,67 @@
     let lastCategoriesSet = null;
     let lastReadingWord = null;
 
-    /* Guardar estrelas por jogo */
+    /* Guarda estrelas por jogo */
     let gameStars = JSON.parse(localStorage.getItem("gameStars") || "{}");
-    let nextGameTimeout = null; // Para cancelar setTimeout se o usuário voltar ao menu
 
-    /* Sistema de figurinhas */
+    /* Sistema de figurinhas com imagens */
     let stickerList = JSON.parse(localStorage.getItem("myStickers") || "[]");
     const possibleStickers = [
-        "Pikachu",
-        "Charmander",
-        "Bulbasaur",
-        "Squirtle",
-        "Stitch",
-        "Palworld1",
-        "Palworld2",
-        "Eevee",
-        "Mew"
+        { name: "Pikachu", img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png" },
+        { name: "Charmander", img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/4.png" },
+        { name: "Bulbasaur", img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png" },
+        { name: "Squirtle", img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/7.png" },
+        { name: "Stitch", img: "https://cdn-icons-png.flaticon.com/512/6112/6112465.png" },
+        { name: "Pal1", img: "https://cdn-icons-png.flaticon.com/512/528/528099.png" },
+        { name: "Pal2", img: "https://cdn-icons-png.flaticon.com/512/528/528092.png" },
+        { name: "Eevee", img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/133.png" },
+        { name: "Mew", img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/151.png" }
+    ];
+
+    /* NOVOS JOGOS (Palworld e Pokemon) */
+    const palworldData = [
+        { name: "Flameling", img: "https://via.placeholder.com/150?text=Flameling" },
+        { name: "Aquee", img: "https://via.placeholder.com/150?text=Aquee" },
+        { name: "Thundor", img: "https://via.placeholder.com/150?text=Thundor" },
+        { name: "Yousha", img: "https://via.placeholder.com/150?text=Yousha" },
+        { name: "Pebblet", img: "https://via.placeholder.com/150?text=Pebblet" },
+        { name: "Leafi", img: "https://via.placeholder.com/150?text=Leafi" },
+        { name: "Bizzlit", img: "https://via.placeholder.com/150?text=Bizzlit" },
+        { name: "Vineon", img: "https://via.placeholder.com/150?text=Vineon" },
+        { name: "Frosty", img: "https://via.placeholder.com/150?text=Frosty" },
+        { name: "Smolder", img: "https://via.placeholder.com/150?text=Smolder" },
+        { name: "Bubbly", img: "https://via.placeholder.com/150?text=Bubbly" },
+        { name: "Sparky", img: "https://via.placeholder.com/150?text=Sparky" },
+        { name: "Nimbus", img: "https://via.placeholder.com/150?text=Nimbus" },
+        { name: "Cragg", img: "https://via.placeholder.com/150?text=Cragg" },
+        { name: "Cacteen", img: "https://via.placeholder.com/150?text=Cacteen" },
+        { name: "Bloomy", img: "https://via.placeholder.com/150?text=Bloomy" },
+        { name: "Scorche", img: "https://via.placeholder.com/150?text=Scorche" },
+        { name: "Stormi", img: "https://via.placeholder.com/150?text=Stormi" },
+        { name: "Wispin", img: "https://via.placeholder.com/150?text=Wispin" },
+        { name: "Dracoon", img: "https://via.placeholder.com/150?text=Dracoon" }
+    ];
+    const pokemonData = [
+        { name: "Bulbasaur", img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png" },
+        { name: "Ivysaur",   img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/2.png" },
+        { name: "Venusaur",  img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/3.png" },
+        { name: "Charmander",img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/4.png" },
+        { name: "Charmeleon",img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/5.png" },
+        { name: "Charizard", img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/6.png" },
+        { name: "Squirtle",  img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/7.png" },
+        { name: "Wartortle", img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/8.png" },
+        { name: "Blastoise", img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/9.png" },
+        { name: "Caterpie",  img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10.png" },
+        { name: "Metapod",   img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/11.png" },
+        { name: "Butterfree",img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/12.png" },
+        { name: "Weedle",    img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/13.png" },
+        { name: "Kakuna",    img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/14.png" },
+        { name: "Beedrill",  img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/15.png" },
+        { name: "Pidgey",    img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/16.png" },
+        { name: "Pidgeotto", img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/17.png" },
+        { name: "Pidgeot",   img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/18.png" },
+        { name: "Rattata",   img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/19.png" },
+        { name: "Raticate",  img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/20.png" }
     ];
 
     const startMenuEl = document.getElementById("start-menu");
@@ -725,9 +931,11 @@
     const newGameBtn = document.getElementById("newGameBtn");
     const newGameForm = document.getElementById("newGameForm");
     const playerNameInput = document.getElementById("playerNameInput");
+    const playerGoalInput = document.getElementById("playerGoalInput");
     const startNewGameBtn = document.getElementById("startNewGameBtn");
 
     const playerInfoContainer = document.getElementById("playerInfoContainer");
+    const trophyInfoEl = document.getElementById("trophyInfo");
     const playerNameEl = document.getElementById("player-name");
     const starsCountEl = document.getElementById("stars-count");
 
@@ -735,214 +943,20 @@
     const gamesListEl = document.getElementById("games-list");
     const gameAreaEl = document.getElementById("game-area");
 
-    const numbers = Array.from({ length: 20 }, (_, i) => i + 1);
+    const confettiCanvas = document.getElementById("confettiCanvas");
+    const confettiCtx = confettiCanvas.getContext("2d");
+    let confettiActive = false;
 
-    const emojiDatabase = {
-        A: [
-            { emoji: "✈️", nome: "Avião" },
-            { emoji: "🌳", nome: "Árvore" },
-            { emoji: "🎨", nome: "Arte" },
-            { emoji: "🏹", nome: "Arco e Flecha" },
-            { emoji: "🐜", nome: "Aranha" },
-            { emoji: "⚓", nome: "Âncora" },
-            { emoji: "🎭", nome: "Ator" },
-            { emoji: "🚑", nome: "Ambulância" },
-            { emoji: "🌈", nome: "Arco-íris" },
-            { emoji: "🍚", nome: "Arroz" },
-        ],
-        B: [
-            { emoji: "🎈", nome: "Balão" },
-            { emoji: "🚲", nome: "Bicicleta" },
-            { emoji: "🍌", nome: "Banana" },
-            { emoji: "🔋", nome: "Bateria" },
-            { emoji: "🏀", nome: "Basquete" },
-            { emoji: "🐝", nome: "Abelha" },
-            { emoji: "🍟", nome: "Batata Frita" },
-            { emoji: "⚖", nome: "Balança" },
-            { emoji: "🍆", nome: "Berinjela" },
-            { emoji: "⚽", nome: "Bola" },
-        ],
-        C: [
-            { emoji: "🏡", nome: "Casa" },
-            { emoji: "🏰", nome: "Castelo" },
-            { emoji: "🏙️", nome: "Cidade" },
-            { emoji: "🐍", nome: "Cobra" },
-            { emoji: "🐶", nome: "Cachorro" },
-            { emoji: "☕", nome: "Café" },
-            { emoji: "🍵", nome: "Chá" },
-            { emoji: "🚗", nome: "Carro" },
-            { emoji: "🎠", nome: "Carrossel" },
-            { emoji: "🦌", nome: "Cervo" },
-            { emoji: "🥕", nome: "Cenoura" },
-            { emoji: "🔑", nome: "Chave" },
-            { emoji: "🦉", nome: "Coruja" },
-            { emoji: "🏃", nome: "Corrida" },
-        ],
-        D: [
-            { emoji: "🎲", nome: "Dado" },
-            { emoji: "🐉", nome: "Dragão" },
-            { emoji: "💎", nome: "Diamante" },
-            { emoji: "🎯", nome: "Dardo" },
-            { emoji: "📅", nome: "Data" },
-        ],
-        E: [
-            { emoji: "⭐", nome: "Estrela" },
-            { emoji: "📧", nome: "E-mail" },
-            { emoji: "🐘", nome: "Elefante" },
-            { emoji: "🔌", nome: "Energia" },
-            { emoji: "🛤", nome: "Estrada" },
-        ],
-        F: [
-            { emoji: "🎗", nome: "Fita" },
-            { emoji: "🌸", nome: "Flor" },
-            { emoji: "🐜", nome: "Formiga" },
-            { emoji: "🔥", nome: "Fogo" },
-            { emoji: "🎺", nome: "Flauta" },
-            { emoji: "🏁", nome: "Final" },
-            { emoji: "🍂", nome: "Folha" },
-            { emoji: "🚀", nome: "Foguete" },
-            { emoji: "🌹", nome: "Flor" },
-        ],
-        G: [
-            { emoji: "🐬", nome: "Golfinho" },
-            { emoji: "🐱", nome: "Gato" },
-            { emoji: "🦒", nome: "Girafa" },
-            { emoji: "☂️", nome: "Guarda-chuva" },
-            { emoji: "🎸", nome: "Guitarra" },
-            { emoji: "🥅", nome: "Gol" },
-            { emoji: "🏌️", nome: "Golfe" },
-        ],
-        H: [
-            { emoji: "🏥", nome: "Hospital" },
-            { emoji: "🚁", nome: "Helicóptero" },
-            { emoji: "🐹", nome: "Hamster" },
-        ],
-        I: [
-            { emoji: "🏝", nome: "Ilha" },
-            { emoji: "💡", nome: "Ideia" },
-            { emoji: "📱", nome: "Internet" },
-            { emoji: "🖼", nome: "Imagem" },
-        ],
-        J: [
-            { emoji: "🎷", nome: "Jazz" },
-            { emoji: "🚙", nome: "Jipe" },
-        ],
-        K: [
-            { emoji: "🥝", nome: "Kiwi" },
-            { emoji: "🤹", nome: "Karatê" },
-            { emoji: "🥋", nome: "Kimono" },
-        ],
-        L: [
-            { emoji: "🍋", nome: "Limão" },
-            { emoji: "📚", nome: "Livro" },
-            { emoji: "💡", nome: "Lâmpada" },
-            { emoji: "🦁", nome: "Leão" },
-            { emoji: "🌙", nome: "Lua" },
-            { emoji: "🍊", nome: "Laranja" },
-            { emoji: "🏞️", nome: "Lago" },
-            { emoji: "🛳", nome: "Lancha" },
-        ],
-        M: [
-            { emoji: "🎶", nome: "Música" },
-            { emoji: "🎤", nome: "Microfone" },
-            { emoji: "🍎", nome: "Maçã" },
-            { emoji: "🐵", nome: "Macaco" },
-            { emoji: "🍈", nome: "Melão" },
-            { emoji: "🌊", nome: "Mar" },
-            { emoji: "🏔", nome: "Montanha" },
-            { emoji: "🗺", nome: "Mapa" },
-            { emoji: "✉️", nome: "Mensagem" },
-            { emoji: "🚇", nome: "Metrô" },
-            { emoji: "🦇", nome: "Morcego" },
-            { emoji: "🔨", nome: "Machado" },
-        ],
-        N: [
-            { emoji: "❄️", nome: "Neve" },
-            { emoji: "🚢", nome: "Navio" },
-        ],
-        O: [
-            { emoji: "🥚", nome: "Ovo" },
-            { emoji: "🏢", nome: "Oficina" },
-            { emoji: "🎨", nome: "Obra de Arte" },
-            { emoji: "🚌", nome: "Ônibus" },
-        ],
-        P: [
-            { emoji: "🐠", nome: "Peixe" },
-            { emoji: "🍕", nome: "Pizza" },
-            { emoji: "🐧", nome: "Pinguim" },
-            { emoji: "🎁", nome: "Presente" },
-            { emoji: "🚪", nome: "Porta" },
-            { emoji: "🐙", nome: "Polvo" },
-            { emoji: "📦", nome: "Pacote" },
-            { emoji: "🥞", nome: "Panqueca" },
-            { emoji: "🥖", nome: "Pão" },
-        ],
-        Q: [
-            { emoji: "👑", nome: "Queijo" },
-            { emoji: "🃏", nome: "Quebra-cabeça" },
-            { emoji: "🖼", nome: "Quadro" },
-        ],
-        R: [
-            { emoji: "🦊", nome: "Raposa" },
-            { emoji: "📻", nome: "Rádio" },
-            { emoji: "🦏", nome: "Rinoceronte" },
-            { emoji: "🤖", nome: "Robo" },
-        ],
-        S: [
-            { emoji: "🚦", nome: "Semáforo" },
-            { emoji: "🌞", nome: "Sol" },
-            { emoji: "🥗", nome: "Salada" },
-            { emoji: "🔔", nome: "Sino de Natal" },
-        ],
-        T: [
-            { emoji: "🎩", nome: "Teatro" },
-            { emoji: "🌮", nome: "Taco" },
-            { emoji: "🚆", nome: "Trem" },
-            { emoji: "🎹", nome: "Teclado" },
-            { emoji: "🎺", nome: "Trompete" },
-            { emoji: "📞", nome: "Telefone" },
-            { emoji: "🌍", nome: "Terra" },
-            { emoji: "🏆", nome: "Troféu" },
-            { emoji: "🥁", nome: "Tambor" },
-        ],
-        U: [
-            { emoji: "🦄", nome: "Unicórnio" },
-            { emoji: "🍇", nome: "Uva" },
-        ],
-        V: [
-            { emoji: "🎻", nome: "Violino" },
-            { emoji: "🌋", nome: "Vulcão" },
-            { emoji: "🍷", nome: "Vinho" },
-            { emoji: "🎮", nome: "Videogame" },
-            { emoji: "📹", nome: "Vídeo" },
-            { emoji: "🚐", nome: "Van" },
-            { emoji: "🔊", nome: "Volume" },
-        ],
-        X: [{ emoji: "❌", nome: "Xis" }],
-        Z: [{ emoji: "🦓", nome: "Zebra" }],
-    };
-
-    const readingWords = [
-        { word: "barata", syllables: ["ba", "ra", "ta"] },
-        { word: "banana", syllables: ["ba", "na", "na"] },
-        { word: "pipoca", syllables: ["pi", "po", "ca"] },
-        { word: "macaco", syllables: ["ma", "ca", "co"] },
-        { word: "cavalo", syllables: ["ca", "va", "lo"] },
-        { word: "tartaruga", syllables: ["tar", "ta", "ru", "ga"] },
-        { word: "amigo", syllables: ["a", "mi", "go"] },
-        { word: "arara", syllables: ["a", "ra", "ra"] },
-        { word: "batata", syllables: ["ba", "ta", "ta"] },
-        { word: "girafa", syllables: ["gi", "ra", "fa"] },
-        { word: "cachorro", syllables: ["ca", "cho", "rro"] },
-    ];
-
+    /* Carrega e inicia */
     window.onload = function () {
         showStartMenu();
+        if(hasReachedGoal) {
+            trophyInfoEl.style.display = "inline-block";
+        }
     };
 
     function showStartMenu() {
-        startMenuEl.style.display = "block";
-        if (!savedName) {
+        if(!savedName) {
             continueBtnContainer.style.display = "none";
         } else {
             continueBtnContainer.style.display = "block";
@@ -950,15 +964,16 @@
         mainMenuEl.classList.add("d-none");
         playerInfoContainer.classList.add("d-none");
         gameAreaEl.classList.add("d-none");
-        playerNameInput.value = savedName;
+        startMenuEl.style.display = "block";
+        playerNameInput.value = savedName || "";
     }
 
     continueGameBtn.onclick = function () {
         playerName = savedName;
         stars = savedStars;
         previousStars = stars;
-        localStorage.setItem("stars", String(stars));
-        localStorage.setItem("playerName", playerName);
+        savedGoal = parseInt(localStorage.getItem("playerGoal")||"0",10);
+        hasReachedGoal = (localStorage.getItem("hasReachedGoal") === "true");
         startMenuEl.style.display = "none";
         showPlayerInfo();
         buildMainMenu();
@@ -971,17 +986,34 @@
 
     startNewGameBtn.onclick = function () {
         const chosenName = playerNameInput.value.trim();
+        const chosenGoal = parseInt(playerGoalInput.value.trim()||"0",10);
         if (!chosenName) {
             alert("Por favor, informe um nome para iniciar!");
+            return;
+        }
+        if (chosenGoal<1) {
+            alert("Por favor, informe uma meta de estrelas válida!");
             return;
         }
         playerName = chosenName;
         stars = 0;
         previousStars = 0;
-        savedName = playerName;
-        savedStars = stars;
         localStorage.setItem("playerName", playerName);
         localStorage.setItem("stars", String(stars));
+
+        savedGoal = chosenGoal;
+        localStorage.setItem("playerGoal", String(chosenGoal));
+        hasReachedGoal = false;
+        localStorage.setItem("hasReachedGoal","false");
+
+        /* Zera estrelas de cada jogo */
+        gameStars = {};
+        localStorage.setItem("gameStars", "{}");
+
+        /* Some com figurinhas se quiser recomeçar geral (opcional)
+           Se quiser manter figurinhas antigas, só comentar essa parte */
+        stickerList = [];
+        localStorage.setItem("myStickers","[]");
 
         startMenuEl.style.display = "none";
         showPlayerInfo();
@@ -993,6 +1025,7 @@
         playerInfoContainer.classList.remove("d-none");
         playerNameEl.textContent = playerName;
         starsCountEl.textContent = stars;
+        trophyInfoEl.style.display = hasReachedGoal ? "inline-block" : "none";
     }
 
     function buildMainMenu() {
@@ -1001,16 +1034,18 @@
 
         // Lista de jogos + ícone + quantas estrelas
         const gameConfigs = [
-            { id: "numbers", label: "🔢 Números" },
-            { id: "letters", label: "🔤 Letras" },
-            { id: "counting", label: "🍎 Contar" },
-            { id: "word", label: "🧩 Palavras" },
-            { id: "shadows", label: "🎭 Sombras" },
-            { id: "puzzle", label: "🧩 Quebra cabeça" },
-            { id: "colors", label: "🎨 Cores" },
-            { id: "weather", label: "☔ Clima" },
-            { id: "categories", label: "🚀 Categorias" },
-            { id: "reading", label: "📖 Aprender a Ler" },
+            { id: "numbers",   label: "🔢 Números" },
+            { id: "letters",   label: "🔤 Letras" },
+            { id: "counting",  label: "🍎 Contar" },
+            { id: "word",      label: "🧩 Palavras" },
+            { id: "shadows",   label: "🎭 Sombras" },
+            { id: "puzzle",    label: "🧩 Quebra cabeça" },
+            { id: "colors",    label: "🎨 Cores" },
+            { id: "weather",   label: "☔ Clima" },
+            { id: "categories",label: "🚀 Categorias" },
+            { id: "reading",   label: "📖 Aprender a Ler" },
+            { id: "palworld",  label: "🐾 Palworld" },
+            { id: "pokemon",   label: "🦊 Pokemon" }
         ];
 
         gameConfigs.forEach((cfg) => {
@@ -1029,65 +1064,9 @@
 
     function showMainMenu() {
         clearTimeoutIfAny();
+        startMenuEl.style.display = "none";
         gameAreaEl.classList.add("d-none");
         mainMenuEl.classList.remove("d-none");
-
-        if (stars > previousStars) {
-            speak(`${playerName}, você tem ${stars} estrelas! Muito bem!`);
-            previousStars = stars;
-        } else if (stars < previousStars && stars > 0) {
-            speak(`${playerName}, agora você tem ${stars} estrelas. Vamos recuperar!`);
-            previousStars = stars;
-        }
-    }
-
-    function startGame(mode) {
-        clearTimeoutIfAny();
-        currentGame = mode;
-        mainMenuEl.classList.add("d-none");
-        gameAreaEl.classList.remove("d-none");
-        gameAreaEl.style.display = "block";
-        document.getElementById("feedback").textContent = "";
-
-        switch (mode) {
-            case "numbers":
-                initNumbersGame();
-                break;
-            case "letters":
-                initLettersGame();
-                break;
-            case "counting":
-                initCountingGame();
-                break;
-            case "word":
-                initWordGame();
-                break;
-            case "shadows":
-                initShadowGame();
-                break;
-            case "puzzle":
-                initPuzzleGame();
-                break;
-            case "colors":
-                initColorGame();
-                break;
-            case "weather":
-                initWeatherGame();
-                break;
-            case "categories":
-                initCategoryGame();
-                break;
-            case "reading":
-                initReadingGame();
-                break;
-        }
-    }
-
-    function scheduleNewGame(mode, delay) {
-        clearTimeoutIfAny();
-        nextGameTimeout = setTimeout(() => {
-            startGame(mode);
-        }, delay);
     }
 
     function cancelNextGameAndMenu() {
@@ -1102,13 +1081,42 @@
         }
     }
 
-    /*********** NÚMEROS ************/
+    function startGame(mode) {
+        clearTimeoutIfAny();
+        currentGame = mode;
+        mainMenuEl.classList.add("d-none");
+        gameAreaEl.classList.remove("d-none");
+        gameAreaEl.style.display = "block";
+
+        document.getElementById("feedback").textContent = "";
+        const content = document.getElementById("content");
+        content.innerHTML = "";
+
+        switch (mode) {
+            case "numbers":   initNumbersGame(); break;
+            case "letters":   initLettersGame(); break;
+            case "counting":  initCountingGame(); break;
+            case "word":      initWordGame(); break;
+            case "shadows":   initShadowGame(); break;
+            case "puzzle":    initPuzzleGame(); break;
+            case "colors":    initColorGame(); break;
+            case "weather":   initWeatherGame(); break;
+            case "categories":initCategoryGame(); break;
+            case "reading":   initReadingGame(); break;
+            case "palworld":  initPalworldGame(); break;
+            case "pokemon":   initPokemonGame(); break;
+        }
+    }
+
+    /***************************
+     INÍCIO LÓGICA DE JOGOS
+     ****************************/
+    /* 1) NÚMEROS (6 alternativas) */
     function initNumbersGame() {
         const content = document.getElementById("content");
-
-        let targetNumber = numbers[Math.floor(Math.random() * numbers.length)];
+        let targetNumber = Math.floor(Math.random() * 40) + 1;
         while (targetNumber === lastNumber) {
-            targetNumber = numbers[Math.floor(Math.random() * numbers.length)];
+            targetNumber = Math.floor(Math.random() * 40) + 1;
         }
         lastNumber = targetNumber;
 
@@ -1120,10 +1128,12 @@
       <div class="numbers-grid" id="numbers-grid"></div>
     `;
 
+        let possibleNumbers = Array.from({length:80},(_,i)=> i+1);
         const options = shuffle([
             targetNumber,
-            ...shuffle(numbers.filter((n) => n !== targetNumber)).slice(0, 4),
+            ...shuffle(possibleNumbers.filter((n) => n !== targetNumber)).slice(0,5)
         ]);
+
         const grid = document.getElementById("numbers-grid");
         options.forEach((num) => {
             const div = document.createElement("div");
@@ -1139,16 +1149,15 @@
     function checkNumber(isCorrect) {
         if (isCorrect) {
             updateStars(1);
-            showFeedback("🎯 Correto! Você é demais!", true);
-            scheduleNewGame("numbers", 2000);
+            showFeedback("🎯 Correto!", true);
         } else {
             updateStars(-1);
-            showFeedback("🤔 Tente novamente!", false);
+            showFeedback("Tente novamente!", false);
             speak("Ops! Esse não é o número");
         }
     }
 
-    /*********** LETRAS ************/
+    /* 2) LETRAS */
     function initLettersGame() {
         const content = document.getElementById("content");
         const validLetters = Object.keys(emojiDatabase);
@@ -1195,16 +1204,15 @@
     function checkEmoji(isCorrect, nome) {
         if (isCorrect) {
             updateStars(1);
-            showFeedback("🌈 Certo! Combinação perfeita!", true);
-            scheduleNewGame("letters", 2000);
+            showFeedback("Certo!", true);
         } else {
             updateStars(-1);
-            showFeedback(`💡 "${nome}" começa com ${nome[0].toUpperCase()}!`, false);
+            showFeedback(`"${nome}" começa com ${nome[0].toUpperCase()}!`, false);
             speak(`Ops! ${nome} começa com ${nome[0].toUpperCase()}!`);
         }
     }
 
-    /*********** CONTAR ************/
+    /* 3) CONTAR */
     function initCountingGame() {
         const content = document.getElementById("content");
         let targetCount = Math.floor(Math.random() * 20) + 1;
@@ -1228,16 +1236,8 @@
 
         const grid = document.querySelector(".emoji-grid");
         const distractors = [
-            "🐶",
-            "🍉",
-            "🚗",
-            "🎮",
-            "🍕",
-            "🏀",
-            "🐠",
-            "🍩",
-            "🚂",
-            "🌻",
+            "🐶","🍉","🚗","🎮","🍕","🏀","🐠","🍩","🚂","🌻",
+            "🐱","🦊","🐰","🐔","🚑","🦁"
         ];
         const options = shuffle([
             targetEmoji,
@@ -1259,7 +1259,7 @@
         if (!isCorrect) {
             speak("Esse não é o emoji correto!");
             updateStars(-1);
-            showFeedback("❌ Emoji errado!", false);
+            showFeedback("Emoji errado!", false);
             return;
         }
         const counter = document.getElementById("counter");
@@ -1269,33 +1269,22 @@
 
         if (count === target) {
             updateStars(1);
-            showFeedback("🎉 Parabéns! Contagem correta!", true);
-            scheduleNewGame("counting", 2000);
+            showFeedback("Parabéns! Contagem correta!", true);
         }
     }
 
     function getEmojiName(emoji) {
         const names = {
-            "🍎": "maçã",
-            "⭐": "estrela",
-            "🐻": "urso",
-            "🎈": "balão",
-            "🍪": "biscoito",
-            "🐶": "cachorro",
-            "🍉": "melancia",
-            "🚗": "carro",
-            "🎮": "videogame",
-            "🍕": "pizza",
-            "🏀": "bola",
-            "🐠": "peixe",
-            "🍩": "rosquinha",
-            "🚂": "trem",
-            "🌻": "girassol",
+            "🍎": "maçã","⭐": "estrela","🐻": "urso","🎈": "balão","🍪": "biscoito",
+            "🐶": "cachorro","🍉": "melancia","🚗": "carro","🎮": "videogame","🍕": "pizza",
+            "🏀": "bola","🐠": "peixe","🍩": "rosquinha","🚂": "trem","🌻": "girassol",
+            "🐱": "gato","🦊": "raposa","🐰": "coelho","🐔": "galinha","🚑": "ambulância",
+            "🦁": "leão"
         };
         return names[emoji] || "objeto";
     }
 
-    /*********** PALAVRAS ************/
+    /* 4) PALAVRAS */
     function initWordGame() {
         const content = document.getElementById("content");
         content.innerHTML = "<h2>Monte a palavra do emoji:</h2>";
@@ -1340,9 +1329,7 @@
     }
 
     function handleLetterClick(letterElement, targetLetters) {
-        const revealedLetters = document.querySelectorAll(
-            "#target-word .revealed"
-        );
+        const revealedLetters = document.querySelectorAll("#target-word .revealed");
         const nextIndex = revealedLetters.length;
 
         speak(letterElement.textContent);
@@ -1357,19 +1344,18 @@
                 letterElement.style.visibility = "hidden";
 
                 if (nextIndex === targetLetters.length - 1) {
-                    showFeedback("🎉 Parabéns! Palavra correta!", true);
+                    showFeedback("Palavra correta!", true);
                     updateStars(1);
-                    scheduleNewGame("word", 2000);
                 }
             } else {
-                showFeedback("😊 Tente novamente!", false);
+                showFeedback("Tente novamente!", false);
                 speak("Essa não é a letra correta");
                 updateStars(-1);
             }
         }
     }
 
-    /*********** SOMBRAS ************/
+    /* 5) SOMBRAS */
     function initShadowGame() {
         const content = document.getElementById("content");
         content.innerHTML = "<h2>Toque em um emoji e depois em sua sombra:</h2>";
@@ -1379,7 +1365,6 @@
             .map((itemObj) => itemObj.emoji);
 
         let uniqueEmojis = Array.from(new Set(allShadowEmojis));
-        // Garante que não seja o mesmo set da última vez
         let chosenEmojis = shuffle(uniqueEmojis).slice(0, 4);
         if (JSON.stringify(chosenEmojis) === JSON.stringify(lastShadowSet)) {
             chosenEmojis = shuffle(uniqueEmojis).slice(0, 4);
@@ -1441,28 +1426,25 @@
         if (!selected) return;
 
         if (selected === expectedEmoji) {
-            slotElement.textContent = selected; // manter o emoji e fonte
+            slotElement.textContent = selected;
             slotElement.classList.add("shadow-match");
             slotElement.classList.remove("shadow-slot");
             window.shadowGameState.correctMatches++;
             if (selectedEl) selectedEl.style.display = "none";
+            showFeedback("Correto!", true);
+
             if (
                 window.shadowGameState.correctMatches ===
                 window.shadowGameState.totalItems
             ) {
                 updateStars(1);
-                showFeedback("🎉 Parabéns! Todas sombras combinadas!", true);
-                scheduleNewGame("shadows", 2000);
-            } else {
-                showFeedback("✅ Correto!", true);
-                speak("Muito bem!");
             }
         } else {
             slotElement.classList.add("shadow-mismatch");
             setTimeout(() => slotElement.classList.remove("shadow-mismatch"), 1000);
-            speak("Essa não é a sombra correta, você perdeu uma estrela");
+            speak("Essa não é a sombra correta");
             updateStars(-1);
-            showFeedback("Ops! Sombra incorreta!", false);
+            showFeedback("Sombra incorreta!", false);
         }
 
         if (selectedEl) {
@@ -1472,7 +1454,7 @@
         window.shadowGameState.selectedElement = null;
     }
 
-    /*********** PUZZLE NÚMEROS ************/
+    /* 6) QUEBRA-CABEÇA (máximo 9) */
     function initPuzzleGame() {
         window.puzzleGameState = {
             selectedNumber: null,
@@ -1483,23 +1465,14 @@
         const content = document.getElementById("content");
         content.innerHTML = "<h2>Combine os números com a quantidade correta:</h2>";
 
-        let randomNums = shuffle([...Array(10)].map((_, i) => i + 1)).slice(0, 5);
+        let randomNums = shuffle([...Array(9)].map((_, i) => i + 1)).slice(0, 5);
         while (JSON.stringify(randomNums) === JSON.stringify(lastPuzzleSet)) {
-            randomNums = shuffle([...Array(10)].map((_, i) => i + 1)).slice(0, 5);
+            randomNums = shuffle([...Array(9)].map((_, i) => i + 1)).slice(0, 5);
         }
         lastPuzzleSet = randomNums;
 
         const emojis = [
-            "🍎",
-            "⭐",
-            "🎈",
-            "🐱",
-            "🚗",
-            "🎮",
-            "🍕",
-            "🐶",
-            "🌺",
-            "🎨",
+            "🍎","⭐","🎈","🐱","🚗","🎮","🍕","🐶","🌺"
         ];
 
         content.innerHTML += `
@@ -1530,9 +1503,7 @@
                 ${Array(num)
                     .fill(emojis[num - 1])
                     .map(
-                        (emoji) => `
-                  <div class="emoji-cell">${emoji}</div>
-                `
+                        (emoji) => `<div class="emoji-cell">${emoji}</div>`
                     )
                     .join("")}
               </div>
@@ -1566,18 +1537,17 @@
                 .querySelector(`.number-piece[data-number="${quantity}"]`)
                 .classList.add("matched");
             window.puzzleGameState.correctMatches++;
-            showFeedback("🎯 Combinação correta!", true);
+            showFeedback("Combinação correta!", true);
 
             if (
                 window.puzzleGameState.correctMatches ===
                 window.puzzleGameState.totalPairs
             ) {
                 updateStars(1);
-                showFeedback("🎉 Parabéns! Você completou o quebra-cabeça!", true);
-                scheduleNewGame("puzzle", 2000);
+                showFeedback("Você completou o quebra-cabeça!", true);
             }
         } else {
-            showFeedback("❌ Tente novamente!", false);
+            showFeedback("Tente novamente!", false);
             element.classList.add("wrong");
             setTimeout(() => {
                 element.classList.remove("wrong");
@@ -1593,7 +1563,7 @@
         });
     }
 
-    /*********** CORES ************/
+    /* 7) CORES */
     function initColorGame() {
         const allColors = [
             { name: "Vermelho", hex: "#FF0000" },
@@ -1660,7 +1630,7 @@
     }
 
     function selectColorItem(el, color) {
-        if (window.colorGameState.selectedElement) {
+        if(window.colorGameState.selectedElement) {
             window.colorGameState.selectedElement.style.opacity = "1";
         }
         window.colorGameState.selectedColor = color;
@@ -1674,7 +1644,7 @@
         if (!selected) return;
         if (binEl.getAttribute("data-filled") === "true") {
             showFeedback("Esta caixa já está preenchida!", false);
-            if (selectedEl) selectedEl.style.opacity = "1";
+            if(selectedEl) selectedEl.style.opacity = "1";
             window.colorGameState.selectedColor = null;
             window.colorGameState.selectedElement = null;
             return;
@@ -1684,7 +1654,7 @@
             binEl.style.backgroundColor = selected;
             binEl.setAttribute("data-filled", "true");
             window.colorGameState.correctMatches++;
-            showFeedback("🌟 Cor correta!", true);
+            showFeedback("Cor correta!", true);
             if (selectedEl) selectedEl.style.display = "none";
 
             if (
@@ -1692,11 +1662,10 @@
                 window.colorGameState.totalColors
             ) {
                 updateStars(1);
-                showFeedback("🎉 Parabéns! Você completou todas as cores!", true);
-                scheduleNewGame("colors", 2000);
+                showFeedback("Cores completas!", true);
             }
         } else {
-            showFeedback("😊 Tente outra cor", false);
+            showFeedback("Tente outra cor", false);
             binEl.style.animation = "shake 0.5s";
             setTimeout(() => {
                 binEl.style.animation = "";
@@ -1705,14 +1674,14 @@
             speak("Cor incorreta, tente novamente");
         }
 
-        if (selectedEl) {
+        if(selectedEl) {
             selectedEl.style.opacity = "1";
         }
         window.colorGameState.selectedColor = null;
         window.colorGameState.selectedElement = null;
     }
 
-    /*********** CLIMA ************/
+    /* 8) CLIMA */
     function initWeatherGame() {
         const weatherData = [
             { icon: "☀️", correctItems: ["🕶️", "🎩", "🧴"], title: "Ensolarado" },
@@ -1774,21 +1743,17 @@
 
         if (correctItems.includes(item)) {
             element.classList.add("selected");
-            showFeedback("✔️ Item correto!", true);
+            showFeedback("Item correto!", true);
             window.weatherGameState.correctCount++;
 
-            if (
-                window.weatherGameState.correctCount ===
-                window.weatherGameState.totalCorrect
-            ) {
+            if (window.weatherGameState.correctCount === window.weatherGameState.totalCorrect) {
                 updateStars(1);
-                showFeedback("🎉 Parabéns! Você completou o desafio!", true);
-                scheduleNewGame("weather", 2000);
+                showFeedback("Desafio completo!", true);
             }
         } else {
             element.style.background = "#FFCDD2";
             element.style.animation = "shake 0.5s";
-            showFeedback("❌ Não é para este clima", false);
+            showFeedback("Não é para este clima!", false);
             speak("Não é para este clima");
             setTimeout(() => {
                 element.style.background = "";
@@ -1798,7 +1763,7 @@
         }
     }
 
-    /*********** CATEGORIAS ************/
+    /* 9) CATEGORIAS */
     function initCategoryGame() {
         const content = document.getElementById("content");
         content.innerHTML = "<h2>Classifique os itens em suas categorias:</h2>";
@@ -1808,99 +1773,36 @@
                 name: "Animais",
                 icon: "🐶",
                 items: [
-                    "🐱",
-                    "🐙",
-                    "🐶",
-                    "🐷",
-                    "🦊",
-                    "🦁",
-                    "🐯",
-                    "🐺",
-                    "🐸",
-                    "🦓",
-                    "🦒",
-                    "🐵",
-                    "🐼",
-                    "🐹",
-                    "🐰",
-                    "🐻",
-                    "🐨",
-                    "🐔",
-                    "🦆",
-                    "🦅",
-                    "🦉",
-                    "🐢",
-                    "🐍",
-                    "🦋",
-                    "🦇",
-                    "🦔",
-                    "🦣",
-                    "🐊",
-                    "🐛",
-                    "🦕",
-                    "🦖",
+                    "🐱","🐙","🐶","🐷","🦊",
+                    "🦁","🐯","🐺","🐸","🦓",
+                    "🦒","🐵","🐼","🐹","🐰",
+                    "🐻","🐨","🐔","🦆","🦅",
+                    "🦉","🐢","🐍","🦋","🦇",
+                    "🦔","🦣","🐊","🐛","🦕",
+                    "🦖"
                 ],
             },
             {
                 name: "Frutas",
                 icon: "🍎",
                 items: [
-                    "🍎",
-                    "🍌",
-                    "🍇",
-                    "🍊",
-                    "🥝",
-                    "🍐",
-                    "🍍",
-                    "🍑",
-                    "🍒",
-                    "🍉",
-                    "🍓",
-                    "🥭",
-                    "🍅",
-                    "🍏",
-                    "🍋",
-                    "🥥",
-                    "🫐",
+                    "🍎","🍌","🍇","🍊","🥝",
+                    "🍐","🍍","🍑","🍒","🍉",
+                    "🍓","🥭","🍅","🍏","🍋",
+                    "🥥","🫐"
                 ],
             },
             {
                 name: "Veículos",
                 icon: "🚗",
                 items: [
-                    "🚗",
-                    "✈️",
-                    "🚲",
-                    "🚌",
-                    "⛵",
-                    "🚕",
-                    "🚙",
-                    "🚎",
-                    "🏎️",
-                    "🚓",
-                    "🚑",
-                    "🚒",
-                    "🚐",
-                    "🛵",
-                    "🏍️",
-                    "🚂",
-                    "🚆",
-                    "🚇",
-                    "🚝",
-                    "🚞",
-                    "🚊",
-                    "🛩️",
-                    "🚤",
-                    "⛴️",
-                    "🚢",
-                    "🛥️",
-                    "🛳️",
-                    "🚀",
-                    "🚁",
-                    "🚡",
-                    "🚠",
-                    "🚟",
-                    "🦼",
+                    "🚗","✈️","🚲","🚌","⛵",
+                    "🚕","🚙","🚎","🏎️","🚓",
+                    "🚑","🚒","🚐","🛵","🏍️",
+                    "🚂","🚆","🚇","🚝","🚞",
+                    "🚊","🛩️","🚤","⛴️","🚢",
+                    "🛥️","🛳️","🚀","🚁","🚡",
+                    "🚠","🚟","🦼"
                 ],
             },
         ];
@@ -1915,10 +1817,8 @@
             });
         });
 
-        // Garante não repetir o mesmo set de categorias
         const currentSet = JSON.stringify(allCategoryItems);
         if (currentSet === JSON.stringify(lastCategoriesSet)) {
-            // gera novamente
             allCategoryItems.length = 0;
             categories.forEach((cat) => {
                 const shuffledItems = [...cat.items];
@@ -2003,19 +1903,18 @@
             binContainer.appendChild(newEmojiDiv);
             selectedEl.classList.add("hidden-item");
             window.categoryGameState.correct++;
-            showFeedback("✔️ Correto!", true);
+            showFeedback("Correto!", true);
             speak(`Muito bem! ${selectedItem.emoji} pertence à categoria ${targetCategory}`);
             if (window.categoryGameState.correct === window.categoryGameState.totalItems) {
                 updateStars(1);
-                showFeedback("🎉 Parabéns! Categorias completadas!", true);
-                scheduleNewGame("categories", 2000);
+                showFeedback("Categorias completadas!", true);
             }
         } else {
             binEl.classList.add("category-wrong");
             setTimeout(() => {
                 binEl.classList.remove("category-wrong");
             }, 800);
-            showFeedback("❌ Categoria incorreta!", false);
+            showFeedback("Categoria incorreta!", false);
             updateStars(-1);
             speak("Essa não é a categoria certa");
         }
@@ -2027,7 +1926,21 @@
         window.categoryGameState.selectedElement = null;
     }
 
-    /*********** LEITURA ************/
+    /* 10) LEITURA */
+    const readingWords = [
+        { word: "barata",   syllables: ["ba", "ra", "ta"] },
+        { word: "banana",   syllables: ["ba", "na", "na"] },
+        { word: "pipoca",   syllables: ["pi", "po", "ca"] },
+        { word: "macaco",   syllables: ["ma", "ca", "co"] },
+        { word: "cavalo",   syllables: ["ca", "va", "lo"] },
+        { word: "tartaruga",syllables: ["tar","ta","ru","ga"] },
+        { word: "amigo",    syllables: ["a","mi","go"] },
+        { word: "arara",    syllables: ["a","ra","ra"] },
+        { word: "batata",   syllables: ["ba","ta","ta"] },
+        { word: "girafa",   syllables: ["gi","ra","fa"] },
+        { word: "cachorro", syllables: ["ca","cho","rro"] }
+    ];
+
     function initReadingGame() {
         const content = document.getElementById("content");
         content.innerHTML = `
@@ -2070,9 +1983,7 @@
         });
 
         speak(
-            `Forme a palavra ${randomWord.word.toUpperCase()}! Toque nas sílabas na ordem correta: ${originalSyllables.join(
-                "-"
-            )}.`
+            `Forme a palavra ${randomWord.word.toUpperCase()}! Toque nas sílabas na ordem correta: ${originalSyllables.join("-")}.`
         );
     }
 
@@ -2093,21 +2004,110 @@
 
             state.userIndex++;
             if (state.userIndex === state.syllables.length) {
-                showFeedback(
-                    `🎉 Parabéns! Você formou a palavra "${state.originalWord.toUpperCase()}"!`,
-                    true
-                );
+                showFeedback(`Você formou a palavra "${state.originalWord.toUpperCase()}"!`, true);
                 updateStars(1);
-                scheduleNewGame("reading", 3000);
             }
         } else {
-            showFeedback("Ops! Sílaba errada, tente novamente!", false);
+            showFeedback("Sílaba errada, tente novamente!", false);
             speak("Essa não é a sílaba correta");
             updateStars(-1);
         }
     }
 
-    /*********** SISTEMA GERAL ************/
+    /*******************
+     * NOVOS JOGOS
+     ******************/
+    /* Palworld */
+    function initPalworldGame() {
+        const content = document.getElementById("content");
+        content.innerHTML = `<h2>Encontre a primeira letra do Pal:</h2>`;
+        const randomPal = shuffle(palworldData)[0];
+        content.innerHTML += `
+      <div class="pal-list">
+        <div class="pal-item">
+          <img src="${randomPal.img}" alt="${randomPal.name}" />
+          <div class="pal-name">${randomPal.name}</div>
+        </div>
+      </div>
+      <div class="letters-options" id="letters-options"></div>
+    `;
+        const correctLetter = randomPal.name[0].toUpperCase();
+        const allLetters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+        const options = shuffle([
+            correctLetter,
+            ...shuffle(allLetters.filter((l) => l !== correctLetter)).slice(0,5)
+        ]);
+
+        const lettersBox = document.getElementById("letters-options");
+        options.forEach((letter) => {
+            const div = document.createElement("div");
+            div.className = "letter-choice";
+            div.textContent = letter;
+            div.onclick = () => checkPalworldLetter(letter, correctLetter);
+            lettersBox.appendChild(div);
+        });
+
+        speak(`Qual a primeira letra de ${randomPal.name}?`);
+    }
+
+    function checkPalworldLetter(letter, correct) {
+        if(letter === correct) {
+            updateStars(1);
+            showFeedback("Certo!", true);
+        } else {
+            updateStars(-1);
+            showFeedback("Letra errada!", false);
+            speak(`A primeira letra é ${correct}`);
+        }
+    }
+
+    /* Pokemon */
+    function initPokemonGame() {
+        const content = document.getElementById("content");
+        content.innerHTML = `<h2>Encontre a primeira letra do Pokemon:</h2>`;
+        const randomPoke = shuffle(pokemonData)[0];
+        content.innerHTML += `
+      <div class="pokemon-list">
+        <div class="pokemon-item">
+          <img src="${randomPoke.img}" alt="${randomPoke.name}" />
+          <div class="pokemon-name">${randomPoke.name}</div>
+        </div>
+      </div>
+      <div class="letters-options" id="pokemon-letters-options"></div>
+    `;
+        const correctLetter = randomPoke.name[0].toUpperCase();
+        const allLetters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+        const options = shuffle([
+            correctLetter,
+            ...shuffle(allLetters.filter((l) => l !== correctLetter)).slice(0,5)
+        ]);
+
+        const lettersBox = document.getElementById("pokemon-letters-options");
+        options.forEach((letter) => {
+            const div = document.createElement("div");
+            div.className = "letter-choice";
+            div.textContent = letter;
+            div.onclick = () => checkPokemonLetter(letter, correctLetter);
+            lettersBox.appendChild(div);
+        });
+
+        speak(`Qual a primeira letra de ${randomPoke.name}?`);
+    }
+
+    function checkPokemonLetter(letter, correct) {
+        if(letter === correct) {
+            updateStars(1);
+            showFeedback("Certo!", true);
+        } else {
+            updateStars(-1);
+            showFeedback("Letra errada!", false);
+            speak(`A primeira letra é ${correct}`);
+        }
+    }
+
+    /*******************
+     * FERRAMENTAS GERAIS
+     ******************/
     function speak(text) {
         if (speechSynth.speaking) speechSynth.cancel();
         const utterance = new SpeechSynthesisUtterance(text);
@@ -2120,6 +2120,12 @@
         return array.sort(() => Math.random() - 0.5);
     }
 
+    function showFeedback(message, isCorrect) {
+        const feedback = document.getElementById("feedback");
+        feedback.textContent = message;
+        feedback.style.color = isCorrect ? "#2E7D32" : "#C62828";
+    }
+
     function updateStars(change) {
         const newStars = Math.max(0, stars + change);
         if (newStars !== stars) {
@@ -2127,41 +2133,111 @@
             localStorage.setItem("stars", stars.toString());
             starsCountEl.textContent = stars;
 
-            // Registra as estrelas também para o jogo atual
             if (!gameStars[currentGame]) gameStars[currentGame] = 0;
             gameStars[currentGame] = Math.max(0, gameStars[currentGame] + change);
             localStorage.setItem("gameStars", JSON.stringify(gameStars));
 
             if (change > 0) {
                 speak(`Muito bem!`);
-                // Chance de figurinha (1 em 5)
-                if (Math.floor(Math.random() * 5) === 0) {
-                    giveSticker();
-                }
+                maybeGiveSticker();
             } else if (change < 0 && stars > 0) {
                 speak("Não desista! Continue tentando!");
             }
-
-            // Atualizar as estrelas no menu
+            checkGoal();
             buildMainMenu();
         }
     }
 
-    function showFeedback(message, isCorrect) {
-        const feedback = document.getElementById("feedback");
-        feedback.textContent = message;
-        feedback.style.color = isCorrect ? "#2E7D32" : "#C62828";
+    /* Checar meta */
+    function checkGoal() {
+        if(!hasReachedGoal && savedGoal>0 && stars>=savedGoal) {
+            hasReachedGoal = true;
+            localStorage.setItem("hasReachedGoal","true");
+            trophyInfoEl.style.display = "inline-block";
+            showCongratsModal();
+            startConfetti();
+        }
     }
 
-    /* Figurinhas */
-    function giveSticker() {
-        const randomSticker =
-            possibleStickers[Math.floor(Math.random() * possibleStickers.length)];
-        stickerList.push(randomSticker);
-        localStorage.setItem("myStickers", JSON.stringify(stickerList));
-        alert(`Você ganhou uma figurinha: ${randomSticker}!`);
+    /* Figurinhas sem alert, mas com push */
+    function maybeGiveSticker() {
+        if (Math.floor(Math.random() * 5) === 0) {
+            const randomSticker = possibleStickers[Math.floor(Math.random() * possibleStickers.length)];
+            stickerList.push(randomSticker);
+            localStorage.setItem("myStickers", JSON.stringify(stickerList));
+        }
     }
 
+    /* Atingiu a meta */
+    function showCongratsModal() {
+        const backdrop = document.getElementById("modal-backdrop");
+        const modal = document.getElementById("congratsModal");
+        backdrop.style.display = "block";
+        modal.style.display = "block";
+    }
+    function continueAfterGoal() {
+        stopConfetti();
+        document.getElementById("modal-backdrop").style.display = "none";
+        document.getElementById("congratsModal").style.display = "none";
+    }
+    function restartGame() {
+        stopConfetti();
+        localStorage.removeItem("playerName");
+        localStorage.removeItem("stars");
+        localStorage.removeItem("playerGoal");
+        localStorage.removeItem("hasReachedGoal");
+        localStorage.removeItem("gameStars");
+        localStorage.removeItem("myStickers");
+        location.reload();
+    }
+
+    /* Confetes simples */
+    function startConfetti() {
+        confettiCanvas.width = window.innerWidth;
+        confettiCanvas.height = window.innerHeight;
+        confettiCanvas.style.display = "block";
+        confettiActive = true;
+
+        const confettiPieces = [];
+        for(let i=0; i<150; i++){
+            confettiPieces.push({
+                x: Math.random() * confettiCanvas.width,
+                y: Math.random() * confettiCanvas.height,
+                r: Math.random() * 6 + 2,
+                d: Math.random() + 1,
+                color: `hsl(${Math.floor(Math.random()*360)},100%,50%)`,
+                tilt: Math.random()*10 - 10
+            });
+        }
+        function drawConfetti() {
+            confettiCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+            confettiPieces.forEach((cf) => {
+                confettiCtx.beginPath();
+                confettiCtx.fillStyle = cf.color;
+                confettiCtx.arc(cf.x, cf.y, cf.r, 0, 2*Math.PI);
+                confettiCtx.fill();
+            });
+            updateConfetti();
+            if(confettiActive) requestAnimationFrame(drawConfetti);
+        }
+        function updateConfetti() {
+            confettiPieces.forEach((cf) => {
+                cf.y += Math.cos(cf.d) + 1 + cf.r/2;
+                cf.x += Math.sin(cf.d);
+                if(cf.y>confettiCanvas.height){
+                    cf.x = Math.random()* confettiCanvas.width;
+                    cf.y = -10;
+                }
+            });
+        }
+        drawConfetti();
+    }
+    function stopConfetti() {
+        confettiActive = false;
+        confettiCanvas.style.display = "none";
+    }
+
+    /* MODAL FIGURINHAS */
     function openStickersModal() {
         const modal = document.getElementById("stickers-modal");
         const backdrop = document.getElementById("modal-backdrop");
@@ -2171,7 +2247,10 @@
         stickerList.forEach((st) => {
             const div = document.createElement("div");
             div.className = "sticker-item";
-            div.innerText = st;
+            const img = document.createElement("img");
+            img.src = st.img;
+            img.alt = st.name;
+            div.appendChild(img);
             container.appendChild(div);
         });
 
