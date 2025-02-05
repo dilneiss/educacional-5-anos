@@ -12,29 +12,7 @@
             rel="stylesheet"
     />
     <style>
-        body {
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-            user-select: none;
-            -webkit-touch-callout: none;
-            margin-bottom: 80px;
-            background-color: #fff3e0;
-            font-family: "Arial", sans-serif;
-        }
-        body:before {
-            content: "";
-            background: url("https://cdn.pixabay.com/photo/2016/02/19/11/36/board-1209499_960_720.jpg") center/cover no-repeat;
-            position: fixed;
-            width: 100%;
-            height: 100%;
-            left: 0;
-            top: 0;
-            opacity: 0.05;
-            pointer-events: none;
-        }
-
-        /* Bloquear contexto e destaque */
+        /* Bloquear seleção de texto e contextmenu */
         html, body {
             -webkit-touch-callout: none;
             -webkit-user-select: none;
@@ -46,6 +24,9 @@
         body {
             margin: 0;
             padding: 0;
+            background-color: #fff3e0;
+            font-family: "Arial", sans-serif;
+            margin-bottom: 80px;
         }
         body::-webkit-scrollbar {
             width: 8px;
@@ -59,12 +40,8 @@
         body:focus {
             outline: none;
         }
-        body:active,
-        body:hover,
-        body:focus-within {
-            outline: none;
-        }
 
+        /* Cabeçalho / Layout Principal */
         .container {
             text-align: center;
             position: relative;
@@ -113,8 +90,13 @@
         .btn-warning { background-color: #ffc107; }
         .btn-danger { background-color: #f44336; }
         .btn-info { background-color: #00bcd4; }
+        .btn-outline-secondary {
+            border: 2px solid #888;
+            color: #666;
+            background-color: transparent;
+        }
 
-        /* Barra superior */
+        /* Barra Superior (info jogador) */
         .player-info {
             display: flex;
             align-items: center;
@@ -150,7 +132,7 @@
             margin-left: 20px;
             font-size: 28px;
             color: #ffbf00;
-            display: none; /* só aparece depois que meta for atingida */
+            display: none;
         }
 
         .right-info {
@@ -165,9 +147,20 @@
             border-radius: 10px;
         }
 
-        /* Modal e backdrop */
-        .modal-backdrop,
-        .modal-confetti {
+        /* Canvas de confetes */
+        .confetti-canvas {
+            pointer-events: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 9999;
+            display: none;
+        }
+
+        /* backdrop e modais */
+        .modal-backdrop {
             position: fixed;
             top: 0;
             left: 0;
@@ -191,10 +184,7 @@
             display: none;
         }
 
-        /* Modal figurinhas */
-        .stickers-modal h3 {
-            margin-bottom: 20px;
-        }
+        /* Modal de figurinhas */
         .stickers-container {
             display: flex;
             flex-wrap: wrap;
@@ -221,10 +211,6 @@
         }
 
         /* Modal meta */
-        #goalModal h2 {
-            margin-bottom: 20px;
-        }
-        /* Quando atinge meta */
         #congratsModal .balloons {
             text-align: center;
             margin-bottom: 10px;
@@ -233,18 +219,16 @@
             width: 100px;
             margin: 0 5px;
         }
-        .confetti-canvas {
-            pointer-events: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 9999;
-            display: none;
+
+        #goalModal input {
+            font-size:20px;
+            text-align:center;
+            border:2px solid #ccc;
+            border-radius:8px;
+            width:100px;
         }
 
-        /* Lista de jogos */
+        /* Menu principal */
         #main-menu { margin-top: 20px; }
         .game-mode {
             background-color: #81d4fa;
@@ -260,7 +244,6 @@
         .game-mode:hover {
             transform: scale(1.05);
         }
-
         #game-area {
             display: none;
         }
@@ -269,7 +252,7 @@
             display: none !important;
         }
 
-        /* Diversos layouts dos jogos */
+        /* Jogos - layout */
         .numbers-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -574,6 +557,7 @@
             border: 2px solid #4caf50;
         }
 
+        /* Leitura */
         .reading-title {
             font-size: 1.5rem;
             margin-bottom: 20px;
@@ -687,7 +671,7 @@
             100% { transform: translateX(0); }
         }
 
-        /* Jogos Palworld e Pokemon */
+        /* Palworld e Pokemon */
         .pal-list, .pokemon-list {
             display: flex;
             flex-wrap: wrap;
@@ -735,6 +719,7 @@
             align-items: center;
             justify-content: center;
             cursor: pointer;
+            transition: background 0.2s;
         }
         .letter-choice:hover {
             background-color: #aed581;
@@ -743,7 +728,6 @@
 </head>
 <body oncontextmenu="return false;">
 
-<!-- Canvas para confetes -->
 <canvas class="confetti-canvas" id="confettiCanvas"></canvas>
 
 <!-- BACKDROP GERAL -->
@@ -756,20 +740,6 @@
     <button class="btn btn-danger" onclick="closeStickersModal()">Fechar</button>
 </div>
 
-<!-- MODAL DE DEFINIR META -->
-<div class="modal-base" id="goalModal">
-    <h2>Defina sua meta de estrelas</h2>
-    <input
-            type="number"
-            min="1"
-            max="9999"
-            id="goalInput"
-            style="font-size:20px; text-align:center; border:2px solid #ccc; border-radius:8px; width:100px;"
-    />
-    <br><br>
-    <button class="btn btn-primary" onclick="setGoal()">Definir</button>
-</div>
-
 <!-- MODAL DE PARABÉNS AO ATINGIR META -->
 <div class="modal-base" id="congratsModal">
     <h2>Parabéns!</h2>
@@ -778,14 +748,16 @@
         <img src="https://cdn-icons-png.flaticon.com/512/2553/2553619.png" alt="Balloon">
         <img src="https://cdn-icons-png.flaticon.com/512/2553/2553619.png" alt="Balloon">
     </div>
-    <p>Você atingiu sua meta de estrelas!</p>
+    <p id="congratsText">Você atingiu sua meta de estrelas!</p>
     <div style="margin-top: 20px;">
-        <button class="btn btn-info" onclick="continueAfterGoal()">Continuar Jogando</button>
-        <button class="btn btn-danger" onclick="restartGame()">Recomeçar</button>
+        <button class="btn btn-info" onclick="continueAfterGoal()">🎉 Continuar Jogando</button>
+        <button class="btn btn-outline-secondary" onclick="restartGame()">🔁 Recomeçar</button>
     </div>
 </div>
 
+<!-- FORMULÁRIO INICIAL -->
 <div class="container flex-grow-1">
+
     <h1 class="main-title">Vamos Aprender!</h1>
 
     <div id="start-menu">
@@ -804,6 +776,7 @@
         </div>
     </div>
 
+    <!-- INFORMAÇÕES DO JOGADOR E BOTÕES -->
     <div class="player-info d-none" id="playerInfoContainer">
         <div class="left-info">
             <div class="player-name" id="player-name"></div>
@@ -818,10 +791,12 @@
         </div>
     </div>
 
+    <!-- MENU DE SELEÇÃO DE JOGOS -->
     <div id="main-menu" class="d-none">
         <div class="row g-2" id="games-list"></div>
     </div>
 
+    <!-- ÁREA DO JOGO -->
     <div id="game-area" class="d-none">
         <div id="content" class="my-4"></div>
         <div id="feedback" class="feedback text-center"></div>
@@ -835,9 +810,11 @@
         src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
 ></script>
 <script>
+    /* Bloquear destaque de texto e clique direito */
     document.addEventListener('selectstart', (e) => e.preventDefault());
     document.addEventListener('contextmenu', (e) => e.preventDefault());
 
+    /* Variáveis gerais */
     let savedName = localStorage.getItem("playerName") || "";
     let savedStars = parseInt(localStorage.getItem("stars") || "0", 10);
     let savedGoal = parseInt(localStorage.getItem("playerGoal") || "0", 10);
@@ -849,6 +826,8 @@
     let currentGame = null;
     let speechSynth = window.speechSynthesis;
     let nextGameTimeout = null;
+
+    let locked = false;  // Bloquear toques quando necessário
 
     /* Históricos para evitar repetição de mesma jogada */
     let lastNumber = null;
@@ -865,66 +844,78 @@
     /* Guarda estrelas por jogo */
     let gameStars = JSON.parse(localStorage.getItem("gameStars") || "{}");
 
-    /* Sistema de figurinhas com imagens */
+    /* Sistema de figurinhas */
     let stickerList = JSON.parse(localStorage.getItem("myStickers") || "[]");
     const possibleStickers = [
-        { name: "Pikachu", img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png" },
+        /* Anteriormente adicionados */
+        { name: "Pikachu",    img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png" },
         { name: "Charmander", img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/4.png" },
-        { name: "Bulbasaur", img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png" },
-        { name: "Squirtle", img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/7.png" },
-        { name: "Stitch", img: "https://cdn-icons-png.flaticon.com/512/6112/6112465.png" },
-        { name: "Pal1", img: "https://cdn-icons-png.flaticon.com/512/528/528099.png" },
-        { name: "Pal2", img: "https://cdn-icons-png.flaticon.com/512/528/528092.png" },
-        { name: "Eevee", img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/133.png" },
-        { name: "Mew", img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/151.png" }
+        { name: "Bulbasaur",  img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png" },
+        { name: "Squirtle",   img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/7.png" },
+        { name: "Stitch",     img: "https://cdn-icons-png.flaticon.com/512/6112/6112465.png" },
+        { name: "Pal1",       img: "https://cdn-icons-png.flaticon.com/512/528/528099.png" },
+        { name: "Pal2",       img: "https://cdn-icons-png.flaticon.com/512/528/528092.png" },
+        { name: "Eevee",      img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/133.png" },
+        { name: "Mew",        img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/151.png" },
+
+        /* Personagens do Mario, Como Treinar Seu Dragão e Sonic */
+        { name: "Mario",      img: "https://assets.stickpng.com/images/580b57fcd9996e24bc43c1a4.png" },
+        { name: "Yoshi",      img: "https://assets.stickpng.com/images/580b57fcd9996e24bc43c253.png" },
+        { name: "Bowser",     img: "https://assets.stickpng.com/images/580b57fcd9996e24bc43c1fa.png" },
+        { name: "Toothless",  img: "https://cdn-icons-png.flaticon.com/512/3011/3011622.png" },
+        { name: "Light Fury", img: "https://cdn-icons-png.flaticon.com/512/3011/3011616.png" },
+        { name: "Sonic",      img: "https://assets.stickpng.com/images/580b57fcd9996e24bc43c305.png" },
     ];
 
-    /* NOVOS JOGOS (Palworld e Pokemon) */
+    /* Palworld (imagens corrigidas de placeholders) */
     const palworldData = [
-        { name: "Flameling", img: "https://via.placeholder.com/150?text=Flameling" },
-        { name: "Aquee", img: "https://via.placeholder.com/150?text=Aquee" },
-        { name: "Thundor", img: "https://via.placeholder.com/150?text=Thundor" },
-        { name: "Yousha", img: "https://via.placeholder.com/150?text=Yousha" },
-        { name: "Pebblet", img: "https://via.placeholder.com/150?text=Pebblet" },
-        { name: "Leafi", img: "https://via.placeholder.com/150?text=Leafi" },
-        { name: "Bizzlit", img: "https://via.placeholder.com/150?text=Bizzlit" },
-        { name: "Vineon", img: "https://via.placeholder.com/150?text=Vineon" },
-        { name: "Frosty", img: "https://via.placeholder.com/150?text=Frosty" },
-        { name: "Smolder", img: "https://via.placeholder.com/150?text=Smolder" },
-        { name: "Bubbly", img: "https://via.placeholder.com/150?text=Bubbly" },
-        { name: "Sparky", img: "https://via.placeholder.com/150?text=Sparky" },
-        { name: "Nimbus", img: "https://via.placeholder.com/150?text=Nimbus" },
-        { name: "Cragg", img: "https://via.placeholder.com/150?text=Cragg" },
-        { name: "Cacteen", img: "https://via.placeholder.com/150?text=Cacteen" },
-        { name: "Bloomy", img: "https://via.placeholder.com/150?text=Bloomy" },
-        { name: "Scorche", img: "https://via.placeholder.com/150?text=Scorche" },
-        { name: "Stormi", img: "https://via.placeholder.com/150?text=Stormi" },
-        { name: "Wispin", img: "https://via.placeholder.com/150?text=Wispin" },
-        { name: "Dracoon", img: "https://via.placeholder.com/150?text=Dracoon" }
-    ];
-    const pokemonData = [
-        { name: "Bulbasaur", img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png" },
-        { name: "Ivysaur",   img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/2.png" },
-        { name: "Venusaur",  img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/3.png" },
-        { name: "Charmander",img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/4.png" },
-        { name: "Charmeleon",img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/5.png" },
-        { name: "Charizard", img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/6.png" },
-        { name: "Squirtle",  img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/7.png" },
-        { name: "Wartortle", img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/8.png" },
-        { name: "Blastoise", img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/9.png" },
-        { name: "Caterpie",  img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10.png" },
-        { name: "Metapod",   img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/11.png" },
-        { name: "Butterfree",img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/12.png" },
-        { name: "Weedle",    img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/13.png" },
-        { name: "Kakuna",    img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/14.png" },
-        { name: "Beedrill",  img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/15.png" },
-        { name: "Pidgey",    img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/16.png" },
-        { name: "Pidgeotto", img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/17.png" },
-        { name: "Pidgeot",   img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/18.png" },
-        { name: "Rattata",   img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/19.png" },
-        { name: "Raticate",  img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/20.png" }
+        { name: "Flameling", img: "https://via.placeholder.com/150.png/ff0000/000000?text=Flameling" },
+        { name: "Aquee",     img: "https://via.placeholder.com/150.png/0000ff/ffffff?text=Aquee" },
+        { name: "Thundor",   img: "https://via.placeholder.com/150.png/ffff00/000000?text=Thundor" },
+        { name: "Yousha",    img: "https://via.placeholder.com/150.png/008000/ffffff?text=Yousha" },
+        { name: "Pebblet",   img: "https://via.placeholder.com/150.png/cccccc/000000?text=Pebblet" },
+        { name: "Leafi",     img: "https://via.placeholder.com/150.png/00cc00/000000?text=Leafi" },
+        { name: "Bizzlit",   img: "https://via.placeholder.com/150.png/cc00ff/000000?text=Bizzlit" },
+        { name: "Vineon",    img: "https://via.placeholder.com/150.png/009900/ffffff?text=Vineon" },
+        { name: "Frosty",    img: "https://via.placeholder.com/150.png/00ffff/000000?text=Frosty" },
+        { name: "Smolder",   img: "https://via.placeholder.com/150.png/ff6600/000000?text=Smolder" },
+        { name: "Bubbly",    img: "https://via.placeholder.com/150.png/00cccc/000000?text=Bubbly" },
+        { name: "Sparky",    img: "https://via.placeholder.com/150.png/ffff66/000000?text=Sparky" },
+        { name: "Nimbus",    img: "https://via.placeholder.com/150.png/e6e6e6/000000?text=Nimbus" },
+        { name: "Cragg",     img: "https://via.placeholder.com/150.png/999999/ffffff?text=Cragg" },
+        { name: "Cacteen",   img: "https://via.placeholder.com/150.png/006600/ffffff?text=Cacteen" },
+        { name: "Bloomy",    img: "https://via.placeholder.com/150.png/ff66ff/000000?text=Bloomy" },
+        { name: "Scorche",   img: "https://via.placeholder.com/150.png/cc3300/ffffff?text=Scorche" },
+        { name: "Stormi",    img: "https://via.placeholder.com/150.png/9999ff/000000?text=Stormi" },
+        { name: "Wispin",    img: "https://via.placeholder.com/150.png/999999/000000?text=Wispin" },
+        { name: "Dracoon",   img: "https://via.placeholder.com/150.png/cc0066/ffffff?text=Dracoon" }
     ];
 
+    /* Pokemon */
+    const pokemonData = [
+        { name: "Bulbasaur",  img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png" },
+        { name: "Ivysaur",    img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/2.png" },
+        { name: "Venusaur",   img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/3.png" },
+        { name: "Charmander", img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/4.png" },
+        { name: "Charmeleon", img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/5.png" },
+        { name: "Charizard",  img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/6.png" },
+        { name: "Squirtle",   img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/7.png" },
+        { name: "Wartortle",  img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/8.png" },
+        { name: "Blastoise",  img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/9.png" },
+        { name: "Caterpie",   img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10.png" },
+        { name: "Metapod",    img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/11.png" },
+        { name: "Butterfree", img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/12.png" },
+        { name: "Weedle",     img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/13.png" },
+        { name: "Kakuna",     img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/14.png" },
+        { name: "Beedrill",   img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/15.png" },
+        { name: "Pidgey",     img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/16.png" },
+        { name: "Pidgeotto",  img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/17.png" },
+        { name: "Pidgeot",    img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/18.png" },
+        { name: "Rattata",    img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/19.png" },
+        { name: "Raticate",   img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/20.png" }
+    ];
+
+    /* Elementos DOM principais */
     const startMenuEl = document.getElementById("start-menu");
     const continueBtnContainer = document.getElementById("continue-btn-container");
     const continueGameBtn = document.getElementById("continueGameBtn");
@@ -947,7 +938,6 @@
     const confettiCtx = confettiCanvas.getContext("2d");
     let confettiActive = false;
 
-    /* Carrega e inicia */
     window.onload = function () {
         showStartMenu();
         if(hasReachedGoal) {
@@ -956,15 +946,15 @@
     };
 
     function showStartMenu() {
-        if(!savedName) {
+        if (!savedName) {
             continueBtnContainer.style.display = "none";
         } else {
             continueBtnContainer.style.display = "block";
         }
+        startMenuEl.style.display = "block";
         mainMenuEl.classList.add("d-none");
         playerInfoContainer.classList.add("d-none");
         gameAreaEl.classList.add("d-none");
-        startMenuEl.style.display = "block";
         playerNameInput.value = savedName || "";
     }
 
@@ -972,7 +962,7 @@
         playerName = savedName;
         stars = savedStars;
         previousStars = stars;
-        savedGoal = parseInt(localStorage.getItem("playerGoal")||"0",10);
+        savedGoal = parseInt(localStorage.getItem("playerGoal") || "0", 10);
         hasReachedGoal = (localStorage.getItem("hasReachedGoal") === "true");
         startMenuEl.style.display = "none";
         showPlayerInfo();
@@ -986,12 +976,12 @@
 
     startNewGameBtn.onclick = function () {
         const chosenName = playerNameInput.value.trim();
-        const chosenGoal = parseInt(playerGoalInput.value.trim()||"0",10);
+        const chosenGoal = parseInt(playerGoalInput.value.trim() || "0", 10);
         if (!chosenName) {
             alert("Por favor, informe um nome para iniciar!");
             return;
         }
-        if (chosenGoal<1) {
+        if (chosenGoal < 1) {
             alert("Por favor, informe uma meta de estrelas válida!");
             return;
         }
@@ -1004,16 +994,10 @@
         savedGoal = chosenGoal;
         localStorage.setItem("playerGoal", String(chosenGoal));
         hasReachedGoal = false;
-        localStorage.setItem("hasReachedGoal","false");
+        localStorage.setItem("hasReachedGoal", "false");
 
-        /* Zera estrelas de cada jogo */
         gameStars = {};
         localStorage.setItem("gameStars", "{}");
-
-        /* Some com figurinhas se quiser recomeçar geral (opcional)
-           Se quiser manter figurinhas antigas, só comentar essa parte */
-        stickerList = [];
-        localStorage.setItem("myStickers","[]");
 
         startMenuEl.style.display = "none";
         showPlayerInfo();
@@ -1032,7 +1016,6 @@
         mainMenuEl.classList.remove("d-none");
         gamesListEl.innerHTML = "";
 
-        // Lista de jogos + ícone + quantas estrelas
         const gameConfigs = [
             { id: "numbers",   label: "🔢 Números" },
             { id: "letters",   label: "🔤 Letras" },
@@ -1051,12 +1034,13 @@
         gameConfigs.forEach((cfg) => {
             const colDiv = document.createElement("div");
             colDiv.className = "col-12 col-sm-6 col-lg-4";
-
             const starsInThisGame = gameStars[cfg.id] || 0;
+
             const gmDiv = document.createElement("div");
             gmDiv.className = "game-mode";
-            gmDiv.onclick = () => startGame(cfg.id);
             gmDiv.innerText = `${cfg.label} (${starsInThisGame}⭐)`;
+            gmDiv.onclick = () => startGame(cfg.id);
+
             colDiv.appendChild(gmDiv);
             gamesListEl.appendChild(colDiv);
         });
@@ -1064,6 +1048,7 @@
 
     function showMainMenu() {
         clearTimeoutIfAny();
+        locked = false;
         startMenuEl.style.display = "none";
         gameAreaEl.classList.add("d-none");
         mainMenuEl.classList.remove("d-none");
@@ -1071,6 +1056,7 @@
 
     function cancelNextGameAndMenu() {
         clearTimeoutIfAny();
+        locked = false;
         showMainMenu();
     }
 
@@ -1083,14 +1069,14 @@
 
     function startGame(mode) {
         clearTimeoutIfAny();
+        locked = false;
         currentGame = mode;
         mainMenuEl.classList.add("d-none");
         gameAreaEl.classList.remove("d-none");
         gameAreaEl.style.display = "block";
 
         document.getElementById("feedback").textContent = "";
-        const content = document.getElementById("content");
-        content.innerHTML = "";
+        document.getElementById("content").innerHTML = "";
 
         switch (mode) {
             case "numbers":   initNumbersGame(); break;
@@ -1108,10 +1094,18 @@
         }
     }
 
+    /* Função auxiliar para iniciar outro round do mesmo jogo */
+    function scheduleReplayGame(mode, delay=1500) {
+        clearTimeoutIfAny();
+        nextGameTimeout = setTimeout(() => {
+            startGame(mode);
+        }, delay);
+    }
+
     /***************************
-     INÍCIO LÓGICA DE JOGOS
+     JOGOS
      ****************************/
-    /* 1) NÚMEROS (6 alternativas) */
+    // 1) NÚMEROS
     function initNumbersGame() {
         const content = document.getElementById("content");
         let targetNumber = Math.floor(Math.random() * 40) + 1;
@@ -1139,7 +1133,10 @@
             const div = document.createElement("div");
             div.className = "number-option";
             div.textContent = num;
-            div.onclick = () => checkNumber(num === targetNumber);
+            div.onclick = () => {
+                if(locked) return;
+                checkNumber(num === targetNumber);
+            };
             grid.appendChild(div);
         });
 
@@ -1147,26 +1144,86 @@
     }
 
     function checkNumber(isCorrect) {
+        locked = true;
         if (isCorrect) {
             updateStars(1);
-            showFeedback("🎯 Correto!", true);
+            showFeedback("Correto!", true);
+            scheduleReplayGame("numbers");
         } else {
             updateStars(-1);
             showFeedback("Tente novamente!", false);
             speak("Ops! Esse não é o número");
+            // Após errar, liberar toque novamente
+            locked = false;
         }
     }
 
-    /* 2) LETRAS */
+    // 2) LETRAS
+    const emojiDatabase = {
+        A: [{ emoji: "✈️", nome: "Avião" },{ emoji: "🌳", nome: "Árvore" },{ emoji: "🎨", nome: "Arte" },
+            { emoji: "🏹", nome: "Arco e Flecha" },{ emoji: "🐜", nome: "Aranha" },{ emoji: "⚓", nome: "Âncora" },
+            { emoji: "🎭", nome: "Ator" },{ emoji: "🚑", nome: "Ambulância" },{ emoji: "🌈", nome: "Arco-íris" },
+            { emoji: "🍚", nome: "Arroz" }],
+        B: [{ emoji: "🎈", nome: "Balão" },{ emoji: "🚲", nome: "Bicicleta" },{ emoji: "🍌", nome: "Banana" },
+            { emoji: "🔋", nome: "Bateria" },{ emoji: "🏀", nome: "Basquete" },{ emoji: "🐝", nome: "Abelha" },
+            { emoji: "🍟", nome: "Batata Frita" },{ emoji: "⚖", nome: "Balança" },{ emoji: "🍆", nome: "Berinjela" },
+            { emoji: "⚽", nome: "Bola" }],
+        C: [{ emoji: "🏡", nome: "Casa" },{ emoji: "🏰", nome: "Castelo" },{ emoji: "🏙️", nome: "Cidade" },
+            { emoji: "🐍", nome: "Cobra" },{ emoji: "🐶", nome: "Cachorro" },{ emoji: "☕", nome: "Café" },
+            { emoji: "🍵", nome: "Chá" },{ emoji: "🚗", nome: "Carro" },{ emoji: "🎠", nome: "Carrossel" },
+            { emoji: "🦌", nome: "Cervo" },{ emoji: "🥕", nome: "Cenoura" },{ emoji: "🔑", nome: "Chave" },
+            { emoji: "🦉", nome: "Coruja" },{ emoji: "🏃", nome: "Corrida" }],
+        D: [{ emoji: "🎲", nome: "Dado" },{ emoji: "🐉", nome: "Dragão" },{ emoji: "💎", nome: "Diamante" },
+            { emoji: "🎯", nome: "Dardo" },{ emoji: "📅", nome: "Data" }],
+        E: [{ emoji: "⭐", nome: "Estrela" },{ emoji: "📧", nome: "E-mail" },{ emoji: "🐘", nome: "Elefante" },
+            { emoji: "🔌", nome: "Energia" },{ emoji: "🛤", nome: "Estrada" }],
+        F: [{ emoji: "🎗", nome: "Fita" },{ emoji: "🌸", nome: "Flor" },{ emoji: "🐜", nome: "Formiga" },
+            { emoji: "🔥", nome: "Fogo" },{ emoji: "🎺", nome: "Flauta" },{ emoji: "🏁", nome: "Final" },
+            { emoji: "🍂", nome: "Folha" },{ emoji: "🚀", nome: "Foguete" },{ emoji: "🌹", nome: "Flor" }],
+        G: [{ emoji: "🐬", nome: "Golfinho" },{ emoji: "🐱", nome: "Gato" },{ emoji: "🦒", nome: "Girafa" },
+            { emoji: "☂️", nome: "Guarda-chuva" },{ emoji: "🎸", nome: "Guitarra" },{ emoji: "🥅", nome: "Gol" },
+            { emoji: "🏌️", nome: "Golfe" }],
+        H: [{ emoji: "🏥", nome: "Hospital" },{ emoji: "🚁", nome: "Helicóptero" },{ emoji: "🐹", nome: "Hamster" }],
+        I: [{ emoji: "🏝", nome: "Ilha" },{ emoji: "💡", nome: "Ideia" },{ emoji: "📱", nome: "Internet" },
+            { emoji: "🖼", nome: "Imagem" }],
+        J: [{ emoji: "🎷", nome: "Jazz" },{ emoji: "🚙", nome: "Jipe" }],
+        K: [{ emoji: "🥝", nome: "Kiwi" },{ emoji: "🤹", nome: "Karatê" },{ emoji: "🥋", nome: "Kimono" }],
+        L: [{ emoji: "🍋", nome: "Limão" },{ emoji: "📚", nome: "Livro" },{ emoji: "💡", nome: "Lâmpada" },
+            { emoji: "🦁", nome: "Leão" },{ emoji: "🌙", nome: "Lua" },{ emoji: "🍊", nome: "Laranja" },
+            { emoji: "🏞️", nome: "Lago" },{ emoji: "🛳", nome: "Lancha" }],
+        M: [{ emoji: "🎶", nome: "Música" },{ emoji: "🎤", nome: "Microfone" },{ emoji: "🍎", nome: "Maçã" },
+            { emoji: "🐵", nome: "Macaco" },{ emoji: "🍈", nome: "Melão" },{ emoji: "🌊", nome: "Mar" },
+            { emoji: "🏔", nome: "Montanha" },{ emoji: "🗺", nome: "Mapa" },{ emoji: "✉️", nome: "Mensagem" },
+            { emoji: "🚇", nome: "Metrô" },{ emoji: "🦇", nome: "Morcego" },{ emoji: "🔨", nome: "Machado" }],
+        N: [{ emoji: "❄️", nome: "Neve" },{ emoji: "🚢", nome: "Navio" }],
+        O: [{ emoji: "🥚", nome: "Ovo" },{ emoji: "🏢", nome: "Oficina" },{ emoji: "🎨", nome: "Obra de Arte" },
+            { emoji: "🚌", nome: "Ônibus" }],
+        P: [{ emoji: "🐠", nome: "Peixe" },{ emoji: "🍕", nome: "Pizza" },{ emoji: "🐧", nome: "Pinguim" },
+            { emoji: "🎁", nome: "Presente" },{ emoji: "🚪", nome: "Porta" },{ emoji: "🐙", nome: "Polvo" },
+            { emoji: "📦", nome: "Pacote" },{ emoji: "🥞", nome: "Panqueca" },{ emoji: "🥖", nome: "Pão" }],
+        Q: [{ emoji: "👑", nome: "Queijo" },{ emoji: "🃏", nome: "Quebra-cabeça" },{ emoji: "🖼", nome: "Quadro" }],
+        R: [{ emoji: "🦊", nome: "Raposa" },{ emoji: "📻", nome: "Rádio" },{ emoji: "🦏", nome: "Rinoceronte" },
+            { emoji: "🤖", nome: "Robo" }],
+        S: [{ emoji: "🚦", nome: "Semáforo" },{ emoji: "🌞", nome: "Sol" },{ emoji: "🥗", nome: "Salada" },
+            { emoji: "🔔", nome: "Sino de Natal" }],
+        T: [{ emoji: "🎩", nome: "Teatro" },{ emoji: "🌮", nome: "Taco" },{ emoji: "🚆", nome: "Trem" },
+            { emoji: "🎹", nome: "Teclado" },{ emoji: "🎺", nome: "Trompete" },{ emoji: "📞", nome: "Telefone" },
+            { emoji: "🌍", nome: "Terra" },{ emoji: "🏆", nome: "Troféu" },{ emoji: "🥁", nome: "Tambor" }],
+        U: [{ emoji: "🦄", nome: "Unicórnio" },{ emoji: "🍇", nome: "Uva" }],
+        V: [{ emoji: "🎻", nome: "Violino" },{ emoji: "🌋", nome: "Vulcão" },{ emoji: "🍷", nome: "Vinho" },
+            { emoji: "🎮", nome: "Videogame" },{ emoji: "📹", nome: "Vídeo" },{ emoji: "🚐", nome: "Van" },
+            { emoji: "🔊", nome: "Volume" }],
+        X: [{ emoji: "❌", nome: "Xis" }],
+        Z: [{ emoji: "🦓", nome: "Zebra" }]
+    };
+
     function initLettersGame() {
         const content = document.getElementById("content");
         const validLetters = Object.keys(emojiDatabase);
 
-        let targetLetter =
-            validLetters[Math.floor(Math.random() * validLetters.length)];
+        let targetLetter = validLetters[Math.floor(Math.random() * validLetters.length)];
         while (targetLetter === lastLetter) {
-            targetLetter =
-                validLetters[Math.floor(Math.random() * validLetters.length)];
+            targetLetter = validLetters[Math.floor(Math.random() * validLetters.length)];
         }
         lastLetter = targetLetter;
 
@@ -1182,9 +1239,7 @@
         const allEmojis = Object.values(emojiDatabase).flat();
 
         const correctOptions = shuffle([...validEmojis]).slice(0, 3);
-        const incorrectOptions = shuffle(
-            allEmojis.filter((e) => !validEmojis.includes(e))
-        ).slice(0, 7);
+        const incorrectOptions = shuffle(allEmojis.filter((e) => !validEmojis.includes(e))).slice(0,7);
         const mixedOptions = shuffle([...correctOptions, ...incorrectOptions]);
 
         mixedOptions.forEach((emojiObj) => {
@@ -1194,7 +1249,10 @@
         <div>${emojiObj.emoji}</div>
         <div class="emoji-name">${emojiObj.nome}</div>
       `;
-            div.onclick = () => checkEmoji(validEmojis.includes(emojiObj), emojiObj.nome);
+            div.onclick = () => {
+                if(locked) return;
+                checkEmoji(validEmojis.includes(emojiObj), emojiObj.nome);
+            };
             grid.appendChild(div);
         });
 
@@ -1202,17 +1260,20 @@
     }
 
     function checkEmoji(isCorrect, nome) {
+        locked = true;
         if (isCorrect) {
             updateStars(1);
             showFeedback("Certo!", true);
+            scheduleReplayGame("letters");
         } else {
             updateStars(-1);
             showFeedback(`"${nome}" começa com ${nome[0].toUpperCase()}!`, false);
             speak(`Ops! ${nome} começa com ${nome[0].toUpperCase()}!`);
+            locked = false;
         }
     }
 
-    /* 3) CONTAR */
+    // 3) CONTAR
     function initCountingGame() {
         const content = document.getElementById("content");
         let targetCount = Math.floor(Math.random() * 20) + 1;
@@ -1239,16 +1300,16 @@
             "🐶","🍉","🚗","🎮","🍕","🏀","🐠","🍩","🚂","🌻",
             "🐱","🦊","🐰","🐔","🚑","🦁"
         ];
-        const options = shuffle([
-            targetEmoji,
-            ...shuffle(distractors).slice(0, 9),
-        ]);
+        const options = shuffle([ targetEmoji, ...shuffle(distractors).slice(0,9) ]);
 
         options.forEach((emoji) => {
             const div = document.createElement("div");
             div.className = "emoji-option";
             div.textContent = emoji;
-            div.onclick = () => handleCountClick(emoji === targetEmoji, targetCount);
+            div.onclick = () => {
+                if(locked) return;
+                handleCountClick(emoji === targetEmoji, targetCount);
+            };
             grid.appendChild(div);
         });
 
@@ -1268,8 +1329,10 @@
         speak(count.toString());
 
         if (count === target) {
+            locked = true;
             updateStars(1);
-            showFeedback("Parabéns! Contagem correta!", true);
+            showFeedback("Contagem correta!", true);
+            scheduleReplayGame("counting");
         }
     }
 
@@ -1284,7 +1347,7 @@
         return names[emoji] || "objeto";
     }
 
-    /* 4) PALAVRAS */
+    // 4) PALAVRAS
     function initWordGame() {
         const content = document.getElementById("content");
         content.innerHTML = "<h2>Monte a palavra do emoji:</h2>";
@@ -1297,18 +1360,17 @@
         lastWordEmoji = randomEmoji;
 
         const originalName = randomEmoji.nome.toUpperCase();
-        const targetLetters = Array.from(originalName).filter(
-            (c) => c !== " " && c !== "-"
-        );
+        const targetLetters = Array.from(originalName).filter(c => c!==" " && c!=="-");
 
         let targetDisplay = "";
-        targetLetters.forEach((letter, index) => {
-            targetDisplay += `<span class="letter-box" id="target-letter-${index}">${letter}</span>`;
+        targetLetters.forEach((letter, i) => {
+            targetDisplay += `<span class="letter-box" id="target-letter-${i}">${letter}</span>`;
         });
 
         content.innerHTML += `
       <div class="word-target">
-        ${randomEmoji.emoji} <div id="target-word">${targetDisplay}</div>
+        ${randomEmoji.emoji}
+        <div id="target-word">${targetDisplay}</div>
       </div>
       <div class="scrambled-letters" id="scrambled-letters"></div>
     `;
@@ -1320,6 +1382,7 @@
             div.className = "word-letter";
             div.textContent = letter;
             div.onclick = function () {
+                if(locked) return;
                 handleLetterClick(this, targetLetters);
             };
             lettersContainer.appendChild(div);
@@ -1336,511 +1399,420 @@
 
         if (nextIndex < targetLetters.length) {
             const correctLetter = targetLetters[nextIndex];
-
             if (letterElement.textContent === correctLetter) {
-                document
-                    .getElementById(`target-letter-${nextIndex}`)
-                    .classList.add("revealed");
+                document.getElementById(`target-letter-${nextIndex}`).classList.add("revealed");
                 letterElement.style.visibility = "hidden";
 
                 if (nextIndex === targetLetters.length - 1) {
+                    locked = true;
                     showFeedback("Palavra correta!", true);
                     updateStars(1);
+                    scheduleReplayGame("word");
                 }
             } else {
+                updateStars(-1);
                 showFeedback("Tente novamente!", false);
                 speak("Essa não é a letra correta");
-                updateStars(-1);
             }
         }
     }
 
-    /* 5) SOMBRAS */
+    // 5) SOMBRAS
     function initShadowGame() {
         const content = document.getElementById("content");
         content.innerHTML = "<h2>Toque em um emoji e depois em sua sombra:</h2>";
 
-        const allShadowEmojis = Object.values(emojiDatabase)
-            .flat()
-            .map((itemObj) => itemObj.emoji);
-
+        const allShadowEmojis = Object.values(emojiDatabase).flat().map(o => o.emoji);
         let uniqueEmojis = Array.from(new Set(allShadowEmojis));
         let chosenEmojis = shuffle(uniqueEmojis).slice(0, 4);
-        if (JSON.stringify(chosenEmojis) === JSON.stringify(lastShadowSet)) {
-            chosenEmojis = shuffle(uniqueEmojis).slice(0, 4);
+        if(JSON.stringify(chosenEmojis)===JSON.stringify(lastShadowSet)){
+            chosenEmojis = shuffle(uniqueEmojis).slice(0,4);
         }
         lastShadowSet = chosenEmojis;
 
         content.innerHTML += `
       <div class="shadow-container" id="shadow-slots">
-        ${chosenEmojis
-            .map(
-                (emoji) => `
-              <div class="shadow-slot" data-expected="${emoji}"
-                   onclick="selectShadowSlot(this, '${emoji}')">
-                ${emoji}
-              </div>
-            `
-            )
-            .join("")}
+        ${chosenEmojis.map(e=>`
+          <div class="shadow-slot" data-expected="${e}"
+               onclick="selectShadowSlot(this,'${e}')">
+            ${e}
+          </div>
+        `).join("")}
       </div>
     `;
-
         content.innerHTML += `
       <div class="shadow-container" id="shadow-items">
-        ${shuffle(chosenEmojis)
-            .map(
-                (emoji) => `
-              <div class="shadow-item"
-                   onclick="selectShadowItem(this, '${emoji}')">
-                ${emoji}
-              </div>
-            `
-            )
-            .join("")}
+        ${shuffle(chosenEmojis).map(e=>`
+          <div class="shadow-item"
+               onclick="selectShadowItem(this,'${e}')">
+            ${e}
+          </div>
+        `).join("")}
       </div>
     `;
 
         window.shadowGameState = {
-            correctMatches: 0,
+            correctMatches:0,
             totalItems: chosenEmojis.length,
             selectedEmoji: null,
-            selectedElement: null,
+            selectedElement: null
         };
 
         speak("Toque em um emoji e depois na sua sombra correspondente");
     }
 
-    function selectShadowItem(element, emoji) {
-        if (window.shadowGameState.selectedElement) {
+    function selectShadowItem(el, emoji) {
+        if(locked) return;
+        if(window.shadowGameState.selectedElement){
             window.shadowGameState.selectedElement.style.opacity = "1";
         }
         window.shadowGameState.selectedEmoji = emoji;
-        window.shadowGameState.selectedElement = element;
-        element.style.opacity = "0.5";
+        window.shadowGameState.selectedElement = el;
+        el.style.opacity = "0.5";
     }
 
-    function selectShadowSlot(slotElement, expectedEmoji) {
+    function selectShadowSlot(slotEl, expectedEmoji) {
+        if(locked) return;
         const selected = window.shadowGameState.selectedEmoji;
         const selectedEl = window.shadowGameState.selectedElement;
-        if (!selected) return;
+        if(!selected) return;
 
-        if (selected === expectedEmoji) {
-            slotElement.textContent = selected;
-            slotElement.classList.add("shadow-match");
-            slotElement.classList.remove("shadow-slot");
+        if(selected === expectedEmoji){
+            slotEl.textContent = selected;
+            slotEl.classList.add("shadow-match");
+            slotEl.classList.remove("shadow-slot");
             window.shadowGameState.correctMatches++;
-            if (selectedEl) selectedEl.style.display = "none";
+            if(selectedEl) selectedEl.style.display = "none";
             showFeedback("Correto!", true);
 
-            if (
-                window.shadowGameState.correctMatches ===
-                window.shadowGameState.totalItems
-            ) {
+            if(window.shadowGameState.correctMatches === window.shadowGameState.totalItems){
+                locked = true;
                 updateStars(1);
+                scheduleReplayGame("shadows");
             }
         } else {
-            slotElement.classList.add("shadow-mismatch");
-            setTimeout(() => slotElement.classList.remove("shadow-mismatch"), 1000);
+            slotEl.classList.add("shadow-mismatch");
+            setTimeout(()=> slotEl.classList.remove("shadow-mismatch"),1000);
             speak("Essa não é a sombra correta");
             updateStars(-1);
             showFeedback("Sombra incorreta!", false);
         }
-
-        if (selectedEl) {
-            selectedEl.style.opacity = "1";
-        }
-        window.shadowGameState.selectedEmoji = null;
-        window.shadowGameState.selectedElement = null;
+        if(selectedEl) selectedEl.style.opacity = "1";
+        window.shadowGameState.selectedEmoji=null;
+        window.shadowGameState.selectedElement=null;
     }
 
-    /* 6) QUEBRA-CABEÇA (máximo 9) */
+    // 6) QUEBRA CABEÇA (máx 9)
     function initPuzzleGame() {
         window.puzzleGameState = {
-            selectedNumber: null,
-            correctMatches: 0,
-            totalPairs: 5,
+            selectedNumber:null,
+            correctMatches:0,
+            totalPairs:5
         };
 
         const content = document.getElementById("content");
         content.innerHTML = "<h2>Combine os números com a quantidade correta:</h2>";
 
-        let randomNums = shuffle([...Array(9)].map((_, i) => i + 1)).slice(0, 5);
-        while (JSON.stringify(randomNums) === JSON.stringify(lastPuzzleSet)) {
-            randomNums = shuffle([...Array(9)].map((_, i) => i + 1)).slice(0, 5);
+        let randomNums = shuffle([...Array(9)].map((_,i)=> i+1)).slice(0,5);
+        while(JSON.stringify(randomNums)===JSON.stringify(lastPuzzleSet)){
+            randomNums = shuffle([...Array(9)].map((_,i)=> i+1)).slice(0,5);
         }
         lastPuzzleSet = randomNums;
 
-        const emojis = [
-            "🍎","⭐","🎈","🐱","🚗","🎮","🍕","🐶","🌺"
-        ];
+        const emojis = ["🍎","⭐","🎈","🐱","🚗","🎮","🍕","🐶","🌺"];
 
         content.innerHTML += `
       <div class="numbers-container">
-        ${randomNums
-            .map(
-                (num) => `
-            <div class="puzzle-piece number-piece"
-                 onclick="selectNumber(this, ${num})"
-                 data-number="${num}">
-              ${num}
-            </div>
-          `
-            )
-            .join("")}
+        ${randomNums.map(num=>`
+          <div class="puzzle-piece number-piece"
+               data-number="${num}"
+               onclick="selectNumber(this,${num})">
+            ${num}
+          </div>
+        `).join("")}
       </div>
-    `;
-
-        content.innerHTML += `
       <div class="quantities-container">
-        ${shuffle(randomNums)
-            .map(
-                (num) => `
-            <div class="puzzle-piece emoji-piece"
-                 onclick="matchQuantity(this, ${num})"
-                 data-number="${num}">
-              <div class="puzzle-emoji-grid">
-                ${Array(num)
-                    .fill(emojis[num - 1])
-                    .map(
-                        (emoji) => `<div class="emoji-cell">${emoji}</div>`
-                    )
-                    .join("")}
-              </div>
+        ${shuffle(randomNums).map(num=>`
+          <div class="puzzle-piece emoji-piece"
+               data-number="${num}"
+               onclick="matchQuantity(this,${num})">
+            <div class="puzzle-emoji-grid">
+              ${Array(num).fill(emojis[num-1]).map(e=>`<div class="emoji-cell">${e}</div>`).join("")}
             </div>
-          `
-            )
-            .join("")}
+          </div>
+        `).join("")}
       </div>
     `;
 
-        speak(`Conte o número de figuras e combine com o número correto`);
+        speak("Conte o número de figuras e combine com o número correto");
     }
 
-    function selectNumber(element, number) {
-        document.querySelectorAll(".number-piece").forEach((piece) => {
-            piece.classList.remove("selected");
-        });
-        element.classList.add("selected");
+    function selectNumber(el, number){
+        if(locked) return;
+        document.querySelectorAll(".number-piece").forEach(p=> p.classList.remove("selected"));
+        el.classList.add("selected");
         window.puzzleGameState.selectedNumber = number;
     }
 
-    function matchQuantity(element, quantity) {
-        if (window.puzzleGameState.selectedNumber === null) {
+    function matchQuantity(el, quantity){
+        if(locked) return;
+        if(window.puzzleGameState.selectedNumber===null){
             showFeedback("Selecione um número primeiro!", false);
             return;
         }
-
-        if (quantity === window.puzzleGameState.selectedNumber) {
-            element.classList.add("matched");
-            document
-                .querySelector(`.number-piece[data-number="${quantity}"]`)
-                .classList.add("matched");
+        if(quantity === window.puzzleGameState.selectedNumber){
+            el.classList.add("matched");
+            document.querySelector(`.number-piece[data-number="${quantity}"]`).classList.add("matched");
             window.puzzleGameState.correctMatches++;
             showFeedback("Combinação correta!", true);
 
-            if (
-                window.puzzleGameState.correctMatches ===
-                window.puzzleGameState.totalPairs
-            ) {
+            if(window.puzzleGameState.correctMatches===window.puzzleGameState.totalPairs){
+                locked = true;
                 updateStars(1);
                 showFeedback("Você completou o quebra-cabeça!", true);
+                scheduleReplayGame("puzzle");
             }
         } else {
             showFeedback("Tente novamente!", false);
-            element.classList.add("wrong");
-            setTimeout(() => {
-                element.classList.remove("wrong");
-            }, 500);
+            el.classList.add("wrong");
+            setTimeout(()=> el.classList.remove("wrong"),500);
             updateStars(-1);
         }
 
         window.puzzleGameState.selectedNumber = null;
-        document.querySelectorAll(".number-piece").forEach((piece) => {
-            if (!piece.classList.contains("matched")) {
-                piece.classList.remove("selected");
+        document.querySelectorAll(".number-piece").forEach(p=>{
+            if(!p.classList.contains("matched")){
+                p.classList.remove("selected");
             }
         });
     }
 
-    /* 7) CORES */
+    // 7) CORES
     function initColorGame() {
         const allColors = [
-            { name: "Vermelho", hex: "#FF0000" },
-            { name: "Azul", hex: "#0000FF" },
-            { name: "Verde", hex: "#00FF00" },
-            { name: "Amarelo", hex: "#FFD700" },
-            { name: "Roxo", hex: "#800080" },
-            { name: "Laranja", hex: "#FFA500" },
-            { name: "Rosa", hex: "#FF69B4" },
-            { name: "Marrom", hex: "#8B4513" },
+            { name: "Vermelho", hex:"#FF0000" },
+            { name: "Azul",     hex:"#0000FF" },
+            { name: "Verde",    hex:"#00FF00" },
+            { name: "Amarelo",  hex:"#FFD700" },
+            { name: "Roxo",     hex:"#800080" },
+            { name: "Laranja",  hex:"#FFA500" },
+            { name: "Rosa",     hex:"#FF69B4" },
+            { name: "Marrom",   hex:"#8B4513" },
         ];
 
         const content = document.getElementById("content");
         content.innerHTML = "<h2>Toque em uma cor e depois na caixa correta:</h2>";
 
-        let roundColors = shuffle(allColors).slice(0, 3);
-        while (JSON.stringify(roundColors) === JSON.stringify(lastColorsSet)) {
-            roundColors = shuffle(allColors).slice(0, 3);
+        let roundColors = shuffle(allColors).slice(0,3);
+        while(JSON.stringify(roundColors)===JSON.stringify(lastColorsSet)){
+            roundColors = shuffle(allColors).slice(0,3);
         }
         lastColorsSet = roundColors;
 
         content.innerHTML += `
-      <div style="margin: 20px; display: flex; justify-content: center; gap: 15px;" id="color-items">
-        ${roundColors
-            .map(
-                (color) => `
-            <div class="color-item"
-                 style="background:${color.hex}"
-                 onclick="selectColorItem(this, '${color.hex}')"
-                 data-colorname="${color.name}">
-            </div>
-          `
-            )
-            .join("")}
+      <div style="margin:20px; display:flex; justify-content:center; gap:15px;" id="color-items">
+        ${roundColors.map(c=>`
+          <div class="color-item"
+               style="background:${c.hex}"
+               data-colorname="${c.name}"
+               onclick="selectColorItem(this,'${c.hex}')"></div>
+        `).join("")}
       </div>
-    `;
-
-        content.innerHTML += `
-      <div style="margin-top:30px; display: flex; justify-content: center; gap: 20px;" id="color-bins">
-        ${roundColors
-            .map(
-                (color) => `
-            <div class="color-bin"
-                 style="border-color:${color.hex}"
-                 data-targetcolor="${color.hex}"
-                 data-filled="false"
-                 onclick="placeColor(this, '${color.hex}')">
-              <span style="color: ${color.hex}">${color.name}</span>
-            </div>
-          `
-            )
-            .join("")}
+      <div style="margin-top:30px; display:flex; justify-content:center; gap:20px;" id="color-bins">
+        ${roundColors.map(c=>`
+          <div class="color-bin"
+               style="border-color:${c.hex}"
+               data-targetcolor="${c.hex}"
+               data-filled="false"
+               onclick="placeColor(this,'${c.hex}')">
+            <span style="color:${c.hex}">${c.name}</span>
+          </div>
+        `).join("")}
       </div>
     `;
 
         window.colorGameState = {
-            totalColors: roundColors.length,
-            correctMatches: 0,
-            selectedColor: null,
-            selectedElement: null,
+            totalColors:roundColors.length,
+            correctMatches:0,
+            selectedColor:null,
+            selectedElement:null
         };
 
-        speak(`Combine as cores nas caixas correspondentes`);
+        speak("Combine as cores nas caixas correspondentes");
     }
 
-    function selectColorItem(el, color) {
-        if(window.colorGameState.selectedElement) {
-            window.colorGameState.selectedElement.style.opacity = "1";
+    function selectColorItem(el, color){
+        if(locked) return;
+        if(window.colorGameState.selectedElement){
+            window.colorGameState.selectedElement.style.opacity="1";
         }
         window.colorGameState.selectedColor = color;
         window.colorGameState.selectedElement = el;
-        el.style.opacity = "0.5";
+        el.style.opacity="0.5";
     }
 
-    function placeColor(binEl, targetColor) {
+    function placeColor(binEl, targetColor){
+        if(locked) return;
         const selected = window.colorGameState.selectedColor;
         const selectedEl = window.colorGameState.selectedElement;
-        if (!selected) return;
-        if (binEl.getAttribute("data-filled") === "true") {
+        if(!selected) return;
+        if(binEl.getAttribute("data-filled")==="true"){
             showFeedback("Esta caixa já está preenchida!", false);
-            if(selectedEl) selectedEl.style.opacity = "1";
-            window.colorGameState.selectedColor = null;
-            window.colorGameState.selectedElement = null;
+            if(selectedEl) selectedEl.style.opacity="1";
+            window.colorGameState.selectedColor=null;
+            window.colorGameState.selectedElement=null;
             return;
         }
-
-        if (selected === targetColor) {
+        if(selected===targetColor){
             binEl.style.backgroundColor = selected;
-            binEl.setAttribute("data-filled", "true");
+            binEl.setAttribute("data-filled","true");
             window.colorGameState.correctMatches++;
             showFeedback("Cor correta!", true);
-            if (selectedEl) selectedEl.style.display = "none";
+            if(selectedEl) selectedEl.style.display="none";
 
-            if (
-                window.colorGameState.correctMatches ===
-                window.colorGameState.totalColors
-            ) {
+            if(window.colorGameState.correctMatches===window.colorGameState.totalColors){
+                locked=true;
                 updateStars(1);
                 showFeedback("Cores completas!", true);
+                scheduleReplayGame("colors");
             }
         } else {
             showFeedback("Tente outra cor", false);
-            binEl.style.animation = "shake 0.5s";
-            setTimeout(() => {
-                binEl.style.animation = "";
-            }, 500);
+            binEl.style.animation="shake 0.5s";
+            setTimeout(()=> binEl.style.animation="",500);
             updateStars(-1);
             speak("Cor incorreta, tente novamente");
         }
 
-        if(selectedEl) {
-            selectedEl.style.opacity = "1";
-        }
-        window.colorGameState.selectedColor = null;
-        window.colorGameState.selectedElement = null;
+        if(selectedEl) selectedEl.style.opacity="1";
+        window.colorGameState.selectedColor=null;
+        window.colorGameState.selectedElement=null;
     }
 
-    /* 8) CLIMA */
-    function initWeatherGame() {
+    // 8) CLIMA
+    function initWeatherGame(){
         const weatherData = [
-            { icon: "☀️", correctItems: ["🕶️", "🎩", "🧴"], title: "Ensolarado" },
-            { icon: "🌧️", correctItems: ["☂️", "🧥", "🥾"], title: "Chuvoso" },
-            { icon: "❄️", correctItems: ["🧤", "🧣", "🎿"], title: "Frio" },
+            { icon:"☀️", correctItems:["🕶️","🎩","🧴"], title:"Ensolarado" },
+            { icon:"🌧️", correctItems:["☂️","🧥","🥾"], title:"Chuvoso" },
+            { icon:"❄️", correctItems:["🧤","🧣","🎿"], title:"Frio" }
         ];
 
         const content = document.getElementById("content");
-        let currentWeather = weatherData[Math.floor(Math.random() * weatherData.length)];
-        while (currentWeather === lastWeather) {
-            currentWeather = weatherData[Math.floor(Math.random() * weatherData.length)];
+        let currentWeather = weatherData[Math.floor(Math.random()*weatherData.length)];
+        while(currentWeather===lastWeather){
+            currentWeather = weatherData[Math.floor(Math.random()*weatherData.length)];
         }
         lastWeather = currentWeather;
 
-        const incorrectItems = ["🎸", "📘", "🎈", "🎪", "🎭", "🎨"];
-        const allItems = shuffle([
-            ...currentWeather.correctItems,
-            ...shuffle(incorrectItems).slice(0, 3),
-        ]);
+        const incorrectItems = ["🎸","📘","🎈","🎪","🎭","🎨"];
+        const allItems = shuffle([...currentWeather.correctItems, ...shuffle(incorrectItems).slice(0,3)]);
 
-        content.innerHTML = `
+        content.innerHTML=`
       <h2>Escolha os itens para o clima:</h2>
       <div class="weather-card">
         <div style="font-size:60px">${currentWeather.icon}</div>
         <h3>${currentWeather.title}</h3>
         <div class="weather-items" id="weather-items">
-          ${allItems
-            .map(
-                (item) => `
-              <div class="weather-item"
-                   data-item="${item}"
-                   onclick="handleWeatherItem(this, '${item}', '${currentWeather.icon}')">
-                ${item}
-              </div>
-            `
-            )
-            .join("")}
+          ${allItems.map(item=>`
+            <div class="weather-item"
+                 onclick="handleWeatherItem(this,'${item}','${currentWeather.icon}')">
+              ${item}
+            </div>
+          `).join("")}
         </div>
       </div>
     `;
 
-        window.weatherGameState = {
-            correctCount: 0,
-            totalCorrect: currentWeather.correctItems.length,
-            currentIcon: currentWeather.icon,
+        window.weatherGameState={
+            correctCount:0,
+            totalCorrect:currentWeather.correctItems.length,
+            currentIcon: currentWeather.icon
         };
 
         speak(`Selecione as figuras que você usaria para o clima ${currentWeather.title}`);
     }
 
-    function handleWeatherItem(element, item, correctIcon) {
-        if (element.classList.contains("selected")) return;
-
+    function handleWeatherItem(el, item, correctIcon){
+        if(locked) return;
         const correctItems = {
-            "☀️": ["🕶️", "🎩", "🧴"],
-            "🌧️": ["☂️", "🧥", "🥾"],
-            "❄️": ["🧤", "🧣", "🎿"],
+            "☀️":["🕶️","🎩","🧴"],
+            "🌧️":["☂️","🧥","🥾"],
+            "❄️":["🧤","🧣","🎿"]
         }[correctIcon];
 
-        if (correctItems.includes(item)) {
-            element.classList.add("selected");
+        if(el.classList.contains("selected")) return;
+
+        if(correctItems.includes(item)){
+            el.classList.add("selected");
             showFeedback("Item correto!", true);
             window.weatherGameState.correctCount++;
-
-            if (window.weatherGameState.correctCount === window.weatherGameState.totalCorrect) {
+            if(window.weatherGameState.correctCount===window.weatherGameState.totalCorrect){
+                locked=true;
                 updateStars(1);
                 showFeedback("Desafio completo!", true);
+                scheduleReplayGame("weather");
             }
         } else {
-            element.style.background = "#FFCDD2";
-            element.style.animation = "shake 0.5s";
+            el.style.background="#FFCDD2";
+            el.style.animation="shake 0.5s";
             showFeedback("Não é para este clima!", false);
             speak("Não é para este clima");
-            setTimeout(() => {
-                element.style.background = "";
-                element.style.animation = "";
-            }, 1000);
+            setTimeout(()=>{
+                el.style.background="";
+                el.style.animation="";
+            },1000);
             updateStars(-1);
         }
     }
 
-    /* 9) CATEGORIAS */
-    function initCategoryGame() {
+    // 9) CATEGORIAS
+    function initCategoryGame(){
         const content = document.getElementById("content");
-        content.innerHTML = "<h2>Classifique os itens em suas categorias:</h2>";
+        content.innerHTML="<h2>Classifique os itens em suas categorias:</h2>";
 
         const categories = [
             {
-                name: "Animais",
-                icon: "🐶",
-                items: [
-                    "🐱","🐙","🐶","🐷","🦊",
-                    "🦁","🐯","🐺","🐸","🦓",
-                    "🦒","🐵","🐼","🐹","🐰",
-                    "🐻","🐨","🐔","🦆","🦅",
-                    "🦉","🐢","🐍","🦋","🦇",
-                    "🦔","🦣","🐊","🐛","🦕",
-                    "🦖"
-                ],
+                name:"Animais", icon:"🐶",
+                items:["🐱","🐙","🐶","🐷","🦊","🦁","🐯","🐺","🐸","🦓","🦒","🐵","🐼","🐹","🐰",
+                    "🐻","🐨","🐔","🦆","🦅","🦉","🐢","🐍","🦋","🦇","🦔","🦣","🐊","🐛","🦕","🦖"]
             },
             {
-                name: "Frutas",
-                icon: "🍎",
-                items: [
-                    "🍎","🍌","🍇","🍊","🥝",
-                    "🍐","🍍","🍑","🍒","🍉",
-                    "🍓","🥭","🍅","🍏","🍋",
-                    "🥥","🫐"
-                ],
+                name:"Frutas", icon:"🍎",
+                items:["🍎","🍌","🍇","🍊","🥝","🍐","🍍","🍑","🍒","🍉","🍓","🥭","🍅","🍏","🍋","🥥","🫐"]
             },
             {
-                name: "Veículos",
-                icon: "🚗",
-                items: [
-                    "🚗","✈️","🚲","🚌","⛵",
-                    "🚕","🚙","🚎","🏎️","🚓",
-                    "🚑","🚒","🚐","🛵","🏍️",
-                    "🚂","🚆","🚇","🚝","🚞",
-                    "🚊","🛩️","🚤","⛴️","🚢",
-                    "🛥️","🛳️","🚀","🚁","🚡",
-                    "🚠","🚟","🦼"
-                ],
-            },
+                name:"Veículos", icon:"🚗",
+                items:["🚗","✈️","🚲","🚌","⛵","🚕","🚙","🚎","🏎️","🚓","🚑","🚒","🚐","🛵","🏍️","🚂","🚆","🚇",
+                    "🚝","🚞","🚊","🛩️","🚤","⛴️","🚢","🛥️","🛳️","🚀","🚁","🚡","🚠","🚟","🦼"]
+            }
         ];
 
         const allCategoryItems = [];
-        categories.forEach((cat) => {
-            const shuffledItems = [...cat.items];
-            shuffle(shuffledItems);
-            const fiveItems = shuffledItems.slice(0, 5);
-            fiveItems.forEach((item) => {
-                allCategoryItems.push({ emoji: item, category: cat.name });
-            });
+        categories.forEach(cat=>{
+            const shuffledItems = shuffle([...cat.items]);
+            const fiveItems = shuffledItems.slice(0,5);
+            fiveItems.forEach(i=> allCategoryItems.push({ emoji:i, category: cat.name }));
         });
 
-        const currentSet = JSON.stringify(allCategoryItems);
-        if (currentSet === JSON.stringify(lastCategoriesSet)) {
-            allCategoryItems.length = 0;
-            categories.forEach((cat) => {
-                const shuffledItems = [...cat.items];
-                shuffle(shuffledItems);
-                const fiveItems = shuffledItems.slice(0, 5);
-                fiveItems.forEach((item) => {
-                    allCategoryItems.push({ emoji: item, category: cat.name });
-                });
+        const currentSet=JSON.stringify(allCategoryItems);
+        if(currentSet===JSON.stringify(lastCategoriesSet)){
+            allCategoryItems.length=0;
+            categories.forEach(cat=>{
+                const shuffledItems=shuffle([...cat.items]);
+                const fiveItems=shuffledItems.slice(0,5);
+                fiveItems.forEach(i=> allCategoryItems.push({emoji:i,category:cat.name}));
             });
         }
         lastCategoriesSet = allCategoryItems;
 
-        const contentHTML = [];
-        contentHTML.push(
-            `<div class="category-game-container" style="flex-direction: row;">`
-        );
-        categories.forEach((cat) => {
+        const contentHTML=[];
+        contentHTML.push(`<div class="category-game-container" style="flex-direction: row;">`);
+        categories.forEach(cat=>{
             contentHTML.push(`
         <div class="category-bin"
              data-category="${cat.name}"
              data-filled="0"
-             onclick="placeInCategory(this, '${cat.name}')">
+             onclick="placeInCategory(this,'${cat.name}')">
           <div class="category-label">${cat.icon} ${cat.name}</div>
           <div class="bin-items-container" id="bin-${cat.name}"></div>
         </div>
@@ -1848,10 +1820,8 @@
         });
         contentHTML.push(`</div>`);
 
-        contentHTML.push(
-            `<div class="category-game-container" style="flex-direction: row;" id="cat-items-container">`
-        );
-        shuffle(allCategoryItems).forEach((obj) => {
+        contentHTML.push(`<div class="category-game-container" style="flex-direction: row;" id="cat-items-container">`);
+        shuffle(allCategoryItems).forEach(obj=>{
             contentHTML.push(`
         <div class="category-item"
              data-emoji="${obj.emoji}"
@@ -1862,150 +1832,145 @@
       `);
         });
         contentHTML.push(`</div>`);
+        content.innerHTML+=contentHTML.join("");
 
-        content.innerHTML += contentHTML.join("");
-
-        window.categoryGameState = {
+        window.categoryGameState={
             totalItems: allCategoryItems.length,
-            correct: 0,
-            selectedItem: null,
-            selectedElement: null,
+            correct:0,
+            selectedItem:null,
+            selectedElement:null
         };
 
         speak("Toque em um item e depois na categoria correta");
     }
 
-    function selectCategoryItem(el) {
-        if (window.categoryGameState.selectedElement) {
-            window.categoryGameState.selectedElement.style.opacity = "1";
+    function selectCategoryItem(el){
+        if(locked) return;
+        if(window.categoryGameState.selectedElement){
+            window.categoryGameState.selectedElement.style.opacity="1";
         }
-        window.categoryGameState.selectedItem = {
+        window.categoryGameState.selectedItem={
             emoji: el.getAttribute("data-emoji"),
-            category: el.getAttribute("data-cat"),
+            category: el.getAttribute("data-cat")
         };
-        window.categoryGameState.selectedElement = el;
-        el.style.opacity = "0.5";
+        window.categoryGameState.selectedElement=el;
+        el.style.opacity="0.5";
     }
 
-    function placeInCategory(binEl, targetCategory) {
-        const selectedItem = window.categoryGameState.selectedItem;
-        const selectedEl = window.categoryGameState.selectedElement;
-        if (!selectedItem) return;
+    function placeInCategory(binEl, targetCategory){
+        if(locked) return;
+        const selItem = window.categoryGameState.selectedItem;
+        const selEl   = window.categoryGameState.selectedElement;
+        if(!selItem) return;
 
-        if (selectedItem.category === targetCategory) {
+        if(selItem.category===targetCategory){
             binEl.classList.add("category-matched");
-            const filledCount = parseInt(binEl.getAttribute("data-filled")) + 1;
-            binEl.setAttribute("data-filled", filledCount);
+            const filledCount = parseInt(binEl.getAttribute("data-filled"))+1;
+            binEl.setAttribute("data-filled",filledCount);
             const binContainer = binEl.querySelector(".bin-items-container");
             const newEmojiDiv = document.createElement("div");
-            newEmojiDiv.style.fontSize = "2rem";
-            newEmojiDiv.textContent = selectedItem.emoji;
+            newEmojiDiv.style.fontSize="2rem";
+            newEmojiDiv.textContent=selItem.emoji;
             binContainer.appendChild(newEmojiDiv);
-            selectedEl.classList.add("hidden-item");
+            selEl.classList.add("hidden-item");
+
             window.categoryGameState.correct++;
             showFeedback("Correto!", true);
-            speak(`Muito bem! ${selectedItem.emoji} pertence à categoria ${targetCategory}`);
-            if (window.categoryGameState.correct === window.categoryGameState.totalItems) {
+            speak(`Muito bem! ${selItem.emoji} pertence à categoria ${targetCategory}`);
+            if(window.categoryGameState.correct===window.categoryGameState.totalItems){
+                locked=true;
                 updateStars(1);
                 showFeedback("Categorias completadas!", true);
+                scheduleReplayGame("categories");
             }
         } else {
             binEl.classList.add("category-wrong");
-            setTimeout(() => {
-                binEl.classList.remove("category-wrong");
-            }, 800);
+            setTimeout(()=> binEl.classList.remove("category-wrong"),800);
             showFeedback("Categoria incorreta!", false);
             updateStars(-1);
             speak("Essa não é a categoria certa");
         }
-
-        if (selectedEl) {
-            selectedEl.style.opacity = "1";
-        }
-        window.categoryGameState.selectedItem = null;
-        window.categoryGameState.selectedElement = null;
+        if(selEl) selEl.style.opacity="1";
+        window.categoryGameState.selectedItem=null;
+        window.categoryGameState.selectedElement=null;
     }
 
-    /* 10) LEITURA */
+    // 10) LEITURA
     const readingWords = [
-        { word: "barata",   syllables: ["ba", "ra", "ta"] },
-        { word: "banana",   syllables: ["ba", "na", "na"] },
-        { word: "pipoca",   syllables: ["pi", "po", "ca"] },
-        { word: "macaco",   syllables: ["ma", "ca", "co"] },
-        { word: "cavalo",   syllables: ["ca", "va", "lo"] },
-        { word: "tartaruga",syllables: ["tar","ta","ru","ga"] },
-        { word: "amigo",    syllables: ["a","mi","go"] },
-        { word: "arara",    syllables: ["a","ra","ra"] },
-        { word: "batata",   syllables: ["ba","ta","ta"] },
-        { word: "girafa",   syllables: ["gi","ra","fa"] },
-        { word: "cachorro", syllables: ["ca","cho","rro"] }
+        { word:"barata",   syllables:["ba","ra","ta"] },
+        { word:"banana",   syllables:["ba","na","na"] },
+        { word:"pipoca",   syllables:["pi","po","ca"] },
+        { word:"macaco",   syllables:["ma","ca","co"] },
+        { word:"cavalo",   syllables:["ca","va","lo"] },
+        { word:"tartaruga",syllables:["tar","ta","ru","ga"] },
+        { word:"amigo",    syllables:["a","mi","go"] },
+        { word:"arara",    syllables:["a","ra","ra"] },
+        { word:"batata",   syllables:["ba","ta","ta"] },
+        { word:"girafa",   syllables:["gi","ra","fa"] },
+        { word:"cachorro", syllables:["ca","cho","rro"] }
     ];
 
-    function initReadingGame() {
+    function initReadingGame(){
         const content = document.getElementById("content");
-        content.innerHTML = `
+        content.innerHTML=`
       <h2 class="reading-title">Toque para formar a palavra!</h2>
       <div id="reading-result" class="reading-result"></div>
       <div id="reading-syllables" class="reading-word-box"></div>
     `;
 
         let randomWord = shuffle(readingWords)[0];
-        while (randomWord.word === lastReadingWord?.word) {
+        while(randomWord.word===lastReadingWord?.word){
             randomWord = shuffle(readingWords)[0];
         }
         lastReadingWord = randomWord;
 
         const originalSyllables = [...randomWord.syllables];
         const scrambled = shuffle([...randomWord.syllables]);
-        window.readingGameState = {
+        window.readingGameState={
             originalWord: randomWord.word,
             syllables: originalSyllables,
-            userIndex: 0,
+            userIndex:0
         };
 
         const resultContainer = document.getElementById("reading-result");
-        originalSyllables.forEach((_, idx) => {
+        originalSyllables.forEach((_,idx)=>{
             const span = document.createElement("div");
-            span.className = "reading-result-syllable";
-            span.id = "result-syllable-" + idx;
+            span.className="reading-result-syllable";
+            span.id=`result-syllable-${idx}`;
             resultContainer.appendChild(span);
         });
 
         const syllablesContainer = document.getElementById("reading-syllables");
-        scrambled.forEach((syllable) => {
+        scrambled.forEach(syl=>{
             const div = document.createElement("div");
-            div.className = "reading-syllable";
-            div.textContent = syllable;
-            div.onclick = function () {
-                handleReadingTap(this);
+            div.className="reading-syllable";
+            div.textContent=syl;
+            div.onclick=()=>{
+                if(locked) return;
+                handleReadingTap(div);
             };
             syllablesContainer.appendChild(div);
         });
 
-        speak(
-            `Forme a palavra ${randomWord.word.toUpperCase()}! Toque nas sílabas na ordem correta: ${originalSyllables.join("-")}.`
-        );
+        speak(`Forme a palavra ${randomWord.word.toUpperCase()}! Toque nas sílabas na ordem correta: ${originalSyllables.join("-")}.`);
     }
 
-    function handleReadingTap(element) {
+    function handleReadingTap(el){
         const state = window.readingGameState;
         const nextNeeded = state.syllables[state.userIndex];
-        const tapped = element.textContent;
-
-        if (tapped === nextNeeded) {
-            const targetSlot = document.getElementById(
-                `result-syllable-${state.userIndex}`
-            );
-            targetSlot.textContent = tapped;
-            targetSlot.classList.add("correct");
-
-            element.style.visibility = "hidden";
+        const tapped = el.textContent;
+        if(tapped===nextNeeded){
+            const slot = document.getElementById(`result-syllable-${state.userIndex}`);
+            slot.textContent = tapped;
+            slot.classList.add("correct");
+            el.style.visibility="hidden";
             speak(tapped);
-
             state.userIndex++;
-            if (state.userIndex === state.syllables.length) {
+            if(state.userIndex===state.syllables.length){
+                locked=true;
                 showFeedback(`Você formou a palavra "${state.originalWord.toUpperCase()}"!`, true);
                 updateStars(1);
+                scheduleReplayGame("reading");
             }
         } else {
             showFeedback("Sílaba errada, tente novamente!", false);
@@ -2014,15 +1979,12 @@
         }
     }
 
-    /*******************
-     * NOVOS JOGOS
-     ******************/
-    /* Palworld */
-    function initPalworldGame() {
+    // Palworld
+    function initPalworldGame(){
         const content = document.getElementById("content");
-        content.innerHTML = `<h2>Encontre a primeira letra do Pal:</h2>`;
+        content.innerHTML="<h2>Encontre a primeira letra do Pal:</h2>";
         const randomPal = shuffle(palworldData)[0];
-        content.innerHTML += `
+        content.innerHTML+=`
       <div class="pal-list">
         <div class="pal-item">
           <img src="${randomPal.img}" alt="${randomPal.name}" />
@@ -2031,42 +1993,49 @@
       </div>
       <div class="letters-options" id="letters-options"></div>
     `;
+
         const correctLetter = randomPal.name[0].toUpperCase();
         const allLetters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
         const options = shuffle([
             correctLetter,
-            ...shuffle(allLetters.filter((l) => l !== correctLetter)).slice(0,5)
+            ...shuffle(allLetters.filter(l=>l!==correctLetter)).slice(0,5)
         ]);
 
         const lettersBox = document.getElementById("letters-options");
-        options.forEach((letter) => {
+        options.forEach(letter=>{
             const div = document.createElement("div");
-            div.className = "letter-choice";
-            div.textContent = letter;
-            div.onclick = () => checkPalworldLetter(letter, correctLetter);
+            div.className="letter-choice";
+            div.textContent=letter;
+            div.onclick=()=>{
+                if(locked) return;
+                checkPalworldLetter(letter,correctLetter);
+            };
             lettersBox.appendChild(div);
         });
 
         speak(`Qual a primeira letra de ${randomPal.name}?`);
     }
 
-    function checkPalworldLetter(letter, correct) {
-        if(letter === correct) {
+    function checkPalworldLetter(letter, correct){
+        locked=true;
+        if(letter===correct){
             updateStars(1);
             showFeedback("Certo!", true);
+            scheduleReplayGame("palworld");
         } else {
             updateStars(-1);
             showFeedback("Letra errada!", false);
             speak(`A primeira letra é ${correct}`);
+            locked=false;
         }
     }
 
-    /* Pokemon */
-    function initPokemonGame() {
+    // Pokemon
+    function initPokemonGame(){
         const content = document.getElementById("content");
-        content.innerHTML = `<h2>Encontre a primeira letra do Pokemon:</h2>`;
+        content.innerHTML="<h2>Encontre a primeira letra do Pokemon:</h2>";
         const randomPoke = shuffle(pokemonData)[0];
-        content.innerHTML += `
+        content.innerHTML+=`
       <div class="pokemon-list">
         <div class="pokemon-item">
           <img src="${randomPoke.img}" alt="${randomPoke.name}" />
@@ -2079,108 +2048,115 @@
         const allLetters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
         const options = shuffle([
             correctLetter,
-            ...shuffle(allLetters.filter((l) => l !== correctLetter)).slice(0,5)
+            ...shuffle(allLetters.filter(l=>l!==correctLetter)).slice(0,5)
         ]);
 
         const lettersBox = document.getElementById("pokemon-letters-options");
-        options.forEach((letter) => {
+        options.forEach(letter=>{
             const div = document.createElement("div");
-            div.className = "letter-choice";
-            div.textContent = letter;
-            div.onclick = () => checkPokemonLetter(letter, correctLetter);
+            div.className="letter-choice";
+            div.textContent=letter;
+            div.onclick=()=>{
+                if(locked) return;
+                checkPokemonLetter(letter,correctLetter);
+            };
             lettersBox.appendChild(div);
         });
 
         speak(`Qual a primeira letra de ${randomPoke.name}?`);
     }
 
-    function checkPokemonLetter(letter, correct) {
-        if(letter === correct) {
+    function checkPokemonLetter(letter, correct){
+        locked=true;
+        if(letter===correct){
             updateStars(1);
             showFeedback("Certo!", true);
+            scheduleReplayGame("pokemon");
         } else {
             updateStars(-1);
             showFeedback("Letra errada!", false);
             speak(`A primeira letra é ${correct}`);
+            locked=false;
         }
     }
 
-    /*******************
-     * FERRAMENTAS GERAIS
-     ******************/
-    function speak(text) {
-        if (speechSynth.speaking) speechSynth.cancel();
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.lang = "pt-BR";
-        utterance.rate = 0.9;
-        speechSynth.speak(utterance);
+    /****************************
+     * SISTEMA GERAL
+     ****************************/
+    function speak(text){
+        if(speechSynth.speaking) speechSynth.cancel();
+        const utt = new SpeechSynthesisUtterance(text);
+        utt.lang="pt-BR";
+        utt.rate=0.9;
+        speechSynth.speak(utt);
     }
 
-    function shuffle(array) {
-        return array.sort(() => Math.random() - 0.5);
+    function shuffle(arr){
+        return arr.sort(()=>Math.random()-0.5);
     }
 
-    function showFeedback(message, isCorrect) {
-        const feedback = document.getElementById("feedback");
-        feedback.textContent = message;
-        feedback.style.color = isCorrect ? "#2E7D32" : "#C62828";
+    function showFeedback(msg, isCorrect){
+        const fdb = document.getElementById("feedback");
+        fdb.textContent=msg;
+        fdb.style.color= isCorrect ? "#2E7D32" : "#C62828";
     }
 
-    function updateStars(change) {
-        const newStars = Math.max(0, stars + change);
-        if (newStars !== stars) {
-            stars = newStars;
-            localStorage.setItem("stars", stars.toString());
-            starsCountEl.textContent = stars;
+    function updateStars(change){
+        const newStars = Math.max(0, stars+change);
+        if(newStars!==stars){
+            stars=newStars;
+            localStorage.setItem("stars",String(stars));
+            starsCountEl.textContent=stars;
 
-            if (!gameStars[currentGame]) gameStars[currentGame] = 0;
-            gameStars[currentGame] = Math.max(0, gameStars[currentGame] + change);
+            if(!gameStars[currentGame]) gameStars[currentGame]=0;
+            gameStars[currentGame]= Math.max(0, gameStars[currentGame]+change);
             localStorage.setItem("gameStars", JSON.stringify(gameStars));
 
-            if (change > 0) {
-                speak(`Muito bem!`);
+            if(change>0){
+                speak("Muito bem!");
                 maybeGiveSticker();
-            } else if (change < 0 && stars > 0) {
+            } else if(change<0 && stars>0){
                 speak("Não desista! Continue tentando!");
             }
             checkGoal();
-            buildMainMenu();
         }
     }
 
-    /* Checar meta */
-    function checkGoal() {
-        if(!hasReachedGoal && savedGoal>0 && stars>=savedGoal) {
-            hasReachedGoal = true;
+    function maybeGiveSticker(){
+        // 1/5 de chance
+        if(Math.floor(Math.random()*5)===0){
+            const st = possibleStickers[Math.floor(Math.random()*possibleStickers.length)];
+            stickerList.push(st);
+            localStorage.setItem("myStickers", JSON.stringify(stickerList));
+        }
+    }
+
+    function checkGoal(){
+        if(!hasReachedGoal && savedGoal>0 && stars>=savedGoal){
+            hasReachedGoal=true;
             localStorage.setItem("hasReachedGoal","true");
-            trophyInfoEl.style.display = "inline-block";
+            trophyInfoEl.style.display="inline-block";
             showCongratsModal();
             startConfetti();
         }
     }
 
-    /* Figurinhas sem alert, mas com push */
-    function maybeGiveSticker() {
-        if (Math.floor(Math.random() * 5) === 0) {
-            const randomSticker = possibleStickers[Math.floor(Math.random() * possibleStickers.length)];
-            stickerList.push(randomSticker);
-            localStorage.setItem("myStickers", JSON.stringify(stickerList));
-        }
-    }
-
-    /* Atingiu a meta */
-    function showCongratsModal() {
+    /* MODAL DE PARABÉNS */
+    function showCongratsModal(){
         const backdrop = document.getElementById("modal-backdrop");
         const modal = document.getElementById("congratsModal");
-        backdrop.style.display = "block";
-        modal.style.display = "block";
+        backdrop.style.display="block";
+        modal.style.display="block";
+        speak("Parabéns! Você atingiu sua meta de estrelas!");
     }
-    function continueAfterGoal() {
+
+    function continueAfterGoal(){
         stopConfetti();
-        document.getElementById("modal-backdrop").style.display = "none";
-        document.getElementById("congratsModal").style.display = "none";
+        document.getElementById("modal-backdrop").style.display="none";
+        document.getElementById("congratsModal").style.display="none";
     }
-    function restartGame() {
+
+    function restartGame(){
         stopConfetti();
         localStorage.removeItem("playerName");
         localStorage.removeItem("stars");
@@ -2191,78 +2167,77 @@
         location.reload();
     }
 
-    /* Confetes simples */
-    function startConfetti() {
-        confettiCanvas.width = window.innerWidth;
-        confettiCanvas.height = window.innerHeight;
-        confettiCanvas.style.display = "block";
-        confettiActive = true;
+    /* Confetes */
+    function startConfetti(){
+        confettiCanvas.width=window.innerWidth;
+        confettiCanvas.height=window.innerHeight;
+        confettiCanvas.style.display="block";
+        confettiActive=true;
 
-        const confettiPieces = [];
-        for(let i=0; i<150; i++){
+        const confettiPieces=[];
+        for(let i=0;i<150;i++){
             confettiPieces.push({
-                x: Math.random() * confettiCanvas.width,
-                y: Math.random() * confettiCanvas.height,
-                r: Math.random() * 6 + 2,
-                d: Math.random() + 1,
-                color: `hsl(${Math.floor(Math.random()*360)},100%,50%)`,
-                tilt: Math.random()*10 - 10
+                x: Math.random()* confettiCanvas.width,
+                y: Math.random()* confettiCanvas.height,
+                r: Math.random()*6+2,
+                d: Math.random()+1,
+                color:`hsl(${Math.floor(Math.random()*360)},100%,50%)`
             });
         }
-        function drawConfetti() {
-            confettiCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
-            confettiPieces.forEach((cf) => {
+        function drawConfetti(){
+            confettiCtx.clearRect(0,0,confettiCanvas.width,confettiCanvas.height);
+            confettiPieces.forEach(cf=>{
                 confettiCtx.beginPath();
-                confettiCtx.fillStyle = cf.color;
+                confettiCtx.fillStyle=cf.color;
                 confettiCtx.arc(cf.x, cf.y, cf.r, 0, 2*Math.PI);
                 confettiCtx.fill();
             });
             updateConfetti();
             if(confettiActive) requestAnimationFrame(drawConfetti);
         }
-        function updateConfetti() {
-            confettiPieces.forEach((cf) => {
-                cf.y += Math.cos(cf.d) + 1 + cf.r/2;
+        function updateConfetti(){
+            confettiPieces.forEach(cf=>{
+                cf.y += Math.cos(cf.d)+1+cf.r/2;
                 cf.x += Math.sin(cf.d);
                 if(cf.y>confettiCanvas.height){
-                    cf.x = Math.random()* confettiCanvas.width;
-                    cf.y = -10;
+                    cf.x=Math.random()* confettiCanvas.width;
+                    cf.y=-10;
                 }
             });
         }
         drawConfetti();
     }
-    function stopConfetti() {
-        confettiActive = false;
-        confettiCanvas.style.display = "none";
+    function stopConfetti(){
+        confettiActive=false;
+        confettiCanvas.style.display="none";
     }
 
-    /* MODAL FIGURINHAS */
-    function openStickersModal() {
+    /* Modal Figurinhas */
+    function openStickersModal(){
         const modal = document.getElementById("stickers-modal");
         const backdrop = document.getElementById("modal-backdrop");
         const container = document.getElementById("stickers-container");
-        container.innerHTML = "";
+        container.innerHTML="";
 
-        stickerList.forEach((st) => {
+        stickerList.forEach(st=>{
             const div = document.createElement("div");
-            div.className = "sticker-item";
+            div.className="sticker-item";
             const img = document.createElement("img");
-            img.src = st.img;
-            img.alt = st.name;
+            img.src= st.img;
+            img.alt= st.name;
             div.appendChild(img);
             container.appendChild(div);
         });
 
-        backdrop.style.display = "block";
-        modal.style.display = "block";
+        backdrop.style.display="block";
+        modal.style.display="block";
     }
 
-    function closeStickersModal() {
+    function closeStickersModal(){
         const modal = document.getElementById("stickers-modal");
         const backdrop = document.getElementById("modal-backdrop");
-        modal.style.display = "none";
-        backdrop.style.display = "none";
+        modal.style.display="none";
+        backdrop.style.display="none";
     }
 </script>
 </body>
