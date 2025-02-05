@@ -1,14 +1,30 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0"
+    />
     <title>Jogo Educativo Infantil</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css"
+            rel="stylesheet"
+    />
     <style>
+        /* Bloquear seleção de texto e toque prolongado */
         body {
-            font-family: 'Arial', sans-serif;
-            background-color: #FFF3E0;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            -webkit-touch-callout: none;
+        }
+
+        /* Layout */
+        body {
+            font-family: "Arial", sans-serif;
+            background-color: #fff3e0;
             margin-bottom: 80px;
         }
 
@@ -45,7 +61,7 @@
             padding: 15px 30px;
             margin: 15px;
             border-radius: 15px;
-            background-color: #4CAF50;
+            background-color: #4caf50;
             border: none;
             color: white;
             cursor: pointer;
@@ -84,6 +100,7 @@
             border-radius: 15px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
             margin-bottom: 20px;
+            position: relative;
         }
         .player-name {
             font-size: 24px;
@@ -99,6 +116,57 @@
         }
         .stars-info span {
             font-size: 28px;
+        }
+
+        /* Botão e Modal de Figurinhas */
+        #stickers-btn {
+            position: absolute;
+            top: 50%;
+            right: 10px;
+            transform: translateY(-50%);
+            font-size: 20px;
+            padding: 10px 20px;
+            background: #ff9800;
+        }
+        .modal-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: none;
+            z-index: 9998;
+        }
+        .stickers-modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            z-index: 9999;
+            width: 90%;
+            max-width: 500px;
+            display: none;
+        }
+        .stickers-modal h3 {
+            margin-bottom: 20px;
+        }
+        .stickers-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+        .sticker-item {
+            font-size: 24px;
+            background: #ffeb3b;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+            cursor: default;
         }
 
         /* Categorias */
@@ -141,7 +209,7 @@
             border-radius: 10px;
             font-size: 2rem;
             border: 3px solid #000;
-            background-color: #C8E6C9;
+            background-color: #c8e6c9;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -151,23 +219,31 @@
             visibility: hidden;
         }
         .category-matched {
-            background-color: #C8E6C9 !important;
-            border-color: #4CAF50 !important;
+            background-color: #c8e6c9 !important;
+            border-color: #4caf50 !important;
         }
         .category-wrong {
-            background-color: #FFCDD2 !important;
-            border-color: #C62828 !important;
+            background-color: #ffcdd2 !important;
+            border-color: #c62828 !important;
             animation: shake 0.5s;
         }
 
         @keyframes shake {
-            0% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            50% { transform: translateX(5px); }
-            100% { transform: translateX(0); }
+            0% {
+                transform: translateX(0);
+            }
+            25% {
+                transform: translateX(-5px);
+            }
+            50% {
+                transform: translateX(5px);
+            }
+            100% {
+                transform: translateX(0);
+            }
         }
 
-        /* Outros jogos (mantidos apenas para contexto) */
+        /* Outros jogos */
         .numbers-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -176,7 +252,7 @@
             margin-top: 20px;
         }
         .number-option {
-            background-color: #C8E6C9;
+            background-color: #c8e6c9;
             width: 100px;
             height: 100px;
             margin: 5px;
@@ -189,7 +265,7 @@
             border: 3px solid #000;
         }
         .target-number {
-            background-color: #FFD700 !important;
+            background-color: #ffd700 !important;
             color: #000;
             margin: 0 auto;
             display: flex;
@@ -213,7 +289,7 @@
             margin-right: auto;
         }
         .emoji-option {
-            background-color: #C8E6C9;
+            background-color: #c8e6c9;
             width: 120px;
             height: 120px;
             margin: 10px;
@@ -241,7 +317,7 @@
             width: 80px;
             height: 80px;
             font-size: 2rem;
-            background: #FFF9C4;
+            background: #fff9c4;
             border: 3px solid #000;
             border-radius: 15px;
             display: flex;
@@ -256,7 +332,7 @@
         }
 
         .word-letter {
-            background-color: #FFD700;
+            background-color: #ffd700;
             width: 60px;
             height: 60px;
             margin: 5px;
@@ -284,8 +360,8 @@
             border-bottom: 3px solid #999;
         }
         .revealed {
-            color: #2E7D32 !important;
-            border-bottom: 3px solid #2E7D32;
+            color: #2e7d32 !important;
+            border-bottom: 3px solid #2e7d32;
         }
         .scrambled-letters {
             margin: 20px;
@@ -308,7 +384,7 @@
             justify-content: center;
             font-size: 80px;
             cursor: pointer;
-            background: #FFF9C4;
+            background: #fff9c4;
             border-radius: 15px;
             border: 3px solid #000;
         }
@@ -316,7 +392,7 @@
             width: 150px;
             height: 150px;
             margin: 10px;
-            background: #E0E0E0;
+            background: #e0e0e0;
             border-radius: 15px;
             display: flex;
             align-items: center;
@@ -324,16 +400,19 @@
             font-size: 80px;
             opacity: 0.3;
             cursor: pointer;
-            border: 3px solid #CCC;
+            border: 3px solid #ccc;
+            transition: all 0.2s ease;
         }
         .shadow-match {
-            background: #C8E6C9 !important;
-            border: 3px solid #4CAF50 !important;
+            background: #c8e6c9 !important;
+            border: 3px solid #4caf50 !important;
             opacity: 1 !important;
+            font-size: 80px !important; /* garantir tamanho do emoji */
+            width: 150px !important; /* manter tamanho */
         }
         .shadow-mismatch {
-            background: #FFCDD2 !important;
-            border: 3px solid #C62828 !important;
+            background: #ffcdd2 !important;
+            border: 3px solid #c62828 !important;
             animation: shake 0.5s;
         }
 
@@ -351,7 +430,7 @@
             height: 130px;
             font-size: 30px;
             margin: 5px;
-            background: #FFB74D;
+            background: #ffb74d;
             border-radius: 10px;
             display: flex;
             align-items: center;
@@ -359,7 +438,7 @@
             cursor: pointer;
             transition: all 0.3s ease;
             border: 3px solid transparent;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
             position: relative;
             overflow: hidden;
         }
@@ -369,7 +448,7 @@
         .number-piece {
             font-size: 36px;
             font-weight: bold;
-            background: #81D4FA;
+            background: #81d4fa;
         }
         .emoji-piece {
             background: transparent !important;
@@ -395,20 +474,20 @@
             height: 30px;
         }
         .puzzle-piece.selected {
-            border-color: #4CAF50;
+            border-color: #4caf50;
             box-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
         }
         .puzzle-piece.matched {
-            background: #C8E6C9;
+            background: #c8e6c9;
             cursor: default;
-            border-color: #4CAF50;
+            border-color: #4caf50;
         }
         .puzzle-piece.matched .emoji-cell {
             background: rgba(76, 175, 80, 0.1);
         }
         .puzzle-piece.wrong {
             animation: shake 0.5s;
-            background: #FFCDD2;
+            background: #ffcdd2;
         }
         .puzzle-piece.wrong .emoji-cell {
             background: rgba(244, 67, 54, 0.1);
@@ -430,7 +509,7 @@
         .color-bin span {
             font-size: 16px;
             font-weight: bold;
-            text-shadow: 1px 1px 2px rgba(255,255,255,0.8);
+            text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);
         }
         .color-item {
             width: 60px;
@@ -439,19 +518,19 @@
             cursor: pointer;
             transition: all 0.3s ease;
             border: 3px solid #fff;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
         }
         .color-item:hover {
             transform: scale(1.1);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
         }
 
         .weather-card {
-            background: #FFF;
+            background: #fff;
             padding: 20px;
             margin: 20px;
             border-radius: 15px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             display: inline-block;
             width: 250px;
         }
@@ -467,19 +546,19 @@
             cursor: pointer;
             border-radius: 10px;
             transition: all 0.3s;
-            background: #F5F5F5;
+            background: #f5f5f5;
         }
         .weather-item.selected {
-            background: #C8E6C9 !important;
+            background: #c8e6c9 !important;
             transform: scale(1.1);
-            border: 2px solid #4CAF50;
+            border: 2px solid #4caf50;
         }
 
         .d-none {
             display: none !important;
         }
 
-        /* ---- NOVO JOGO (LEITURA) ---- */
+        /* ---- Jogo de Leitura ---- */
         .reading-title {
             font-size: 1.5rem;
             margin-bottom: 20px;
@@ -493,7 +572,7 @@
             margin-bottom: 30px;
         }
         .reading-syllable {
-            background-color: #FFD54F;
+            background-color: #ffd54f;
             color: #000;
             font-size: 2rem;
             padding: 10px 20px;
@@ -514,7 +593,7 @@
         .reading-result-syllable {
             width: 60px;
             height: 60px;
-            background-color: #FFF9C4;
+            background-color: #fff9c4;
             border: 3px solid #000;
             border-radius: 10px;
             font-size: 2rem;
@@ -524,15 +603,21 @@
             margin: 5px;
         }
         .reading-result-syllable.correct {
-            background-color: #C8E6C9;
-            border-color: #4CAF50;
+            background-color: #c8e6c9;
+            border-color: #4caf50;
         }
     </style>
 </head>
-<body class="d-flex flex-column min-vh-100">
+<body class="d-flex flex-column min-vh-100" oncontextmenu="return false;" >
+
+<div class="modal-backdrop" id="modal-backdrop"></div>
+<div class="stickers-modal" id="stickers-modal">
+    <h3>Minhas Figurinhas</h3>
+    <div class="stickers-container" id="stickers-container"></div>
+    <button class="btn btn-danger" onclick="closeStickersModal()">Fechar</button>
+</div>
 
 <div class="container flex-grow-1">
-
     <h1 class="main-title">Vamos Aprender!</h1>
 
     <div id="start-menu">
@@ -547,7 +632,11 @@
 
         <div class="d-none" id="newGameForm">
             <p>Digite seu nome para começar:</p>
-            <input type="text" id="playerNameInput" class="start-menu-input" />
+            <input
+                    type="text"
+                    id="playerNameInput"
+                    class="start-menu-input"
+            />
             <br />
             <button id="startNewGameBtn" class="btn btn-warning">
                 Iniciar
@@ -561,59 +650,38 @@
             <span>⭐</span>
             <span id="stars-count">0</span>
         </div>
+        <button id="stickers-btn" onclick="openStickersModal()">
+            Figurinhas
+        </button>
     </div>
 
+    <!-- Menu principal (dinâmico) -->
     <div id="main-menu" class="d-none">
-        <div class="row g-2">
-            <div class="col-12 col-sm-6 col-lg-4">
-                <div class="game-mode" onclick="startGame('numbers')">🔢 Números</div>
-            </div>
-            <div class="col-12 col-sm-6 col-lg-4">
-                <div class="game-mode" onclick="startGame('letters')">🔤 Letras</div>
-            </div>
-            <div class="col-12 col-sm-6 col-lg-4">
-                <div class="game-mode" onclick="startGame('counting')">🍎 Contar</div>
-            </div>
-            <div class="col-12 col-sm-6 col-lg-4">
-                <div class="game-mode" onclick="startGame('word')">🧩 Palavras</div>
-            </div>
-            <div class="col-12 col-sm-6 col-lg-4">
-                <div class="game-mode" onclick="startGame('shadows')">🎭 Sombras</div>
-            </div>
-            <div class="col-12 col-sm-6 col-lg-4">
-                <div class="game-mode" onclick="startGame('puzzle')">🧩 Quebra cabeça</div>
-            </div>
-            <div class="col-12 col-sm-6 col-lg-4">
-                <div class="game-mode" onclick="startGame('colors')">🎨 Cores</div>
-            </div>
-            <div class="col-12 col-sm-6 col-lg-4">
-                <div class="game-mode" onclick="startGame('weather')">☔ Clima</div>
-            </div>
-            <div class="col-12 col-sm-6 col-lg-4">
-                <div class="game-mode" onclick="startGame('categories')">🚀 Categorias</div>
-            </div>
-            <div class="col-12 col-sm-6 col-lg-4">
-                <div class="game-mode" onclick="startGame('reading')">📖 Aprender a Ler</div>
-            </div>
-        </div>
+        <div class="row g-2" id="games-list"></div>
     </div>
 
     <div id="game-area" class="d-none">
         <div id="content" class="my-4"></div>
         <div id="feedback" class="feedback text-center"></div>
         <div class="text-center my-3">
-            <button class="btn btn-lg btn-primary" onclick="showMainMenu()">
+            <button class="btn btn-lg btn-primary" onclick="cancelNextGameAndMenu()">
                 Voltar ao Menu
             </button>
         </div>
     </div>
-
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+<script
+        src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+></script>
 <script>
-    let savedName = localStorage.getItem('playerName') || '';
-    let savedStars = parseInt(localStorage.getItem('stars') || '0', 10);
+    /* Bloquear destaque e arrasto de texto no toque */
+    document.addEventListener('selectstart', (e) => e.preventDefault());
+    /* Bloquear contextmenu do mouse */
+    document.addEventListener('contextmenu', (e) => e.preventDefault());
+
+    let savedName = localStorage.getItem("playerName") || "";
+    let savedStars = parseInt(localStorage.getItem("stars") || "0", 10);
 
     let playerName = savedName;
     let stars = savedStars;
@@ -621,262 +689,290 @@
     let currentGame = null;
     let speechSynth = window.speechSynthesis;
 
-    const startMenuEl = document.getElementById('start-menu');
-    const continueBtnContainer = document.getElementById('continue-btn-container');
-    const continueGameBtn = document.getElementById('continueGameBtn');
-    const newGameBtn = document.getElementById('newGameBtn');
-    const newGameForm = document.getElementById('newGameForm');
-    const playerNameInput = document.getElementById('playerNameInput');
-    const startNewGameBtn = document.getElementById('startNewGameBtn');
+    /* Históricos para evitar repetição de mesma jogada */
+    let lastNumber = null;
+    let lastLetter = null;
+    let lastCount = null;
+    let lastWordEmoji = null;
+    let lastShadowSet = null;
+    let lastPuzzleSet = null;
+    let lastColorsSet = null;
+    let lastWeather = null;
+    let lastCategoriesSet = null;
+    let lastReadingWord = null;
 
-    const playerInfoContainer = document.getElementById('playerInfoContainer');
-    const playerNameEl = document.getElementById('player-name');
-    const starsCountEl = document.getElementById('stars-count');
+    /* Guardar estrelas por jogo */
+    let gameStars = JSON.parse(localStorage.getItem("gameStars") || "{}");
+    let nextGameTimeout = null; // Para cancelar setTimeout se o usuário voltar ao menu
 
-    const mainMenuEl = document.getElementById('main-menu');
-    const gameAreaEl = document.getElementById('game-area');
+    /* Sistema de figurinhas */
+    let stickerList = JSON.parse(localStorage.getItem("myStickers") || "[]");
+    const possibleStickers = [
+        "Pikachu",
+        "Charmander",
+        "Bulbasaur",
+        "Squirtle",
+        "Stitch",
+        "Palworld1",
+        "Palworld2",
+        "Eevee",
+        "Mew"
+    ];
 
-    const numbers = Array.from({length: 20}, (_, i) => i + 1);
+    const startMenuEl = document.getElementById("start-menu");
+    const continueBtnContainer = document.getElementById("continue-btn-container");
+    const continueGameBtn = document.getElementById("continueGameBtn");
+    const newGameBtn = document.getElementById("newGameBtn");
+    const newGameForm = document.getElementById("newGameForm");
+    const playerNameInput = document.getElementById("playerNameInput");
+    const startNewGameBtn = document.getElementById("startNewGameBtn");
+
+    const playerInfoContainer = document.getElementById("playerInfoContainer");
+    const playerNameEl = document.getElementById("player-name");
+    const starsCountEl = document.getElementById("stars-count");
+
+    const mainMenuEl = document.getElementById("main-menu");
+    const gamesListEl = document.getElementById("games-list");
+    const gameAreaEl = document.getElementById("game-area");
+
+    const numbers = Array.from({ length: 20 }, (_, i) => i + 1);
 
     const emojiDatabase = {
-        "A": [
-            {"emoji": "✈️", "nome": "Avião"},
-            {"emoji": "🌳", "nome": "Árvore"},
-            {"emoji": "🎨", "nome": "Arte"},
-            {"emoji": "🏹", "nome": "Arco e Flecha"},
-            {"emoji": "🐜", "nome": "Aranha"},
-            {"emoji": "⚓", "nome": "Âncora"},
-            {"emoji": "🎭", "nome": "Ator"},
-            {"emoji": "🚑", "nome": "Ambulância"},
-            {"emoji": "🌈", "nome": "Arco-íris"},
-            {"emoji": "🍚", "nome": "Arroz"}
+        A: [
+            { emoji: "✈️", nome: "Avião" },
+            { emoji: "🌳", nome: "Árvore" },
+            { emoji: "🎨", nome: "Arte" },
+            { emoji: "🏹", nome: "Arco e Flecha" },
+            { emoji: "🐜", nome: "Aranha" },
+            { emoji: "⚓", nome: "Âncora" },
+            { emoji: "🎭", nome: "Ator" },
+            { emoji: "🚑", nome: "Ambulância" },
+            { emoji: "🌈", nome: "Arco-íris" },
+            { emoji: "🍚", nome: "Arroz" },
         ],
-        "B": [
-            {"emoji": "🎈", "nome": "Balão"},
-            {"emoji": "🚲", "nome": "Bicicleta"},
-            {"emoji": "🍌", "nome": "Banana"},
-            {"emoji": "🔋", "nome": "Bateria"},
-            {"emoji": "🏀", "nome": "Basquete"},
-            {"emoji": "🐝", "nome": "Abelha"},
-            {"emoji": "🍟", "nome": "Batata Frita"},
-            {"emoji": "⚖", "nome": "Balança"},
-            {"emoji": "🍆", "nome": "Berinjela"},
-            {"emoji": "⚽", "nome": "Bola"}
+        B: [
+            { emoji: "🎈", nome: "Balão" },
+            { emoji: "🚲", nome: "Bicicleta" },
+            { emoji: "🍌", nome: "Banana" },
+            { emoji: "🔋", nome: "Bateria" },
+            { emoji: "🏀", nome: "Basquete" },
+            { emoji: "🐝", nome: "Abelha" },
+            { emoji: "🍟", nome: "Batata Frita" },
+            { emoji: "⚖", nome: "Balança" },
+            { emoji: "🍆", nome: "Berinjela" },
+            { emoji: "⚽", nome: "Bola" },
         ],
-        "C": [
-            {"emoji": "🏡", "nome": "Casa"},
-            {"emoji": "🏰", "nome": "Castelo"},
-            {"emoji": "🏙️", "nome": "Cidade"},
-            {"emoji": "🐍", "nome": "Cobra"},
-            {"emoji": "🐶", "nome": "Cachorro"},
-            {"emoji": "☕", "nome": "Café"},
-            {"emoji": "🍵", "nome": "Chá"},
-            {"emoji": "🚗", "nome": "Carro"},
-            {"emoji": "🎠", "nome": "Carrossel"},
-            {"emoji": "🦌", "nome": "Cervo"},
-            {"emoji": "🥕", "nome": "Cenoura"},
-            {"emoji": "🔑", "nome": "Chave"},
-            {"emoji": "🦉", "nome": "Coruja"},
-            {"emoji": "🏃", "nome": "Corrida"}
+        C: [
+            { emoji: "🏡", nome: "Casa" },
+            { emoji: "🏰", nome: "Castelo" },
+            { emoji: "🏙️", nome: "Cidade" },
+            { emoji: "🐍", nome: "Cobra" },
+            { emoji: "🐶", nome: "Cachorro" },
+            { emoji: "☕", nome: "Café" },
+            { emoji: "🍵", nome: "Chá" },
+            { emoji: "🚗", nome: "Carro" },
+            { emoji: "🎠", nome: "Carrossel" },
+            { emoji: "🦌", nome: "Cervo" },
+            { emoji: "🥕", nome: "Cenoura" },
+            { emoji: "🔑", nome: "Chave" },
+            { emoji: "🦉", nome: "Coruja" },
+            { emoji: "🏃", nome: "Corrida" },
         ],
-        "D": [
-            {"emoji": "🎲", "nome": "Dado"},
-            {"emoji": "🐉", "nome": "Dragão"},
-            {"emoji": "💎", "nome": "Diamante"},
-            {"emoji": "🎯", "nome": "Dardo"},
-            {"emoji": "📅", "nome": "Data"}
+        D: [
+            { emoji: "🎲", nome: "Dado" },
+            { emoji: "🐉", nome: "Dragão" },
+            { emoji: "💎", nome: "Diamante" },
+            { emoji: "🎯", nome: "Dardo" },
+            { emoji: "📅", nome: "Data" },
         ],
-        "E": [
-            {"emoji": "⭐", "nome": "Estrela"},
-            {"emoji": "📧", "nome": "E-mail"},
-            {"emoji": "🐘", "nome": "Elefante"},
-            {"emoji": "🔌", "nome": "Energia"},
-            {"emoji": "🛤", "nome": "Estrada"}
+        E: [
+            { emoji: "⭐", nome: "Estrela" },
+            { emoji: "📧", nome: "E-mail" },
+            { emoji: "🐘", nome: "Elefante" },
+            { emoji: "🔌", nome: "Energia" },
+            { emoji: "🛤", nome: "Estrada" },
         ],
-        "F": [
-            {"emoji": "🎗", "nome": "Fita"},
-            {"emoji": "🌸", "nome": "Flor"},
-            {"emoji": "🐜", "nome": "Formiga"},
-            {"emoji": "🔥", "nome": "Fogo"},
-            {"emoji": "🎺", "nome": "Flauta"},
-            {"emoji": "🏁", "nome": "Final"},
-            {"emoji": "🍂", "nome": "Folha"},
-            {"emoji": "🚀", "nome": "Foguete"},
-            {"emoji": "🌹", "nome": "Flor"}
+        F: [
+            { emoji: "🎗", nome: "Fita" },
+            { emoji: "🌸", nome: "Flor" },
+            { emoji: "🐜", nome: "Formiga" },
+            { emoji: "🔥", nome: "Fogo" },
+            { emoji: "🎺", nome: "Flauta" },
+            { emoji: "🏁", nome: "Final" },
+            { emoji: "🍂", nome: "Folha" },
+            { emoji: "🚀", nome: "Foguete" },
+            { emoji: "🌹", nome: "Flor" },
         ],
-        "G": [
-            {"emoji": "🐬", "nome": "Golfinho"},
-            {"emoji": "🐱", "nome": "Gato"},
-            {"emoji": "🦒", "nome": "Girafa"},
-            {"emoji": "☂️", "nome": "Guarda-chuva"},
-            {"emoji": "🎸", "nome": "Guitarra"},
-            {"emoji": "🥅", "nome": "Gol"},
-            {"emoji": "🏌️", "nome": "Golfe"}
+        G: [
+            { emoji: "🐬", nome: "Golfinho" },
+            { emoji: "🐱", nome: "Gato" },
+            { emoji: "🦒", nome: "Girafa" },
+            { emoji: "☂️", nome: "Guarda-chuva" },
+            { emoji: "🎸", nome: "Guitarra" },
+            { emoji: "🥅", nome: "Gol" },
+            { emoji: "🏌️", nome: "Golfe" },
         ],
-        "H": [
-            {"emoji": "🏥", "nome": "Hospital"},
-            {"emoji": "🚁", "nome": "Helicóptero"},
-            {"emoji": "🐹", "nome": "Hamster"}
+        H: [
+            { emoji: "🏥", nome: "Hospital" },
+            { emoji: "🚁", nome: "Helicóptero" },
+            { emoji: "🐹", nome: "Hamster" },
         ],
-        "I": [
-            {"emoji": "🏝", "nome": "Ilha"},
-            {"emoji": "💡", "nome": "Ideia"},
-            {"emoji": "📱", "nome": "Internet"},
-            {"emoji": "🖼", "nome": "Imagem"}
+        I: [
+            { emoji: "🏝", nome: "Ilha" },
+            { emoji: "💡", nome: "Ideia" },
+            { emoji: "📱", nome: "Internet" },
+            { emoji: "🖼", nome: "Imagem" },
         ],
-        "J": [
-            {"emoji": "🎷", "nome": "Jazz"},
-            {"emoji": "🚙", "nome": "Jipe"}
+        J: [
+            { emoji: "🎷", nome: "Jazz" },
+            { emoji: "🚙", nome: "Jipe" },
         ],
-        "K": [
-            {"emoji": "🥝", "nome": "Kiwi"},
-            {"emoji": "🤹", "nome": "Karatê"},
-            {"emoji": "🥋", "nome": "Kimono"}
+        K: [
+            { emoji: "🥝", nome: "Kiwi" },
+            { emoji: "🤹", nome: "Karatê" },
+            { emoji: "🥋", nome: "Kimono" },
         ],
-        "L": [
-            {"emoji": "🍋", "nome": "Limão"},
-            {"emoji": "📚", "nome": "Livro"},
-            {"emoji": "💡", "nome": "Lâmpada"},
-            {"emoji": "🦁", "nome": "Leão"},
-            {"emoji": "🌙", "nome": "Lua"},
-            {"emoji": "🍊", "nome": "Laranja"},
-            {"emoji": "🏞️", "nome": "Lago"},
-            {"emoji": "🛳", "nome": "Lancha"}
+        L: [
+            { emoji: "🍋", nome: "Limão" },
+            { emoji: "📚", nome: "Livro" },
+            { emoji: "💡", nome: "Lâmpada" },
+            { emoji: "🦁", nome: "Leão" },
+            { emoji: "🌙", nome: "Lua" },
+            { emoji: "🍊", nome: "Laranja" },
+            { emoji: "🏞️", nome: "Lago" },
+            { emoji: "🛳", nome: "Lancha" },
         ],
-        "M": [
-            {"emoji": "🎶", "nome": "Música"},
-            {"emoji": "🎤", "nome": "Microfone"},
-            {"emoji": "🍎", "nome": "Maçã"},
-            {"emoji": "🐵", "nome": "Macaco"},
-            {"emoji": "🍈", "nome": "Melão"},
-            {"emoji": "🌊", "nome": "Mar"},
-            {"emoji": "🏔", "nome": "Montanha"},
-            {"emoji": "🗺", "nome": "Mapa"},
-            {"emoji": "✉️", "nome": "Mensagem"},
-            {"emoji": "🚇", "nome": "Metrô"},
-            {"emoji": "🦇", "nome": "Morcego"},
-            {"emoji": "🔨", "nome": "Machado"}
+        M: [
+            { emoji: "🎶", nome: "Música" },
+            { emoji: "🎤", nome: "Microfone" },
+            { emoji: "🍎", nome: "Maçã" },
+            { emoji: "🐵", nome: "Macaco" },
+            { emoji: "🍈", nome: "Melão" },
+            { emoji: "🌊", nome: "Mar" },
+            { emoji: "🏔", nome: "Montanha" },
+            { emoji: "🗺", nome: "Mapa" },
+            { emoji: "✉️", nome: "Mensagem" },
+            { emoji: "🚇", nome: "Metrô" },
+            { emoji: "🦇", nome: "Morcego" },
+            { emoji: "🔨", nome: "Machado" },
         ],
-        "N": [
-            {"emoji": "❄️", "nome": "Neve"},
-            {"emoji": "🚢", "nome": "Navio"}
+        N: [
+            { emoji: "❄️", nome: "Neve" },
+            { emoji: "🚢", nome: "Navio" },
         ],
-        "O": [
-            {"emoji": "🥚", "nome": "Ovo"},
-            {"emoji": "🏢", "nome": "Oficina"},
-            {"emoji": "🎨", "nome": "Obra de Arte"},
-            {"emoji": "🚌", "nome": "Ônibus"}
+        O: [
+            { emoji: "🥚", nome: "Ovo" },
+            { emoji: "🏢", nome: "Oficina" },
+            { emoji: "🎨", nome: "Obra de Arte" },
+            { emoji: "🚌", nome: "Ônibus" },
         ],
-        "P": [
-            {"emoji": "🐠", "nome": "Peixe"},
-            {"emoji": "🍕", "nome": "Pizza"},
-            {"emoji": "🐧", "nome": "Pinguim"},
-            {"emoji": "🎁", "nome": "Presente"},
-            {"emoji": "🚪", "nome": "Porta"},
-            {"emoji": "🐙", "nome": "Polvo"},
-            {"emoji": "📦", "nome": "Pacote"},
-            {"emoji": "🥞", "nome": "Panqueca"},
-            {"emoji": "🥖", "nome": "Pão"}
+        P: [
+            { emoji: "🐠", nome: "Peixe" },
+            { emoji: "🍕", nome: "Pizza" },
+            { emoji: "🐧", nome: "Pinguim" },
+            { emoji: "🎁", nome: "Presente" },
+            { emoji: "🚪", nome: "Porta" },
+            { emoji: "🐙", nome: "Polvo" },
+            { emoji: "📦", nome: "Pacote" },
+            { emoji: "🥞", nome: "Panqueca" },
+            { emoji: "🥖", nome: "Pão" },
         ],
-        "Q": [
-            {"emoji": "👑", "nome": "Queijo"},
-            {"emoji": "🃏", "nome": "Quebra-cabeça"},
-            {"emoji": "🖼", "nome": "Quadro"}
+        Q: [
+            { emoji: "👑", nome: "Queijo" },
+            { emoji: "🃏", nome: "Quebra-cabeça" },
+            { emoji: "🖼", nome: "Quadro" },
         ],
-        "R": [
-            {"emoji": "🦊", "nome": "Raposa"},
-            {"emoji": "📻", "nome": "Rádio"},
-            {"emoji": "🦏", "nome": "Rinoceronte"},
-            {"emoji": "🤖", "nome": "Robo"}
+        R: [
+            { emoji: "🦊", nome: "Raposa" },
+            { emoji: "📻", nome: "Rádio" },
+            { emoji: "🦏", nome: "Rinoceronte" },
+            { emoji: "🤖", nome: "Robo" },
         ],
-        "S": [
-            {"emoji": "🚦", "nome": "Semáforo"},
-            {"emoji": "🌞", "nome": "Sol"},
-            {"emoji": "🥗", "nome": "Salada"},
-            {"emoji": "🔔", "nome": "Sino de Natal"}
+        S: [
+            { emoji: "🚦", nome: "Semáforo" },
+            { emoji: "🌞", nome: "Sol" },
+            { emoji: "🥗", nome: "Salada" },
+            { emoji: "🔔", nome: "Sino de Natal" },
         ],
-        "T": [
-            {"emoji": "🎩", "nome": "Teatro"},
-            {"emoji": "🌮", "nome": "Taco"},
-            {"emoji": "🚆", "nome": "Trem"},
-            {"emoji": "🎹", "nome": "Teclado"},
-            {"emoji": "🎺", "nome": "Trompete"},
-            {"emoji": "📞", "nome": "Telefone"},
-            {"emoji": "🌍", "nome": "Terra"},
-            {"emoji": "🏆", "nome": "Troféu"},
-            {"emoji": "🥁", "nome": "Tambor"}
+        T: [
+            { emoji: "🎩", nome: "Teatro" },
+            { emoji: "🌮", nome: "Taco" },
+            { emoji: "🚆", nome: "Trem" },
+            { emoji: "🎹", nome: "Teclado" },
+            { emoji: "🎺", nome: "Trompete" },
+            { emoji: "📞", nome: "Telefone" },
+            { emoji: "🌍", nome: "Terra" },
+            { emoji: "🏆", nome: "Troféu" },
+            { emoji: "🥁", nome: "Tambor" },
         ],
-        "U": [
-            {"emoji": "🦄", "nome": "Unicórnio"},
-            {"emoji": "🍇", "nome": "Uva"}
+        U: [
+            { emoji: "🦄", nome: "Unicórnio" },
+            { emoji: "🍇", nome: "Uva" },
         ],
-        "V": [
-            {"emoji": "🎻", "nome": "Violino"},
-            {"emoji": "🌋", "nome": "Vulcão"},
-            {"emoji": "🍷", "nome": "Vinho"},
-            {"emoji": "🎮", "nome": "Videogame"},
-            {"emoji": "📹", "nome": "Vídeo"},
-            {"emoji": "🚐", "nome": "Van"},
-            {"emoji": "🔊", "nome": "Volume"}
+        V: [
+            { emoji: "🎻", nome: "Violino" },
+            { emoji: "🌋", nome: "Vulcão" },
+            { emoji: "🍷", nome: "Vinho" },
+            { emoji: "🎮", nome: "Videogame" },
+            { emoji: "📹", nome: "Vídeo" },
+            { emoji: "🚐", nome: "Van" },
+            { emoji: "🔊", nome: "Volume" },
         ],
-        "X": [
-            {"emoji": "❌", "nome": "Xis"}
-        ],
-        "Z": [
-            {"emoji": "🦓", "nome": "Zebra"}
-        ]
+        X: [{ emoji: "❌", nome: "Xis" }],
+        Z: [{ emoji: "🦓", nome: "Zebra" }],
     };
 
     const readingWords = [
-        { word: 'barata',   syllables: ['ba', 'ra', 'ta'] },
-        { word: 'banana',   syllables: ['ba', 'na', 'na'] },
-        { word: 'pipoca',   syllables: ['pi', 'po', 'ca'] },
-        { word: 'macaco',   syllables: ['ma', 'ca', 'co'] },
-        { word: 'cavalo',   syllables: ['ca', 'va', 'lo'] },
-        { word: 'tartaruga',syllables: ['tar','ta','ru','ga'] },
-        { word: 'amigo',    syllables: ['a','mi','go'] },
-        { word: 'arara',    syllables: ['a','ra','ra'] },
-        { word: 'batata',   syllables: ['ba','ta','ta'] },
-        { word: 'girafa',   syllables: ['gi','ra','fa'] },
-        { word: 'cachorro', syllables: ['ca','cho','rro'] }
+        { word: "barata", syllables: ["ba", "ra", "ta"] },
+        { word: "banana", syllables: ["ba", "na", "na"] },
+        { word: "pipoca", syllables: ["pi", "po", "ca"] },
+        { word: "macaco", syllables: ["ma", "ca", "co"] },
+        { word: "cavalo", syllables: ["ca", "va", "lo"] },
+        { word: "tartaruga", syllables: ["tar", "ta", "ru", "ga"] },
+        { word: "amigo", syllables: ["a", "mi", "go"] },
+        { word: "arara", syllables: ["a", "ra", "ra"] },
+        { word: "batata", syllables: ["ba", "ta", "ta"] },
+        { word: "girafa", syllables: ["gi", "ra", "fa"] },
+        { word: "cachorro", syllables: ["ca", "cho", "rro"] },
     ];
 
-    window.onload = function() {
+    window.onload = function () {
         showStartMenu();
     };
 
     function showStartMenu() {
-        startMenuEl.style.display = 'block';
+        startMenuEl.style.display = "block";
         if (!savedName) {
-            continueBtnContainer.style.display = 'none';
+            continueBtnContainer.style.display = "none";
         } else {
-            continueBtnContainer.style.display = 'block';
+            continueBtnContainer.style.display = "block";
         }
-        mainMenuEl.classList.add('d-none');
-        playerInfoContainer.classList.add('d-none');
-        gameAreaEl.classList.add('d-none');
+        mainMenuEl.classList.add("d-none");
+        playerInfoContainer.classList.add("d-none");
+        gameAreaEl.classList.add("d-none");
         playerNameInput.value = savedName;
     }
 
-    continueGameBtn.onclick = function() {
+    continueGameBtn.onclick = function () {
         playerName = savedName;
         stars = savedStars;
         previousStars = stars;
-        localStorage.setItem('stars', String(stars));
-        localStorage.setItem('playerName', playerName);
-        startMenuEl.style.display = 'none';
+        localStorage.setItem("stars", String(stars));
+        localStorage.setItem("playerName", playerName);
+        startMenuEl.style.display = "none";
         showPlayerInfo();
+        buildMainMenu();
         showMainMenu();
     };
 
-    newGameBtn.onclick = function() {
-        newGameForm.classList.remove('d-none');
+    newGameBtn.onclick = function () {
+        newGameForm.classList.remove("d-none");
     };
 
-    startNewGameBtn.onclick = function() {
+    startNewGameBtn.onclick = function () {
         const chosenName = playerNameInput.value.trim();
         if (!chosenName) {
-            alert('Por favor, informe um nome para iniciar!');
+            alert("Por favor, informe um nome para iniciar!");
             return;
         }
         playerName = chosenName;
@@ -884,70 +980,154 @@
         previousStars = 0;
         savedName = playerName;
         savedStars = stars;
-        localStorage.setItem('playerName', playerName);
-        localStorage.setItem('stars', String(stars));
+        localStorage.setItem("playerName", playerName);
+        localStorage.setItem("stars", String(stars));
 
-        startMenuEl.style.display = 'none';
+        startMenuEl.style.display = "none";
         showPlayerInfo();
+        buildMainMenu();
         showMainMenu();
     };
 
-    function showMainMenu() {
-        gameAreaEl.classList.add('d-none');
-        mainMenuEl.classList.remove('d-none');
+    function showPlayerInfo() {
+        playerInfoContainer.classList.remove("d-none");
+        playerNameEl.textContent = playerName;
+        starsCountEl.textContent = stars;
+    }
 
-        if(stars > previousStars) {
+    function buildMainMenu() {
+        mainMenuEl.classList.remove("d-none");
+        gamesListEl.innerHTML = "";
+
+        // Lista de jogos + ícone + quantas estrelas
+        const gameConfigs = [
+            { id: "numbers", label: "🔢 Números" },
+            { id: "letters", label: "🔤 Letras" },
+            { id: "counting", label: "🍎 Contar" },
+            { id: "word", label: "🧩 Palavras" },
+            { id: "shadows", label: "🎭 Sombras" },
+            { id: "puzzle", label: "🧩 Quebra cabeça" },
+            { id: "colors", label: "🎨 Cores" },
+            { id: "weather", label: "☔ Clima" },
+            { id: "categories", label: "🚀 Categorias" },
+            { id: "reading", label: "📖 Aprender a Ler" },
+        ];
+
+        gameConfigs.forEach((cfg) => {
+            const colDiv = document.createElement("div");
+            colDiv.className = "col-12 col-sm-6 col-lg-4";
+
+            const starsInThisGame = gameStars[cfg.id] || 0;
+            const gmDiv = document.createElement("div");
+            gmDiv.className = "game-mode";
+            gmDiv.onclick = () => startGame(cfg.id);
+            gmDiv.innerText = `${cfg.label} (${starsInThisGame}⭐)`;
+            colDiv.appendChild(gmDiv);
+            gamesListEl.appendChild(colDiv);
+        });
+    }
+
+    function showMainMenu() {
+        clearTimeoutIfAny();
+        gameAreaEl.classList.add("d-none");
+        mainMenuEl.classList.remove("d-none");
+
+        if (stars > previousStars) {
             speak(`${playerName}, você tem ${stars} estrelas! Muito bem!`);
             previousStars = stars;
-        } else if(stars < previousStars && stars > 0) {
+        } else if (stars < previousStars && stars > 0) {
             speak(`${playerName}, agora você tem ${stars} estrelas. Vamos recuperar!`);
             previousStars = stars;
         }
     }
 
-    function showPlayerInfo() {
-        playerInfoContainer.classList.remove('d-none');
-        playerNameEl.textContent = playerName;
-        starsCountEl.textContent = stars;
-    }
-
     function startGame(mode) {
-        mainMenuEl.classList.add('d-none');
-        gameAreaEl.classList.remove('d-none');
-        gameAreaEl.style.display = 'block';
-
-        document.getElementById('feedback').textContent = '';
+        clearTimeoutIfAny();
         currentGame = mode;
+        mainMenuEl.classList.add("d-none");
+        gameAreaEl.classList.remove("d-none");
+        gameAreaEl.style.display = "block";
+        document.getElementById("feedback").textContent = "";
 
-        if(mode === 'numbers') initNumbersGame();
-        else if(mode === 'letters') initLettersGame();
-        else if(mode === 'counting') initCountingGame();
-        else if(mode === 'word') initWordGame();
-        else if(mode === 'shadows') initShadowGame();
-        else if(mode === 'puzzle') initPuzzleGame();
-        else if(mode === 'colors') initColorGame();
-        else if(mode === 'weather') initWeatherGame();
-        else if(mode === 'categories') initCategoryGame();
-        else if(mode === 'reading') initReadingGame();
+        switch (mode) {
+            case "numbers":
+                initNumbersGame();
+                break;
+            case "letters":
+                initLettersGame();
+                break;
+            case "counting":
+                initCountingGame();
+                break;
+            case "word":
+                initWordGame();
+                break;
+            case "shadows":
+                initShadowGame();
+                break;
+            case "puzzle":
+                initPuzzleGame();
+                break;
+            case "colors":
+                initColorGame();
+                break;
+            case "weather":
+                initWeatherGame();
+                break;
+            case "categories":
+                initCategoryGame();
+                break;
+            case "reading":
+                initReadingGame();
+                break;
+        }
     }
 
+    function scheduleNewGame(mode, delay) {
+        clearTimeoutIfAny();
+        nextGameTimeout = setTimeout(() => {
+            startGame(mode);
+        }, delay);
+    }
+
+    function cancelNextGameAndMenu() {
+        clearTimeoutIfAny();
+        showMainMenu();
+    }
+
+    function clearTimeoutIfAny() {
+        if (nextGameTimeout) {
+            clearTimeout(nextGameTimeout);
+            nextGameTimeout = null;
+        }
+    }
+
+    /*********** NÚMEROS ************/
     function initNumbersGame() {
-        const content = document.getElementById('content');
-        const targetNumber = numbers[Math.floor(Math.random() * 20)];
+        const content = document.getElementById("content");
+
+        let targetNumber = numbers[Math.floor(Math.random() * numbers.length)];
+        while (targetNumber === lastNumber) {
+            targetNumber = numbers[Math.floor(Math.random() * numbers.length)];
+        }
+        lastNumber = targetNumber;
 
         content.innerHTML = `
-            <h2>Encontre o número:</h2>
-            <div style="display:flex; justify-content:center; margin-top:20px;">
-                <div class="target-number">${targetNumber}</div>
-            </div>
-            <div class="numbers-grid" id="numbers-grid"></div>
-        `;
+      <h2>Encontre o número:</h2>
+      <div style="display:flex; justify-content:center; margin-top:20px;">
+        <div class="target-number">${targetNumber}</div>
+      </div>
+      <div class="numbers-grid" id="numbers-grid"></div>
+    `;
 
-        const options = shuffle([targetNumber, ...shuffle(numbers.filter(n => n !== targetNumber)).slice(0, 4)]);
-        const grid = document.getElementById('numbers-grid');
-        options.forEach(num => {
-            const div = document.createElement('div');
-            div.className = 'number-option';
+        const options = shuffle([
+            targetNumber,
+            ...shuffle(numbers.filter((n) => n !== targetNumber)).slice(0, 4),
+        ]);
+        const grid = document.getElementById("numbers-grid");
+        options.forEach((num) => {
+            const div = document.createElement("div");
+            div.className = "number-option";
             div.textContent = num;
             div.onclick = () => checkNumber(num === targetNumber);
             grid.appendChild(div);
@@ -957,43 +1137,54 @@
     }
 
     function checkNumber(isCorrect) {
-        if(isCorrect) {
+        if (isCorrect) {
             updateStars(1);
-            showFeedback('🎯 Correto! Você é demais!', true);
-            setTimeout(() => startGame('numbers'), 2000);
+            showFeedback("🎯 Correto! Você é demais!", true);
+            scheduleNewGame("numbers", 2000);
         } else {
             updateStars(-1);
-            showFeedback('🤔 Tente novamente!', false);
+            showFeedback("🤔 Tente novamente!", false);
             speak("Ops! Esse não é o número");
         }
     }
 
+    /*********** LETRAS ************/
     function initLettersGame() {
-        const content = document.getElementById('content');
+        const content = document.getElementById("content");
         const validLetters = Object.keys(emojiDatabase);
-        const targetLetter = validLetters[Math.floor(Math.random() * validLetters.length)];
+
+        let targetLetter =
+            validLetters[Math.floor(Math.random() * validLetters.length)];
+        while (targetLetter === lastLetter) {
+            targetLetter =
+                validLetters[Math.floor(Math.random() * validLetters.length)];
+        }
+        lastLetter = targetLetter;
+
         const validEmojis = emojiDatabase[targetLetter];
 
         content.innerHTML = `
-            <h2>Encontre emojis que começam com:</h2>
-            <div class="target-display" style="font-size:4rem;">${targetLetter}</div>
-            <div class="emoji-grid"></div>
-        `;
+      <h2>Encontre emojis que começam com:</h2>
+      <div class="target-display" style="font-size:4rem;">${targetLetter}</div>
+      <div class="emoji-grid"></div>
+    `;
 
-        const grid = document.querySelector('.emoji-grid');
+        const grid = document.querySelector(".emoji-grid");
         const allEmojis = Object.values(emojiDatabase).flat();
 
         const correctOptions = shuffle([...validEmojis]).slice(0, 3);
-        const incorrectOptions = shuffle(allEmojis.filter(e => !validEmojis.includes(e))).slice(0, 7);
+        const incorrectOptions = shuffle(
+            allEmojis.filter((e) => !validEmojis.includes(e))
+        ).slice(0, 7);
         const mixedOptions = shuffle([...correctOptions, ...incorrectOptions]);
 
-        mixedOptions.forEach(emojiObj => {
-            const div = document.createElement('div');
-            div.className = 'emoji-option';
+        mixedOptions.forEach((emojiObj) => {
+            const div = document.createElement("div");
+            div.className = "emoji-option";
             div.innerHTML = `
-                <div>${emojiObj.emoji}</div>
-                <div class="emoji-name">${emojiObj.nome}</div>
-            `;
+        <div>${emojiObj.emoji}</div>
+        <div class="emoji-name">${emojiObj.nome}</div>
+      `;
             div.onclick = () => checkEmoji(validEmojis.includes(emojiObj), emojiObj.nome);
             grid.appendChild(div);
         });
@@ -1002,10 +1193,10 @@
     }
 
     function checkEmoji(isCorrect, nome) {
-        if(isCorrect) {
+        if (isCorrect) {
             updateStars(1);
-            showFeedback('🌈 Certo! Combinação perfeita!', true);
-            setTimeout(() => startGame('letters'), 2000);
+            showFeedback("🌈 Certo! Combinação perfeita!", true);
+            scheduleNewGame("letters", 2000);
         } else {
             updateStars(-1);
             showFeedback(`💡 "${nome}" começa com ${nome[0].toUpperCase()}!`, false);
@@ -1013,29 +1204,49 @@
         }
     }
 
+    /*********** CONTAR ************/
     function initCountingGame() {
-        const content = document.getElementById('content');
-        const targetCount = Math.floor(Math.random() * 20) + 1;
-        const possibleEmojis = ['🍎', '⭐', '🐻', '🎈', '🍪'];
+        const content = document.getElementById("content");
+        let targetCount = Math.floor(Math.random() * 20) + 1;
+        while (targetCount === lastCount) {
+            targetCount = Math.floor(Math.random() * 20) + 1;
+        }
+        lastCount = targetCount;
+
+        const possibleEmojis = ["🍎", "⭐", "🐻", "🎈", "🍪"];
         const targetEmoji = shuffle(possibleEmojis)[0];
 
         content.innerHTML = `
-            <h2>Conte até:</h2>
-            <div class="counting-target">
-                <div class="count-box">${targetCount}</div>
-                <div class="count-box">${targetEmoji}</div>
-            </div>
-            <div id="counter">0</div>
-            <div class="emoji-grid"></div>
-        `;
+      <h2>Conte até:</h2>
+      <div class="counting-target">
+        <div class="count-box">${targetCount}</div>
+        <div class="count-box">${targetEmoji}</div>
+      </div>
+      <div id="counter">0</div>
+      <div class="emoji-grid"></div>
+    `;
 
-        const grid = document.querySelector('.emoji-grid');
-        const distractors = ['🐶','🍉','🚗','🎮','🍕','🏀','🐠','🍩','🚂','🌻'];
-        const options = shuffle([targetEmoji, ...shuffle(distractors).slice(0, 9)]);
+        const grid = document.querySelector(".emoji-grid");
+        const distractors = [
+            "🐶",
+            "🍉",
+            "🚗",
+            "🎮",
+            "🍕",
+            "🏀",
+            "🐠",
+            "🍩",
+            "🚂",
+            "🌻",
+        ];
+        const options = shuffle([
+            targetEmoji,
+            ...shuffle(distractors).slice(0, 9),
+        ]);
 
-        options.forEach(emoji => {
-            const div = document.createElement('div');
-            div.className = 'emoji-option';
+        options.forEach((emoji) => {
+            const div = document.createElement("div");
+            div.className = "emoji-option";
             div.textContent = emoji;
             div.onclick = () => handleCountClick(emoji === targetEmoji, targetCount);
             grid.appendChild(div);
@@ -1045,64 +1256,81 @@
     }
 
     function handleCountClick(isCorrect, target) {
-        if(!isCorrect) {
+        if (!isCorrect) {
             speak("Esse não é o emoji correto!");
             updateStars(-1);
-            showFeedback('❌ Emoji errado!', false);
+            showFeedback("❌ Emoji errado!", false);
             return;
         }
-        const counter = document.getElementById('counter');
+        const counter = document.getElementById("counter");
         let count = parseInt(counter.textContent) + 1;
         counter.textContent = count;
         speak(count.toString());
 
-        if(count === target) {
+        if (count === target) {
             updateStars(1);
-            showFeedback('🎉 Parabéns! Contagem correta!', true);
-            setTimeout(() => startGame('counting'), 2000);
+            showFeedback("🎉 Parabéns! Contagem correta!", true);
+            scheduleNewGame("counting", 2000);
         }
     }
 
     function getEmojiName(emoji) {
         const names = {
-            '🍎': 'maçã', '⭐': 'estrela', '🐻': 'urso',
-            '🎈': 'balão', '🍪': 'biscoito', '🐶': 'cachorro',
-            '🍉': 'melancia', '🚗': 'carro', '🎮': 'videogame',
-            '🍕': 'pizza', '🏀': 'bola', '🐠': 'peixe',
-            '🍩': 'rosquinha', '🚂': 'trem', '🌻': 'girassol'
+            "🍎": "maçã",
+            "⭐": "estrela",
+            "🐻": "urso",
+            "🎈": "balão",
+            "🍪": "biscoito",
+            "🐶": "cachorro",
+            "🍉": "melancia",
+            "🚗": "carro",
+            "🎮": "videogame",
+            "🍕": "pizza",
+            "🏀": "bola",
+            "🐠": "peixe",
+            "🍩": "rosquinha",
+            "🚂": "trem",
+            "🌻": "girassol",
         };
-        return names[emoji] || 'objeto';
+        return names[emoji] || "objeto";
     }
 
+    /*********** PALAVRAS ************/
     function initWordGame() {
-        const content = document.getElementById('content');
-        content.innerHTML = '<h2>Monte a palavra do emoji:</h2>';
+        const content = document.getElementById("content");
+        content.innerHTML = "<h2>Monte a palavra do emoji:</h2>";
 
         const allEmojis = Object.values(emojiDatabase).flat();
-        const randomEmoji = shuffle(allEmojis)[0];
+        let randomEmoji = shuffle(allEmojis)[0];
+        while (randomEmoji === lastWordEmoji) {
+            randomEmoji = shuffle(allEmojis)[0];
+        }
+        lastWordEmoji = randomEmoji;
+
         const originalName = randomEmoji.nome.toUpperCase();
+        const targetLetters = Array.from(originalName).filter(
+            (c) => c !== " " && c !== "-"
+        );
 
-        const targetLetters = Array.from(originalName).filter(c => c !== ' ' && c !== '-');
-
-        let targetDisplay = '';
+        let targetDisplay = "";
         targetLetters.forEach((letter, index) => {
             targetDisplay += `<span class="letter-box" id="target-letter-${index}">${letter}</span>`;
         });
 
         content.innerHTML += `
-            <div class="word-target">
-                ${randomEmoji.emoji} <div id="target-word">${targetDisplay}</div>
-            </div>
-            <div class="scrambled-letters" id="scrambled-letters"></div>
-        `;
+      <div class="word-target">
+        ${randomEmoji.emoji} <div id="target-word">${targetDisplay}</div>
+      </div>
+      <div class="scrambled-letters" id="scrambled-letters"></div>
+    `;
 
         let scrambledLetters = shuffle([...targetLetters]);
-        const lettersContainer = document.getElementById('scrambled-letters');
+        const lettersContainer = document.getElementById("scrambled-letters");
         scrambledLetters.forEach((letter) => {
-            const div = document.createElement('div');
-            div.className = 'word-letter';
+            const div = document.createElement("div");
+            div.className = "word-letter";
             div.textContent = letter;
-            div.onclick = function() {
+            div.onclick = function () {
                 handleLetterClick(this, targetLetters);
             };
             lettersContainer.appendChild(div);
@@ -1112,559 +1340,740 @@
     }
 
     function handleLetterClick(letterElement, targetLetters) {
-        const revealedLetters = document.querySelectorAll('#target-word .revealed');
+        const revealedLetters = document.querySelectorAll(
+            "#target-word .revealed"
+        );
         const nextIndex = revealedLetters.length;
 
         speak(letterElement.textContent);
 
-        if(nextIndex < targetLetters.length) {
+        if (nextIndex < targetLetters.length) {
             const correctLetter = targetLetters[nextIndex];
 
-            if(letterElement.textContent === correctLetter) {
-                document.getElementById(`target-letter-${nextIndex}`).classList.add('revealed');
-                letterElement.style.visibility = 'hidden';
+            if (letterElement.textContent === correctLetter) {
+                document
+                    .getElementById(`target-letter-${nextIndex}`)
+                    .classList.add("revealed");
+                letterElement.style.visibility = "hidden";
 
-                if(nextIndex === targetLetters.length - 1) {
-                    showFeedback('🎉 Parabéns! Palavra correta!', true);
+                if (nextIndex === targetLetters.length - 1) {
+                    showFeedback("🎉 Parabéns! Palavra correta!", true);
                     updateStars(1);
-                    setTimeout(() => startGame('word'), 2000);
+                    scheduleNewGame("word", 2000);
                 }
             } else {
-                showFeedback('😊 Tente novamente!', false);
+                showFeedback("😊 Tente novamente!", false);
                 speak("Essa não é a letra correta");
                 updateStars(-1);
             }
         }
     }
 
+    /*********** SOMBRAS ************/
     function initShadowGame() {
-        const content = document.getElementById('content');
-        content.innerHTML = '<h2>Toque em um emoji e depois em sua sombra:</h2>';
+        const content = document.getElementById("content");
+        content.innerHTML = "<h2>Toque em um emoji e depois em sua sombra:</h2>";
 
         const allShadowEmojis = Object.values(emojiDatabase)
             .flat()
-            .map(itemObj => itemObj.emoji);
+            .map((itemObj) => itemObj.emoji);
 
-        const uniqueEmojis = Array.from(new Set(allShadowEmojis));
-        const chosenEmojis = shuffle(uniqueEmojis).slice(0, 4);
-
-        content.innerHTML += `
-            <div class="shadow-container" id="shadow-slots">
-                ${chosenEmojis.map(emoji => `
-                    <div class="shadow-slot" data-expected="${emoji}"
-                         onclick="selectShadowSlot(this, '${emoji}')">
-                         ${emoji}
-                    </div>
-                `).join('')}
-            </div>
-        `;
+        let uniqueEmojis = Array.from(new Set(allShadowEmojis));
+        // Garante que não seja o mesmo set da última vez
+        let chosenEmojis = shuffle(uniqueEmojis).slice(0, 4);
+        if (JSON.stringify(chosenEmojis) === JSON.stringify(lastShadowSet)) {
+            chosenEmojis = shuffle(uniqueEmojis).slice(0, 4);
+        }
+        lastShadowSet = chosenEmojis;
 
         content.innerHTML += `
-            <div class="shadow-container" id="shadow-items">
-                ${shuffle(chosenEmojis).map(emoji => `
-                    <div class="shadow-item"
-                         onclick="selectShadowItem(this, '${emoji}')">
-                         ${emoji}
-                    </div>
-                `).join('')}
-            </div>
-        `;
+      <div class="shadow-container" id="shadow-slots">
+        ${chosenEmojis
+            .map(
+                (emoji) => `
+              <div class="shadow-slot" data-expected="${emoji}"
+                   onclick="selectShadowSlot(this, '${emoji}')">
+                ${emoji}
+              </div>
+            `
+            )
+            .join("")}
+      </div>
+    `;
+
+        content.innerHTML += `
+      <div class="shadow-container" id="shadow-items">
+        ${shuffle(chosenEmojis)
+            .map(
+                (emoji) => `
+              <div class="shadow-item"
+                   onclick="selectShadowItem(this, '${emoji}')">
+                ${emoji}
+              </div>
+            `
+            )
+            .join("")}
+      </div>
+    `;
 
         window.shadowGameState = {
             correctMatches: 0,
             totalItems: chosenEmojis.length,
             selectedEmoji: null,
-            selectedElement: null
+            selectedElement: null,
         };
 
         speak("Toque em um emoji e depois na sua sombra correspondente");
     }
 
     function selectShadowItem(element, emoji) {
-        if(window.shadowGameState.selectedElement) {
-            window.shadowGameState.selectedElement.style.opacity = '1';
+        if (window.shadowGameState.selectedElement) {
+            window.shadowGameState.selectedElement.style.opacity = "1";
         }
         window.shadowGameState.selectedEmoji = emoji;
         window.shadowGameState.selectedElement = element;
-        element.style.opacity = '0.5';
+        element.style.opacity = "0.5";
     }
 
     function selectShadowSlot(slotElement, expectedEmoji) {
         const selected = window.shadowGameState.selectedEmoji;
         const selectedEl = window.shadowGameState.selectedElement;
-        if(!selected) return;
+        if (!selected) return;
 
-        if(selected === expectedEmoji) {
-            slotElement.innerHTML = `<div>${selected}</div>`;
-            slotElement.classList.add('shadow-match');
-            slotElement.classList.remove('shadow-slot');
+        if (selected === expectedEmoji) {
+            slotElement.textContent = selected; // manter o emoji e fonte
+            slotElement.classList.add("shadow-match");
+            slotElement.classList.remove("shadow-slot");
             window.shadowGameState.correctMatches++;
-            if(selectedEl) selectedEl.style.display = 'none';
-            if(window.shadowGameState.correctMatches === window.shadowGameState.totalItems) {
+            if (selectedEl) selectedEl.style.display = "none";
+            if (
+                window.shadowGameState.correctMatches ===
+                window.shadowGameState.totalItems
+            ) {
                 updateStars(1);
-                showFeedback('🎉 Parabéns! Todas sombras combinadas!', true);
-                setTimeout(() => startGame('shadows'), 2000);
+                showFeedback("🎉 Parabéns! Todas sombras combinadas!", true);
+                scheduleNewGame("shadows", 2000);
             } else {
-                showFeedback('✅ Correto!', true);
+                showFeedback("✅ Correto!", true);
                 speak("Muito bem!");
             }
         } else {
-            slotElement.classList.add('shadow-mismatch');
-            setTimeout(() => slotElement.classList.remove('shadow-mismatch'), 1000);
-            speak('Essa não é a sombra correta, você perdeu uma estrela');
+            slotElement.classList.add("shadow-mismatch");
+            setTimeout(() => slotElement.classList.remove("shadow-mismatch"), 1000);
+            speak("Essa não é a sombra correta, você perdeu uma estrela");
             updateStars(-1);
-            showFeedback('Ops! Sombra incorreta!', false);
+            showFeedback("Ops! Sombra incorreta!", false);
         }
 
-        if(selectedEl) {
-            selectedEl.style.opacity = '1';
+        if (selectedEl) {
+            selectedEl.style.opacity = "1";
         }
         window.shadowGameState.selectedEmoji = null;
         window.shadowGameState.selectedElement = null;
     }
 
+    /*********** PUZZLE NÚMEROS ************/
     function initPuzzleGame() {
         window.puzzleGameState = {
             selectedNumber: null,
             correctMatches: 0,
-            totalPairs: 5
+            totalPairs: 5,
         };
 
-        const content = document.getElementById('content');
-        content.innerHTML = '<h2>Combine os números com a quantidade correta:</h2>';
+        const content = document.getElementById("content");
+        content.innerHTML = "<h2>Combine os números com a quantidade correta:</h2>";
 
-        const randomNums = shuffle([...Array(10)].map((_, i) => i + 1)).slice(0, 5);
-        const emojis = ['🍎', '⭐', '🎈', '🐱', '🚗', '🎮', '🍕', '🐶', '🌺', '🎨'];
+        let randomNums = shuffle([...Array(10)].map((_, i) => i + 1)).slice(0, 5);
+        while (JSON.stringify(randomNums) === JSON.stringify(lastPuzzleSet)) {
+            randomNums = shuffle([...Array(10)].map((_, i) => i + 1)).slice(0, 5);
+        }
+        lastPuzzleSet = randomNums;
+
+        const emojis = [
+            "🍎",
+            "⭐",
+            "🎈",
+            "🐱",
+            "🚗",
+            "🎮",
+            "🍕",
+            "🐶",
+            "🌺",
+            "🎨",
+        ];
 
         content.innerHTML += `
-            <div class="numbers-container">
-                ${randomNums.map(num => `
-                    <div class="puzzle-piece number-piece"
-                         onclick="selectNumber(this, ${num})"
-                         data-number="${num}">
-                        ${num}
-                    </div>
-                `).join('')}
+      <div class="numbers-container">
+        ${randomNums
+            .map(
+                (num) => `
+            <div class="puzzle-piece number-piece"
+                 onclick="selectNumber(this, ${num})"
+                 data-number="${num}">
+              ${num}
             </div>
-        `;
+          `
+            )
+            .join("")}
+      </div>
+    `;
 
         content.innerHTML += `
-            <div class="quantities-container">
-                ${shuffle(randomNums).map(num => `
-                    <div class="puzzle-piece emoji-piece"
-                         onclick="matchQuantity(this, ${num})"
-                         data-number="${num}">
-                        <div class="puzzle-emoji-grid">
-                            ${Array(num).fill(emojis[num - 1]).map(emoji => `
-                                <div class="emoji-cell">${emoji}</div>
-                            `).join('')}
-                        </div>
-                    </div>
-                `).join('')}
+      <div class="quantities-container">
+        ${shuffle(randomNums)
+            .map(
+                (num) => `
+            <div class="puzzle-piece emoji-piece"
+                 onclick="matchQuantity(this, ${num})"
+                 data-number="${num}">
+              <div class="puzzle-emoji-grid">
+                ${Array(num)
+                    .fill(emojis[num - 1])
+                    .map(
+                        (emoji) => `
+                  <div class="emoji-cell">${emoji}</div>
+                `
+                    )
+                    .join("")}
+              </div>
             </div>
-        `;
+          `
+            )
+            .join("")}
+      </div>
+    `;
 
         speak(`Conte o número de figuras e combine com o número correto`);
     }
 
     function selectNumber(element, number) {
-        document.querySelectorAll('.number-piece').forEach(piece => {
-            piece.classList.remove('selected');
+        document.querySelectorAll(".number-piece").forEach((piece) => {
+            piece.classList.remove("selected");
         });
-        element.classList.add('selected');
+        element.classList.add("selected");
         window.puzzleGameState.selectedNumber = number;
     }
 
     function matchQuantity(element, quantity) {
         if (window.puzzleGameState.selectedNumber === null) {
-            showFeedback('Selecione um número primeiro!', false);
+            showFeedback("Selecione um número primeiro!", false);
             return;
         }
 
         if (quantity === window.puzzleGameState.selectedNumber) {
-            element.classList.add('matched');
-            document.querySelector(`.number-piece[data-number="${quantity}"]`).classList.add('matched');
+            element.classList.add("matched");
+            document
+                .querySelector(`.number-piece[data-number="${quantity}"]`)
+                .classList.add("matched");
             window.puzzleGameState.correctMatches++;
-            showFeedback('🎯 Combinação correta!', true);
+            showFeedback("🎯 Combinação correta!", true);
 
-            if (window.puzzleGameState.correctMatches === window.puzzleGameState.totalPairs) {
+            if (
+                window.puzzleGameState.correctMatches ===
+                window.puzzleGameState.totalPairs
+            ) {
                 updateStars(1);
-                showFeedback('🎉 Parabéns! Você completou o quebra-cabeça!', true);
-                setTimeout(() => startGame('puzzle'), 2000);
+                showFeedback("🎉 Parabéns! Você completou o quebra-cabeça!", true);
+                scheduleNewGame("puzzle", 2000);
             }
         } else {
-            showFeedback('❌ Tente novamente!', false);
-            element.classList.add('wrong');
+            showFeedback("❌ Tente novamente!", false);
+            element.classList.add("wrong");
             setTimeout(() => {
-                element.classList.remove('wrong');
+                element.classList.remove("wrong");
             }, 500);
+            updateStars(-1);
         }
 
         window.puzzleGameState.selectedNumber = null;
-        document.querySelectorAll('.number-piece').forEach(piece => {
-            if (!piece.classList.contains('matched')) {
-                piece.classList.remove('selected');
+        document.querySelectorAll(".number-piece").forEach((piece) => {
+            if (!piece.classList.contains("matched")) {
+                piece.classList.remove("selected");
             }
         });
     }
 
+    /*********** CORES ************/
     function initColorGame() {
         const allColors = [
-            { name: 'Vermelho', hex: '#FF0000' },
-            { name: 'Azul', hex: '#0000FF' },
-            { name: 'Verde', hex: '#00FF00' },
-            { name: 'Amarelo', hex: '#FFD700' },
-            { name: 'Roxo', hex: '#800080' },
-            { name: 'Laranja', hex: '#FFA500' },
-            { name: 'Rosa', hex: '#FF69B4' },
-            { name: 'Marrom', hex: '#8B4513' }
+            { name: "Vermelho", hex: "#FF0000" },
+            { name: "Azul", hex: "#0000FF" },
+            { name: "Verde", hex: "#00FF00" },
+            { name: "Amarelo", hex: "#FFD700" },
+            { name: "Roxo", hex: "#800080" },
+            { name: "Laranja", hex: "#FFA500" },
+            { name: "Rosa", hex: "#FF69B4" },
+            { name: "Marrom", hex: "#8B4513" },
         ];
 
-        const roundColors = shuffle(allColors).slice(0, 3);
+        const content = document.getElementById("content");
+        content.innerHTML = "<h2>Toque em uma cor e depois na caixa correta:</h2>";
 
-        const content = document.getElementById('content');
-        content.innerHTML = '<h2>Toque em uma cor e depois na caixa correta:</h2>';
-
-        content.innerHTML += `
-            <div style="margin: 20px; display: flex; justify-content: center; gap: 15px;" id="color-items">
-                ${roundColors.map(color => `
-                    <div class="color-item"
-                         style="background:${color.hex}"
-                         onclick="selectColorItem(this, '${color.hex}')"
-                         data-colorname="${color.name}">
-                    </div>
-                `).join('')}
-            </div>
-        `;
+        let roundColors = shuffle(allColors).slice(0, 3);
+        while (JSON.stringify(roundColors) === JSON.stringify(lastColorsSet)) {
+            roundColors = shuffle(allColors).slice(0, 3);
+        }
+        lastColorsSet = roundColors;
 
         content.innerHTML += `
-            <div style="margin-top:30px; display: flex; justify-content: center; gap: 20px;" id="color-bins">
-                ${roundColors.map(color => `
-                    <div class="color-bin"
-                         style="border-color:${color.hex}"
-                         data-targetcolor="${color.hex}"
-                         data-filled="false"
-                         onclick="placeColor(this, '${color.hex}')">
-                         <span style="color: ${color.hex}">${color.name}</span>
-                    </div>
-                `).join('')}
+      <div style="margin: 20px; display: flex; justify-content: center; gap: 15px;" id="color-items">
+        ${roundColors
+            .map(
+                (color) => `
+            <div class="color-item"
+                 style="background:${color.hex}"
+                 onclick="selectColorItem(this, '${color.hex}')"
+                 data-colorname="${color.name}">
             </div>
-        `;
+          `
+            )
+            .join("")}
+      </div>
+    `;
+
+        content.innerHTML += `
+      <div style="margin-top:30px; display: flex; justify-content: center; gap: 20px;" id="color-bins">
+        ${roundColors
+            .map(
+                (color) => `
+            <div class="color-bin"
+                 style="border-color:${color.hex}"
+                 data-targetcolor="${color.hex}"
+                 data-filled="false"
+                 onclick="placeColor(this, '${color.hex}')">
+              <span style="color: ${color.hex}">${color.name}</span>
+            </div>
+          `
+            )
+            .join("")}
+      </div>
+    `;
 
         window.colorGameState = {
             totalColors: roundColors.length,
             correctMatches: 0,
             selectedColor: null,
-            selectedElement: null
+            selectedElement: null,
         };
 
         speak(`Combine as cores nas caixas correspondentes`);
     }
 
     function selectColorItem(el, color) {
-        if(window.colorGameState.selectedElement) {
-            window.colorGameState.selectedElement.style.opacity = '1';
+        if (window.colorGameState.selectedElement) {
+            window.colorGameState.selectedElement.style.opacity = "1";
         }
         window.colorGameState.selectedColor = color;
         window.colorGameState.selectedElement = el;
-        el.style.opacity = '0.5';
+        el.style.opacity = "0.5";
     }
 
     function placeColor(binEl, targetColor) {
         const selected = window.colorGameState.selectedColor;
         const selectedEl = window.colorGameState.selectedElement;
-        if(!selected) return;
-        if(binEl.getAttribute('data-filled') === 'true') {
-            showFeedback('Esta caixa já está preenchida!', false);
-            if(selectedEl) selectedEl.style.opacity = '1';
+        if (!selected) return;
+        if (binEl.getAttribute("data-filled") === "true") {
+            showFeedback("Esta caixa já está preenchida!", false);
+            if (selectedEl) selectedEl.style.opacity = "1";
             window.colorGameState.selectedColor = null;
             window.colorGameState.selectedElement = null;
             return;
         }
 
-        if(selected === targetColor) {
+        if (selected === targetColor) {
             binEl.style.backgroundColor = selected;
-            binEl.setAttribute('data-filled', 'true');
+            binEl.setAttribute("data-filled", "true");
             window.colorGameState.correctMatches++;
-            showFeedback('🌟 Cor correta!', true);
-            if(selectedEl) selectedEl.style.display = 'none';
+            showFeedback("🌟 Cor correta!", true);
+            if (selectedEl) selectedEl.style.display = "none";
 
-            if(window.colorGameState.correctMatches === window.colorGameState.totalColors) {
+            if (
+                window.colorGameState.correctMatches ===
+                window.colorGameState.totalColors
+            ) {
                 updateStars(1);
-                showFeedback('🎉 Parabéns! Você completou todas as cores!', true);
-                setTimeout(() => {
-                    startGame('colors');
-                }, 2000);
+                showFeedback("🎉 Parabéns! Você completou todas as cores!", true);
+                scheduleNewGame("colors", 2000);
             }
         } else {
-            showFeedback('😊 Tente outra cor', false);
-            binEl.style.animation = 'shake 0.5s';
+            showFeedback("😊 Tente outra cor", false);
+            binEl.style.animation = "shake 0.5s";
             setTimeout(() => {
-                binEl.style.animation = '';
+                binEl.style.animation = "";
             }, 500);
             updateStars(-1);
             speak("Cor incorreta, tente novamente");
         }
 
-        if(selectedEl) {
-            selectedEl.style.opacity = '1';
+        if (selectedEl) {
+            selectedEl.style.opacity = "1";
         }
         window.colorGameState.selectedColor = null;
         window.colorGameState.selectedElement = null;
     }
 
+    /*********** CLIMA ************/
     function initWeatherGame() {
         const weatherData = [
-            { icon: '☀️', correctItems: ['🕶️', '🎩', '🧴'], title: 'Ensolarado' },
-            { icon: '🌧️', correctItems: ['☂️', '🧥', '🥾'], title: 'Chuvoso' },
-            { icon: '❄️', correctItems: ['🧤', '🧣', '🎿'], title: 'Frio' }
+            { icon: "☀️", correctItems: ["🕶️", "🎩", "🧴"], title: "Ensolarado" },
+            { icon: "🌧️", correctItems: ["☂️", "🧥", "🥾"], title: "Chuvoso" },
+            { icon: "❄️", correctItems: ["🧤", "🧣", "🎿"], title: "Frio" },
         ];
 
-        const content = document.getElementById('content');
-        const currentWeather = shuffle(weatherData)[0];
-        const incorrectItems = ['🎸', '📘', '🎈', '🎪', '🎭', '🎨'];
-        const allItems = shuffle([...currentWeather.correctItems, ...shuffle(incorrectItems).slice(0, 3)]);
+        const content = document.getElementById("content");
+        let currentWeather = weatherData[Math.floor(Math.random() * weatherData.length)];
+        while (currentWeather === lastWeather) {
+            currentWeather = weatherData[Math.floor(Math.random() * weatherData.length)];
+        }
+        lastWeather = currentWeather;
+
+        const incorrectItems = ["🎸", "📘", "🎈", "🎪", "🎭", "🎨"];
+        const allItems = shuffle([
+            ...currentWeather.correctItems,
+            ...shuffle(incorrectItems).slice(0, 3),
+        ]);
 
         content.innerHTML = `
-            <h2>Escolha os itens para o clima:</h2>
-            <div class="weather-card">
-                <div style="font-size:60px">${currentWeather.icon}</div>
-                <h3>${currentWeather.title}</h3>
-                <div class="weather-items" id="weather-items">
-                    ${allItems.map(item => `
-                        <div class="weather-item"
-                             data-item="${item}"
-                             onclick="handleWeatherItem(this, '${item}', '${currentWeather.icon}')">
-                            ${item}
-                        </div>
-                    `).join('')}
-                </div>
-            </div>
-        `;
+      <h2>Escolha os itens para o clima:</h2>
+      <div class="weather-card">
+        <div style="font-size:60px">${currentWeather.icon}</div>
+        <h3>${currentWeather.title}</h3>
+        <div class="weather-items" id="weather-items">
+          ${allItems
+            .map(
+                (item) => `
+              <div class="weather-item"
+                   data-item="${item}"
+                   onclick="handleWeatherItem(this, '${item}', '${currentWeather.icon}')">
+                ${item}
+              </div>
+            `
+            )
+            .join("")}
+        </div>
+      </div>
+    `;
 
         window.weatherGameState = {
             correctCount: 0,
             totalCorrect: currentWeather.correctItems.length,
-            currentIcon: currentWeather.icon
+            currentIcon: currentWeather.icon,
         };
 
         speak(`Selecione as figuras que você usaria para o clima ${currentWeather.title}`);
     }
 
     function handleWeatherItem(element, item, correctIcon) {
-        if (element.classList.contains('selected')) return;
+        if (element.classList.contains("selected")) return;
 
         const correctItems = {
-            '☀️': ['🕶️', '🎩', '🧴'],
-            '🌧️': ['☂️', '🧥', '🥾'],
-            '❄️': ['🧤', '🧣', '🎿']
+            "☀️": ["🕶️", "🎩", "🧴"],
+            "🌧️": ["☂️", "🧥", "🥾"],
+            "❄️": ["🧤", "🧣", "🎿"],
         }[correctIcon];
 
         if (correctItems.includes(item)) {
-            element.classList.add('selected');
-            showFeedback('✔️ Item correto!', true);
+            element.classList.add("selected");
+            showFeedback("✔️ Item correto!", true);
             window.weatherGameState.correctCount++;
 
-            if (window.weatherGameState.correctCount === window.weatherGameState.totalCorrect) {
+            if (
+                window.weatherGameState.correctCount ===
+                window.weatherGameState.totalCorrect
+            ) {
                 updateStars(1);
-                showFeedback('🎉 Parabéns! Você completou o desafio!', true);
-                setTimeout(() => startGame('weather'), 2000);
+                showFeedback("🎉 Parabéns! Você completou o desafio!", true);
+                scheduleNewGame("weather", 2000);
             }
         } else {
-            element.style.background = '#FFCDD2';
-            element.style.animation = 'shake 0.5s';
-            showFeedback('❌ Não é para este clima', false);
+            element.style.background = "#FFCDD2";
+            element.style.animation = "shake 0.5s";
+            showFeedback("❌ Não é para este clima", false);
             speak("Não é para este clima");
             setTimeout(() => {
-                element.style.background = '';
-                element.style.animation = '';
+                element.style.background = "";
+                element.style.animation = "";
             }, 1000);
             updateStars(-1);
         }
     }
 
+    /*********** CATEGORIAS ************/
     function initCategoryGame() {
-        const content = document.getElementById('content');
-        content.innerHTML = '<h2>Classifique os itens em suas categorias:</h2>';
+        const content = document.getElementById("content");
+        content.innerHTML = "<h2>Classifique os itens em suas categorias:</h2>";
 
         const categories = [
             {
-                name: 'Animais',
-                icon: '🐶',
+                name: "Animais",
+                icon: "🐶",
                 items: [
-                    '🐱','🐙','🐶','🐷','🦊',
-                    '🦁','🐯','🐺','🐸','🦓',
-                    '🦒','🐵','🐼','🐹','🐰',
-                    '🐻','🐨','🐔','🦆','🦅',
-                    '🦉','🐢','🐍','🦋','🦇',
-                    '🦔','🦣','🐊','🐛','🦕',
-                    '🦖'
-                ]
+                    "🐱",
+                    "🐙",
+                    "🐶",
+                    "🐷",
+                    "🦊",
+                    "🦁",
+                    "🐯",
+                    "🐺",
+                    "🐸",
+                    "🦓",
+                    "🦒",
+                    "🐵",
+                    "🐼",
+                    "🐹",
+                    "🐰",
+                    "🐻",
+                    "🐨",
+                    "🐔",
+                    "🦆",
+                    "🦅",
+                    "🦉",
+                    "🐢",
+                    "🐍",
+                    "🦋",
+                    "🦇",
+                    "🦔",
+                    "🦣",
+                    "🐊",
+                    "🐛",
+                    "🦕",
+                    "🦖",
+                ],
             },
             {
-                name: 'Frutas',
-                icon: '🍎',
+                name: "Frutas",
+                icon: "🍎",
                 items: [
-                    '🍎','🍌','🍇','🍊','🥝',
-                    '🍐','🍍','🍑','🍒','🍉',
-                    '🍓','🥭','🍅','🍏','🍋',
-                    '🥥','🫐'
-                ]
+                    "🍎",
+                    "🍌",
+                    "🍇",
+                    "🍊",
+                    "🥝",
+                    "🍐",
+                    "🍍",
+                    "🍑",
+                    "🍒",
+                    "🍉",
+                    "🍓",
+                    "🥭",
+                    "🍅",
+                    "🍏",
+                    "🍋",
+                    "🥥",
+                    "🫐",
+                ],
             },
             {
-                name: 'Veículos',
-                icon: '🚗',
+                name: "Veículos",
+                icon: "🚗",
                 items: [
-                    '🚗','✈️','🚲','🚌','⛵',
-                    '🚕','🚙','🚎','🏎️','🚓',
-                    '🚑','🚒','🚐','🛵','🏍️',
-                    '🚂','🚆','🚇','🚝','🚞',
-                    '🚊','🛩️','🚤','⛴️','🚢',
-                    '🛥️','🛳️','🚀','🚁','🚡',
-                    '🚠','🚟','🦼'
-                ]
-            }
+                    "🚗",
+                    "✈️",
+                    "🚲",
+                    "🚌",
+                    "⛵",
+                    "🚕",
+                    "🚙",
+                    "🚎",
+                    "🏎️",
+                    "🚓",
+                    "🚑",
+                    "🚒",
+                    "🚐",
+                    "🛵",
+                    "🏍️",
+                    "🚂",
+                    "🚆",
+                    "🚇",
+                    "🚝",
+                    "🚞",
+                    "🚊",
+                    "🛩️",
+                    "🚤",
+                    "⛴️",
+                    "🚢",
+                    "🛥️",
+                    "🛳️",
+                    "🚀",
+                    "🚁",
+                    "🚡",
+                    "🚠",
+                    "🚟",
+                    "🦼",
+                ],
+            },
         ];
 
         const allCategoryItems = [];
-        categories.forEach(cat => {
+        categories.forEach((cat) => {
             const shuffledItems = [...cat.items];
             shuffle(shuffledItems);
             const fiveItems = shuffledItems.slice(0, 5);
-            fiveItems.forEach(item => {
+            fiveItems.forEach((item) => {
                 allCategoryItems.push({ emoji: item, category: cat.name });
             });
         });
 
+        // Garante não repetir o mesmo set de categorias
+        const currentSet = JSON.stringify(allCategoryItems);
+        if (currentSet === JSON.stringify(lastCategoriesSet)) {
+            // gera novamente
+            allCategoryItems.length = 0;
+            categories.forEach((cat) => {
+                const shuffledItems = [...cat.items];
+                shuffle(shuffledItems);
+                const fiveItems = shuffledItems.slice(0, 5);
+                fiveItems.forEach((item) => {
+                    allCategoryItems.push({ emoji: item, category: cat.name });
+                });
+            });
+        }
+        lastCategoriesSet = allCategoryItems;
+
         const contentHTML = [];
-        contentHTML.push(`<div class="category-game-container" style="flex-direction: row;">`);
-        categories.forEach(cat => {
+        contentHTML.push(
+            `<div class="category-game-container" style="flex-direction: row;">`
+        );
+        categories.forEach((cat) => {
             contentHTML.push(`
-                <div class="category-bin"
-                     data-category="${cat.name}"
-                     data-filled="0"
-                     onclick="placeInCategory(this, '${cat.name}')">
-                    <div class="category-label">${cat.icon} ${cat.name}</div>
-                    <div class="bin-items-container" id="bin-${cat.name}"></div>
-                </div>
-            `);
+        <div class="category-bin"
+             data-category="${cat.name}"
+             data-filled="0"
+             onclick="placeInCategory(this, '${cat.name}')">
+          <div class="category-label">${cat.icon} ${cat.name}</div>
+          <div class="bin-items-container" id="bin-${cat.name}"></div>
+        </div>
+      `);
         });
         contentHTML.push(`</div>`);
 
-        contentHTML.push(`<div class="category-game-container" style="flex-direction: row;" id="cat-items-container">`);
-        shuffle(allCategoryItems).forEach(obj => {
+        contentHTML.push(
+            `<div class="category-game-container" style="flex-direction: row;" id="cat-items-container">`
+        );
+        shuffle(allCategoryItems).forEach((obj) => {
             contentHTML.push(`
-                <div class="category-item"
-                     data-emoji="${obj.emoji}"
-                     data-cat="${obj.category}"
-                     onclick="selectCategoryItem(this)">
-                    ${obj.emoji}
-                </div>
-            `);
+        <div class="category-item"
+             data-emoji="${obj.emoji}"
+             data-cat="${obj.category}"
+             onclick="selectCategoryItem(this)">
+          ${obj.emoji}
+        </div>
+      `);
         });
         contentHTML.push(`</div>`);
 
-        content.innerHTML += contentHTML.join('');
+        content.innerHTML += contentHTML.join("");
 
         window.categoryGameState = {
             totalItems: allCategoryItems.length,
             correct: 0,
             selectedItem: null,
-            selectedElement: null
+            selectedElement: null,
         };
 
         speak("Toque em um item e depois na categoria correta");
     }
 
     function selectCategoryItem(el) {
-        if(window.categoryGameState.selectedElement) {
-            window.categoryGameState.selectedElement.style.opacity = '1';
+        if (window.categoryGameState.selectedElement) {
+            window.categoryGameState.selectedElement.style.opacity = "1";
         }
         window.categoryGameState.selectedItem = {
-            emoji: el.getAttribute('data-emoji'),
-            category: el.getAttribute('data-cat')
+            emoji: el.getAttribute("data-emoji"),
+            category: el.getAttribute("data-cat"),
         };
         window.categoryGameState.selectedElement = el;
-        el.style.opacity = '0.5';
+        el.style.opacity = "0.5";
     }
 
     function placeInCategory(binEl, targetCategory) {
         const selectedItem = window.categoryGameState.selectedItem;
         const selectedEl = window.categoryGameState.selectedElement;
-        if(!selectedItem) return;
+        if (!selectedItem) return;
 
-        if(selectedItem.category === targetCategory) {
-            binEl.classList.add('category-matched');
-            const filledCount = parseInt(binEl.getAttribute('data-filled')) + 1;
-            binEl.setAttribute('data-filled', filledCount);
-            const binContainer = binEl.querySelector('.bin-items-container');
-            const newEmojiDiv = document.createElement('div');
-            newEmojiDiv.style.fontSize = '2rem';
+        if (selectedItem.category === targetCategory) {
+            binEl.classList.add("category-matched");
+            const filledCount = parseInt(binEl.getAttribute("data-filled")) + 1;
+            binEl.setAttribute("data-filled", filledCount);
+            const binContainer = binEl.querySelector(".bin-items-container");
+            const newEmojiDiv = document.createElement("div");
+            newEmojiDiv.style.fontSize = "2rem";
             newEmojiDiv.textContent = selectedItem.emoji;
             binContainer.appendChild(newEmojiDiv);
-            selectedEl.classList.add('hidden-item');
+            selectedEl.classList.add("hidden-item");
             window.categoryGameState.correct++;
-            showFeedback('✔️ Correto!', true);
+            showFeedback("✔️ Correto!", true);
             speak(`Muito bem! ${selectedItem.emoji} pertence à categoria ${targetCategory}`);
             if (window.categoryGameState.correct === window.categoryGameState.totalItems) {
                 updateStars(1);
-                showFeedback('🎉 Parabéns! Categorias completadas!', true);
-                setTimeout(() => startGame('categories'), 2000);
+                showFeedback("🎉 Parabéns! Categorias completadas!", true);
+                scheduleNewGame("categories", 2000);
             }
         } else {
-            binEl.classList.add('category-wrong');
+            binEl.classList.add("category-wrong");
             setTimeout(() => {
-                binEl.classList.remove('category-wrong');
+                binEl.classList.remove("category-wrong");
             }, 800);
-            showFeedback('❌ Categoria incorreta!', false);
+            showFeedback("❌ Categoria incorreta!", false);
             updateStars(-1);
             speak("Essa não é a categoria certa");
         }
 
-        if(selectedEl) {
-            selectedEl.style.opacity = '1';
+        if (selectedEl) {
+            selectedEl.style.opacity = "1";
         }
         window.categoryGameState.selectedItem = null;
         window.categoryGameState.selectedElement = null;
     }
 
+    /*********** LEITURA ************/
     function initReadingGame() {
-        const content = document.getElementById('content');
+        const content = document.getElementById("content");
         content.innerHTML = `
-            <h2 class="reading-title">Toque para formar a palavra!</h2>
-            <div id="reading-result" class="reading-result"></div>
-            <div id="reading-syllables" class="reading-word-box"></div>
-        `;
+      <h2 class="reading-title">Toque para formar a palavra!</h2>
+      <div id="reading-result" class="reading-result"></div>
+      <div id="reading-syllables" class="reading-word-box"></div>
+    `;
 
-        const randomWord = shuffle(readingWords)[0];
+        let randomWord = shuffle(readingWords)[0];
+        while (randomWord.word === lastReadingWord?.word) {
+            randomWord = shuffle(readingWords)[0];
+        }
+        lastReadingWord = randomWord;
+
         const originalSyllables = [...randomWord.syllables];
         const scrambled = shuffle([...randomWord.syllables]);
         window.readingGameState = {
             originalWord: randomWord.word,
             syllables: originalSyllables,
-            userIndex: 0
+            userIndex: 0,
         };
 
-        const resultContainer = document.getElementById('reading-result');
+        const resultContainer = document.getElementById("reading-result");
         originalSyllables.forEach((_, idx) => {
-            const span = document.createElement('div');
-            span.className = 'reading-result-syllable';
-            span.id = 'result-syllable-' + idx;
+            const span = document.createElement("div");
+            span.className = "reading-result-syllable";
+            span.id = "result-syllable-" + idx;
             resultContainer.appendChild(span);
         });
 
-        const syllablesContainer = document.getElementById('reading-syllables');
+        const syllablesContainer = document.getElementById("reading-syllables");
         scrambled.forEach((syllable) => {
-            const div = document.createElement('div');
-            div.className = 'reading-syllable';
+            const div = document.createElement("div");
+            div.className = "reading-syllable";
             div.textContent = syllable;
-            div.onclick = function() {
+            div.onclick = function () {
                 handleReadingTap(this);
             };
             syllablesContainer.appendChild(div);
         });
 
-        speak(`Forme a palavra ${randomWord.word.toUpperCase()}! Toque nas sílabas na ordem correta: ${originalSyllables.join('-')}.`);
+        speak(
+            `Forme a palavra ${randomWord.word.toUpperCase()}! Toque nas sílabas na ordem correta: ${originalSyllables.join(
+                "-"
+            )}.`
+        );
     }
 
     function handleReadingTap(element) {
@@ -1673,30 +2082,36 @@
         const tapped = element.textContent;
 
         if (tapped === nextNeeded) {
-            const targetSlot = document.getElementById(`result-syllable-${state.userIndex}`);
+            const targetSlot = document.getElementById(
+                `result-syllable-${state.userIndex}`
+            );
             targetSlot.textContent = tapped;
-            targetSlot.classList.add('correct');
+            targetSlot.classList.add("correct");
 
-            element.style.visibility = 'hidden';
+            element.style.visibility = "hidden";
             speak(tapped);
 
             state.userIndex++;
             if (state.userIndex === state.syllables.length) {
-                showFeedback(`🎉 Parabéns! Você formou a palavra "${state.originalWord.toUpperCase()}"!`, true);
+                showFeedback(
+                    `🎉 Parabéns! Você formou a palavra "${state.originalWord.toUpperCase()}"!`,
+                    true
+                );
                 updateStars(1);
-                setTimeout(() => startGame('reading'), 3000);
+                scheduleNewGame("reading", 3000);
             }
         } else {
-            showFeedback('Ops! Sílaba errada, tente novamente!', false);
+            showFeedback("Ops! Sílaba errada, tente novamente!", false);
             speak("Essa não é a sílaba correta");
             updateStars(-1);
         }
     }
 
+    /*********** SISTEMA GERAL ************/
     function speak(text) {
-        if(speechSynth.speaking) speechSynth.cancel();
+        if (speechSynth.speaking) speechSynth.cancel();
         const utterance = new SpeechSynthesisUtterance(text);
-        utterance.lang = 'pt-BR';
+        utterance.lang = "pt-BR";
         utterance.rate = 0.9;
         speechSynth.speak(utterance);
     }
@@ -1707,22 +2122,68 @@
 
     function updateStars(change) {
         const newStars = Math.max(0, stars + change);
-        if(newStars !== stars) {
+        if (newStars !== stars) {
             stars = newStars;
-            localStorage.setItem('stars', stars.toString());
-            document.getElementById('stars-count').textContent = stars;
-            if(change > 0) {
+            localStorage.setItem("stars", stars.toString());
+            starsCountEl.textContent = stars;
+
+            // Registra as estrelas também para o jogo atual
+            if (!gameStars[currentGame]) gameStars[currentGame] = 0;
+            gameStars[currentGame] = Math.max(0, gameStars[currentGame] + change);
+            localStorage.setItem("gameStars", JSON.stringify(gameStars));
+
+            if (change > 0) {
                 speak(`Muito bem!`);
-            } else if(change < 0 && stars > 0) {
-                speak('Não desista! Continue tentando!');
+                // Chance de figurinha (1 em 5)
+                if (Math.floor(Math.random() * 5) === 0) {
+                    giveSticker();
+                }
+            } else if (change < 0 && stars > 0) {
+                speak("Não desista! Continue tentando!");
             }
+
+            // Atualizar as estrelas no menu
+            buildMainMenu();
         }
     }
 
     function showFeedback(message, isCorrect) {
-        const feedback = document.getElementById('feedback');
+        const feedback = document.getElementById("feedback");
         feedback.textContent = message;
-        feedback.style.color = isCorrect ? '#2E7D32' : '#C62828';
+        feedback.style.color = isCorrect ? "#2E7D32" : "#C62828";
+    }
+
+    /* Figurinhas */
+    function giveSticker() {
+        const randomSticker =
+            possibleStickers[Math.floor(Math.random() * possibleStickers.length)];
+        stickerList.push(randomSticker);
+        localStorage.setItem("myStickers", JSON.stringify(stickerList));
+        alert(`Você ganhou uma figurinha: ${randomSticker}!`);
+    }
+
+    function openStickersModal() {
+        const modal = document.getElementById("stickers-modal");
+        const backdrop = document.getElementById("modal-backdrop");
+        const container = document.getElementById("stickers-container");
+        container.innerHTML = "";
+
+        stickerList.forEach((st) => {
+            const div = document.createElement("div");
+            div.className = "sticker-item";
+            div.innerText = st;
+            container.appendChild(div);
+        });
+
+        backdrop.style.display = "block";
+        modal.style.display = "block";
+    }
+
+    function closeStickersModal() {
+        const modal = document.getElementById("stickers-modal");
+        const backdrop = document.getElementById("modal-backdrop");
+        modal.style.display = "none";
+        backdrop.style.display = "none";
     }
 </script>
 </body>
