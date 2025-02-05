@@ -302,12 +302,15 @@
             width: 150px;
             height: 150px;
             margin: 10px;
-            cursor: move;
             transition: transform 0.3s;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 80px;
+            cursor: pointer;
+            background: #FFF9C4;
+            border-radius: 15px;
+            border: 3px solid #000;
         }
         .shadow-slot {
             width: 150px;
@@ -320,6 +323,8 @@
             justify-content: center;
             font-size: 80px;
             opacity: 0.3;
+            cursor: pointer;
+            border: 3px solid #CCC;
         }
         .shadow-match {
             background: #C8E6C9 !important;
@@ -330,10 +335,6 @@
             background: #FFCDD2 !important;
             border: 3px solid #C62828 !important;
             animation: shake 0.5s;
-        }
-        .dragging {
-            opacity: 0.5;
-            transform: scale(0.9);
         }
 
         .numbers-container,
@@ -424,6 +425,7 @@
             justify-content: center;
             transition: all 0.3s ease;
             background-color: white;
+            cursor: pointer;
         }
         .color-bin span {
             font-size: 16px;
@@ -590,7 +592,6 @@
             <div class="col-12 col-sm-6 col-lg-4">
                 <div class="game-mode" onclick="startGame('categories')">🚀 Categorias</div>
             </div>
-            <!-- NOVO JOGO DE LEITURA -->
             <div class="col-12 col-sm-6 col-lg-4">
                 <div class="game-mode" onclick="startGame('reading')">📖 Aprender a Ler</div>
             </div>
@@ -826,7 +827,6 @@
         ]
     };
 
-    // Certifique-se de que as sílabas estão na ordem correta que a criança deve tocar (da primeira até a última).
     const readingWords = [
         { word: 'barata',   syllables: ['ba', 'ra', 'ta'] },
         { word: 'banana',   syllables: ['ba', 'na', 'na'] },
@@ -931,7 +931,6 @@
         else if(mode === 'reading') initReadingGame();
     }
 
-    /* 1) Jogo de Números */
     function initNumbersGame() {
         const content = document.getElementById('content');
         const targetNumber = numbers[Math.floor(Math.random() * 20)];
@@ -969,7 +968,6 @@
         }
     }
 
-    /* 2) Jogo de Letras */
     function initLettersGame() {
         const content = document.getElementById('content');
         const validLetters = Object.keys(emojiDatabase);
@@ -1015,7 +1013,6 @@
         }
     }
 
-    /* 3) Jogo de Contar */
     function initCountingGame() {
         const content = document.getElementById('content');
         const targetCount = Math.floor(Math.random() * 20) + 1;
@@ -1077,7 +1074,6 @@
         return names[emoji] || 'objeto';
     }
 
-    /* 4) Jogo de Palavras */
     function initWordGame() {
         const content = document.getElementById('content');
         content.innerHTML = '<h2>Monte a palavra do emoji:</h2>';
@@ -1141,10 +1137,9 @@
         }
     }
 
-    /* 5) Jogo das Sombras */
     function initShadowGame() {
         const content = document.getElementById('content');
-        content.innerHTML = '<h2>Arraste o emoji para sua sombra:</h2>';
+        content.innerHTML = '<h2>Toque em um emoji e depois em sua sombra:</h2>';
 
         const allShadowEmojis = Object.values(emojiDatabase)
             .flat()
@@ -1154,11 +1149,10 @@
         const chosenEmojis = shuffle(uniqueEmojis).slice(0, 4);
 
         content.innerHTML += `
-            <div class="shadow-container">
+            <div class="shadow-container" id="shadow-slots">
                 ${chosenEmojis.map(emoji => `
                     <div class="shadow-slot" data-expected="${emoji}"
-                         ondrop="dropShadow(event, '${emoji}')"
-                         ondragover="allowDrop(event)">
+                         onclick="selectShadowSlot(this, '${emoji}')">
                          ${emoji}
                     </div>
                 `).join('')}
@@ -1166,12 +1160,10 @@
         `;
 
         content.innerHTML += `
-            <div class="shadow-container">
+            <div class="shadow-container" id="shadow-items">
                 ${shuffle(chosenEmojis).map(emoji => `
                     <div class="shadow-item"
-                         draggable="true"
-                         ondragstart="startDrag(event, '${emoji}')"
-                         ondragend="endDrag(event)">
+                         onclick="selectShadowItem(this, '${emoji}')">
                          ${emoji}
                     </div>
                 `).join('')}
@@ -1180,54 +1172,57 @@
 
         window.shadowGameState = {
             correctMatches: 0,
-            totalItems: chosenEmojis.length
+            totalItems: chosenEmojis.length,
+            selectedEmoji: null,
+            selectedElement: null
         };
 
-        speak("Arraste cada emoji para sua respectiva sombra");
+        speak("Toque em um emoji e depois na sua sombra correspondente");
     }
 
-    let draggedItem = null;
-
-    function startDrag(ev, emoji) {
-        draggedItem = emoji;
-        ev.target.classList.add('dragging');
-        ev.dataTransfer.setData("text/plain", emoji);
+    function selectShadowItem(element, emoji) {
+        if(window.shadowGameState.selectedElement) {
+            window.shadowGameState.selectedElement.style.opacity = '1';
+        }
+        window.shadowGameState.selectedEmoji = emoji;
+        window.shadowGameState.selectedElement = element;
+        element.style.opacity = '0.5';
     }
 
-    function endDrag(ev) {
-        ev.target.classList.remove('dragging');
-    }
+    function selectShadowSlot(slotElement, expectedEmoji) {
+        const selected = window.shadowGameState.selectedEmoji;
+        const selectedEl = window.shadowGameState.selectedElement;
+        if(!selected) return;
 
-    function dropShadow(ev, expectedEmoji) {
-        ev.preventDefault();
-        const slot = ev.target.closest('.shadow-slot');
-
-        if (draggedItem === expectedEmoji) {
-            slot.innerHTML = `<div>${draggedItem}</div>`;
-            slot.classList.add('shadow-match');
-            slot.classList.remove('shadow-slot');
+        if(selected === expectedEmoji) {
+            slotElement.innerHTML = `<div>${selected}</div>`;
+            slotElement.classList.add('shadow-match');
+            slotElement.classList.remove('shadow-slot');
             window.shadowGameState.correctMatches++;
-
+            if(selectedEl) selectedEl.style.display = 'none';
             if(window.shadowGameState.correctMatches === window.shadowGameState.totalItems) {
                 updateStars(1);
                 showFeedback('🎉 Parabéns! Todas sombras combinadas!', true);
                 setTimeout(() => startGame('shadows'), 2000);
+            } else {
+                showFeedback('✅ Correto!', true);
+                speak("Muito bem!");
             }
         } else {
-            slot.classList.add('shadow-mismatch');
-            setTimeout(() => slot.classList.remove('shadow-mismatch'), 1000);
+            slotElement.classList.add('shadow-mismatch');
+            setTimeout(() => slotElement.classList.remove('shadow-mismatch'), 1000);
             speak('Essa não é a sombra correta, você perdeu uma estrela');
             updateStars(-1);
+            showFeedback('Ops! Sombra incorreta!', false);
         }
 
-        draggedItem = null;
+        if(selectedEl) {
+            selectedEl.style.opacity = '1';
+        }
+        window.shadowGameState.selectedEmoji = null;
+        window.shadowGameState.selectedElement = null;
     }
 
-    function allowDrop(ev) {
-        ev.preventDefault();
-    }
-
-    /* 6) Quebra-cabeça Numérico */
     function initPuzzleGame() {
         window.puzzleGameState = {
             selectedNumber: null,
@@ -1313,7 +1308,6 @@
         });
     }
 
-    /* 7) Cores */
     function initColorGame() {
         const allColors = [
             { name: 'Vermelho', hex: '#FF0000' },
@@ -1329,15 +1323,14 @@
         const roundColors = shuffle(allColors).slice(0, 3);
 
         const content = document.getElementById('content');
-        content.innerHTML = '<h2>Arraste as cores para as caixas corretas:</h2>';
+        content.innerHTML = '<h2>Toque em uma cor e depois na caixa correta:</h2>';
 
         content.innerHTML += `
-            <div style="margin: 20px; display: flex; justify-content: center; gap: 15px;">
+            <div style="margin: 20px; display: flex; justify-content: center; gap: 15px;" id="color-items">
                 ${roundColors.map(color => `
                     <div class="color-item"
                          style="background:${color.hex}"
-                         draggable="true"
-                         ondragstart="dragColor(event, '${color.hex}')"
+                         onclick="selectColorItem(this, '${color.hex}')"
                          data-colorname="${color.name}">
                     </div>
                 `).join('')}
@@ -1345,13 +1338,13 @@
         `;
 
         content.innerHTML += `
-            <div style="margin-top:30px; display: flex; justify-content: center; gap: 20px;">
+            <div style="margin-top:30px; display: flex; justify-content: center; gap: 20px;" id="color-bins">
                 ${roundColors.map(color => `
                     <div class="color-bin"
                          style="border-color:${color.hex}"
-                         ondrop="dropColor(event, '${color.hex}')"
-                         ondragover="allowDrop(event)"
-                         data-filled="false">
+                         data-targetcolor="${color.hex}"
+                         data-filled="false"
+                         onclick="placeColor(this, '${color.hex}')">
                          <span style="color: ${color.hex}">${color.name}</span>
                     </div>
                 `).join('')}
@@ -1360,37 +1353,43 @@
 
         window.colorGameState = {
             totalColors: roundColors.length,
-            correctMatches: 0
+            correctMatches: 0,
+            selectedColor: null,
+            selectedElement: null
         };
 
-        speak(`Combine as cores acima nas caixas correspondentes`);
+        speak(`Combine as cores nas caixas correspondentes`);
     }
 
-    let draggedColor = '';
-
-    function dragColor(ev, color) {
-        draggedColor = color;
-        ev.dataTransfer.setData("text/plain", color);
-        ev.target.style.opacity = '0.5';
+    function selectColorItem(el, color) {
+        if(window.colorGameState.selectedElement) {
+            window.colorGameState.selectedElement.style.opacity = '1';
+        }
+        window.colorGameState.selectedColor = color;
+        window.colorGameState.selectedElement = el;
+        el.style.opacity = '0.5';
     }
 
-    function dropColor(ev, targetColor) {
-        ev.preventDefault();
-        document.querySelectorAll('.color-item').forEach(item => item.style.opacity = '1');
-
-        const bin = ev.target.closest('.color-bin');
-        if (bin.getAttribute('data-filled') === 'true') {
+    function placeColor(binEl, targetColor) {
+        const selected = window.colorGameState.selectedColor;
+        const selectedEl = window.colorGameState.selectedElement;
+        if(!selected) return;
+        if(binEl.getAttribute('data-filled') === 'true') {
             showFeedback('Esta caixa já está preenchida!', false);
+            if(selectedEl) selectedEl.style.opacity = '1';
+            window.colorGameState.selectedColor = null;
+            window.colorGameState.selectedElement = null;
             return;
         }
 
-        if (draggedColor === targetColor) {
-            bin.style.backgroundColor = draggedColor;
-            bin.setAttribute('data-filled', 'true');
+        if(selected === targetColor) {
+            binEl.style.backgroundColor = selected;
+            binEl.setAttribute('data-filled', 'true');
             window.colorGameState.correctMatches++;
             showFeedback('🌟 Cor correta!', true);
+            if(selectedEl) selectedEl.style.display = 'none';
 
-            if (window.colorGameState.correctMatches === window.colorGameState.totalColors) {
+            if(window.colorGameState.correctMatches === window.colorGameState.totalColors) {
                 updateStars(1);
                 showFeedback('🎉 Parabéns! Você completou todas as cores!', true);
                 setTimeout(() => {
@@ -1399,16 +1398,21 @@
             }
         } else {
             showFeedback('😊 Tente outra cor', false);
-            bin.style.animation = 'shake 0.5s';
+            binEl.style.animation = 'shake 0.5s';
             setTimeout(() => {
-                bin.style.animation = '';
+                binEl.style.animation = '';
             }, 500);
             updateStars(-1);
             speak("Cor incorreta, tente novamente");
         }
+
+        if(selectedEl) {
+            selectedEl.style.opacity = '1';
+        }
+        window.colorGameState.selectedColor = null;
+        window.colorGameState.selectedElement = null;
     }
 
-    /* 8) Clima */
     function initWeatherGame() {
         const weatherData = [
             { icon: '☀️', correctItems: ['🕶️', '🎩', '🧴'], title: 'Ensolarado' },
@@ -1479,7 +1483,6 @@
         }
     }
 
-    /* 9) Categorias */
     function initCategoryGame() {
         const content = document.getElementById('content');
         content.innerHTML = '<h2>Classifique os itens em suas categorias:</h2>';
@@ -1539,9 +1542,8 @@
             contentHTML.push(`
                 <div class="category-bin"
                      data-category="${cat.name}"
-                     ondrop="dropCategoryItem(event, '${cat.name}')"
-                     ondragover="allowDrop(event)"
-                     data-filled="0">
+                     data-filled="0"
+                     onclick="placeInCategory(this, '${cat.name}')">
                     <div class="category-label">${cat.icon} ${cat.name}</div>
                     <div class="bin-items-container" id="bin-${cat.name}"></div>
                 </div>
@@ -1549,14 +1551,13 @@
         });
         contentHTML.push(`</div>`);
 
-        contentHTML.push(`<div class="category-game-container" style="flex-direction: row;">`);
+        contentHTML.push(`<div class="category-game-container" style="flex-direction: row;" id="cat-items-container">`);
         shuffle(allCategoryItems).forEach(obj => {
             contentHTML.push(`
                 <div class="category-item"
-                     draggable="true"
-                     ondragstart="startDragCategory(event, '${obj.emoji}', '${obj.category}')"
                      data-emoji="${obj.emoji}"
-                     data-cat="${obj.category}">
+                     data-cat="${obj.category}"
+                     onclick="selectCategoryItem(this)">
                     ${obj.emoji}
                 </div>
             `);
@@ -1567,64 +1568,66 @@
 
         window.categoryGameState = {
             totalItems: allCategoryItems.length,
-            correct: 0
+            correct: 0,
+            selectedItem: null,
+            selectedElement: null
         };
 
-        speak("Arraste cada item para a categoria correta");
+        speak("Toque em um item e depois na categoria correta");
     }
 
-    let draggedCategoryItem = { emoji: '', category: '', element: null };
-
-    function startDragCategory(ev, emoji, cat) {
-        draggedCategoryItem.emoji = emoji;
-        draggedCategoryItem.category = cat;
-        draggedCategoryItem.element = ev.target;
-        ev.dataTransfer.setData("text/plain", emoji);
-        ev.target.style.opacity = '0.5';
-    }
-
-    function dropCategoryItem(ev, targetCategory) {
-        ev.preventDefault();
-
-        if(draggedCategoryItem.element) {
-            draggedCategoryItem.element.style.opacity = '1';
+    function selectCategoryItem(el) {
+        if(window.categoryGameState.selectedElement) {
+            window.categoryGameState.selectedElement.style.opacity = '1';
         }
+        window.categoryGameState.selectedItem = {
+            emoji: el.getAttribute('data-emoji'),
+            category: el.getAttribute('data-cat')
+        };
+        window.categoryGameState.selectedElement = el;
+        el.style.opacity = '0.5';
+    }
 
-        const bin = ev.target.closest('.category-bin');
-        if (!bin) return;
+    function placeInCategory(binEl, targetCategory) {
+        const selectedItem = window.categoryGameState.selectedItem;
+        const selectedEl = window.categoryGameState.selectedElement;
+        if(!selectedItem) return;
 
-        if (draggedCategoryItem.category === targetCategory) {
-            bin.classList.add('category-matched');
-            const filledCount = parseInt(bin.getAttribute('data-filled')) + 1;
-            bin.setAttribute('data-filled', filledCount);
-            const binContainer = bin.querySelector('.bin-items-container');
+        if(selectedItem.category === targetCategory) {
+            binEl.classList.add('category-matched');
+            const filledCount = parseInt(binEl.getAttribute('data-filled')) + 1;
+            binEl.setAttribute('data-filled', filledCount);
+            const binContainer = binEl.querySelector('.bin-items-container');
             const newEmojiDiv = document.createElement('div');
             newEmojiDiv.style.fontSize = '2rem';
-            newEmojiDiv.textContent = draggedCategoryItem.emoji;
+            newEmojiDiv.textContent = selectedItem.emoji;
             binContainer.appendChild(newEmojiDiv);
-            draggedCategoryItem.element.classList.add('hidden-item');
+            selectedEl.classList.add('hidden-item');
             window.categoryGameState.correct++;
             showFeedback('✔️ Correto!', true);
-            speak(`Muito bem! ${draggedCategoryItem.emoji} pertence à categoria ${targetCategory}`);
-
+            speak(`Muito bem! ${selectedItem.emoji} pertence à categoria ${targetCategory}`);
             if (window.categoryGameState.correct === window.categoryGameState.totalItems) {
                 updateStars(1);
                 showFeedback('🎉 Parabéns! Categorias completadas!', true);
                 setTimeout(() => startGame('categories'), 2000);
             }
-
         } else {
-            bin.classList.add('category-wrong');
+            binEl.classList.add('category-wrong');
             setTimeout(() => {
-                bin.classList.remove('category-wrong');
+                binEl.classList.remove('category-wrong');
             }, 800);
             showFeedback('❌ Categoria incorreta!', false);
             updateStars(-1);
             speak("Essa não é a categoria certa");
         }
+
+        if(selectedEl) {
+            selectedEl.style.opacity = '1';
+        }
+        window.categoryGameState.selectedItem = null;
+        window.categoryGameState.selectedElement = null;
     }
 
-    /* ---- NOVO JOGO: APRENDER A LER (SOMENTE TOQUE) ---- */
     function initReadingGame() {
         const content = document.getElementById('content');
         content.innerHTML = `
@@ -1634,7 +1637,6 @@
         `;
 
         const randomWord = shuffle(readingWords)[0];
-        // Esse array de sílabas está na ordem correta: da primeira pra última.
         const originalSyllables = [...randomWord.syllables];
         const scrambled = shuffle([...randomWord.syllables]);
         window.readingGameState = {
@@ -1667,22 +1669,18 @@
 
     function handleReadingTap(element) {
         const state = window.readingGameState;
-        // Precisamos da próxima sílaba na ORDEM original.
         const nextNeeded = state.syllables[state.userIndex];
         const tapped = element.textContent;
 
         if (tapped === nextNeeded) {
-            // Coloca a sílaba certa no "painel" de resultado
             const targetSlot = document.getElementById(`result-syllable-${state.userIndex}`);
             targetSlot.textContent = tapped;
             targetSlot.classList.add('correct');
 
-            // Some com a sílaba tocada
             element.style.visibility = 'hidden';
             speak(tapped);
 
             state.userIndex++;
-            // Se já chegamos no fim, concluímos
             if (state.userIndex === state.syllables.length) {
                 showFeedback(`🎉 Parabéns! Você formou a palavra "${state.originalWord.toUpperCase()}"!`, true);
                 updateStars(1);
@@ -1694,7 +1692,6 @@
             updateStars(-1);
         }
     }
-    /* ----------------------------- */
 
     function speak(text) {
         if(speechSynth.speaking) speechSynth.cancel();
