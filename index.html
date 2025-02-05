@@ -2,33 +2,100 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Jogo Educativo Infantil</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
             font-family: 'Comic Sans MS', cursive;
             background-color: #FFF3E0;
-            text-align: center;
-            margin: 0;
-            padding: 20px;
         }
-        .game-container {
-            max-width: 800px;
-            margin: 0 auto;
-            min-height: 100vh;
-            position: relative;
-        }
+
         .game-mode {
             background-color: #81D4FA;
             border-radius: 20px;
             padding: 20px;
-            margin: 15px;
+            margin: 10px;
             cursor: pointer;
-            font-size: 28px;
-            color: #000;
+            font-size: 1.5rem;
             transition: transform 0.2s;
+            border: 3px solid #000;
         }
+
+        .container {
+            text-align: center;
+        }
+
         .game-mode:hover {
             transform: scale(1.05);
+        }
+
+        .number-option, .emoji-option {
+            background-color: #C8E6C9;
+            width: 100px;
+            height: 100px;
+            margin: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            border-radius: 15px;
+            cursor: pointer;
+            border: 3px solid #000;
+        }
+
+        .target-display {
+            font-size: 4rem;
+            background-color: #FFF9C4;
+            border-radius: 15px;
+            margin: 1rem 0;
+            padding: 1rem;
+        }
+
+        .feedback {
+            font-size: 1.5rem;
+            margin: 1rem 0;
+            min-height: 60px;
+        }
+
+        .stars-container {
+            position: fixed;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1.5rem;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 10px 20px;
+            border-radius: 15px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
+            z-index: 1000;
+        }
+
+        /* Ajustes para mobile */
+        @media (max-width: 768px) {
+            .game-mode {
+                font-size: 1.2rem;
+                padding: 15px;
+            }
+
+            .number-option, .emoji-option {
+                width: 80px;
+                height: 80px;
+                font-size: 1.5rem;
+            }
+
+            .target-display {
+                font-size: 3rem;
+            }
+
+            .feedback {
+                font-size: 1.2rem;
+            }
+
+            .btn {
+                font-size: 1rem;
+                padding: 10px 20px;
+            }
         }
         .number-option, .emoji-option {
             background-color: #C8E6C9;
@@ -374,331 +441,359 @@
         }
     </style>
 </head>
-<body>
-    <div class="game-container">
-        <h1>🎮 Vamos Aprender! 🌈</h1>
-        
-        <div id="main-menu">
-            <div class="game-mode" onclick="startGame('numbers')">🔢 Números</div>
-            <div class="game-mode" onclick="startGame('letters')">🔤 Letras</div>
-            <div class="game-mode" onclick="startGame('counting')">🍎 Contar</div>
-            <div class="game-mode" onclick="startGame('word')">🧩 Palavras</div>
-            <div class="game-mode" onclick="startGame('shadows')">🎭 Sombras</div>
-            <div class="game-mode" onclick="startGame('puzzle')">🧩 Quebra cabeça Números</div>
-            <div class="game-mode" onclick="startGame('colors')">🎨 Cores</div>
-            <div class="game-mode" onclick="startGame('weather')">☔ Clima</div>
-        </div>
+<body class="d-flex flex-column min-vh-100">
+<div class="container flex-grow-1">
+    <h1 class="text-center my-4">🎮 Vamos Aprender! 🌈</h1>
 
-        <div id="game-area" style="display: none;">
-            <div id="content"></div>
-            <div id="feedback" class="feedback"></div>
-            <button onclick="showMainMenu()">Voltar ao Menu</button>
+    <div id="main-menu">
+        <div class="row g-2">
+            <div class="col-12 col-sm-6 col-lg-4">
+                <div class="game-mode" onclick="startGame('numbers')">🔢 Números</div>
+            </div>
+            <div class="col-12 col-sm-6 col-lg-4">
+                <div class="game-mode" onclick="startGame('letters')">🔤 Letras</div>
+            </div>
+            <div class="col-12 col-sm-6 col-lg-4">
+                <div class="game-mode" onclick="startGame('counting')">🍎 Contar</div>
+            </div>
+            <div class="col-12 col-sm-6 col-lg-4">
+                <div class="game-mode" onclick="startGame('word')">🧩 Palavras</div>
+            </div>
+            <div class="col-12 col-sm-6 col-lg-4">
+                <div class="game-mode" onclick="startGame('shadows')">🎭 Sombras</div>
+            </div>
+            <div class="col-12 col-sm-6 col-lg-4">
+                <div class="game-mode" onclick="startGame('puzzle')">🧩 Quebra cabeça</div>
+            </div>
+            <div class="col-12 col-sm-6 col-lg-4">
+                <div class="game-mode" onclick="startGame('colors')">🎨 Cores</div>
+            </div>
+            <div class="col-12 col-sm-6 col-lg-4">
+                <div class="game-mode" onclick="startGame('weather')">☔ Clima</div>
+            </div>
         </div>
     </div>
 
-    <div class="stars-container" id="stars">
-        <span class="player-name" id="player-name"></span>
-        <div>⭐ <span id="stars-count">0</span></div>
+    <div id="game-area" class="d-none">
+        <div id="content" class="my-4"></div>
+        <div id="feedback" class="feedback text-center"></div>
+        <div class="text-center my-3">
+            <button class="btn btn-lg btn-primary" onclick="showMainMenu()">Voltar ao Menu</button>
+        </div>
     </div>
+</div>
 
-    <script>
-        // Sistema de nome do jogador - Sempre pede ao recarregar
-        localStorage.removeItem('playerName');
-        localStorage.removeItem('stars');
+<div class="stars-container">
+    <span class="player-name" id="player-name"></span>
+    <div>⭐ <span id="stars-count">0</span></div>
+</div>
 
-        let playerName = prompt('Qual é o seu nome?', 'Amiguinho').trim();
-        document.getElementById('player-name').textContent = playerName;
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Sistema de nome do jogador - Sempre pede ao recarregar
+    localStorage.removeItem('playerName');
+    localStorage.removeItem('stars');
 
-        // Sistema de estrelas - Sempre começa do zero
-        let stars = 0;
-        let previousStars = 0;
-        document.getElementById('stars-count').textContent = stars;
+    let playerName = prompt('Qual é o seu nome?', 'Amiguinho').trim();
+    document.getElementById('player-name').textContent = playerName;
 
-        const numbers = Array.from({length: 20}, (_, i) => i + 1);
-        const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
-        
-        const emojiDatabase = {
-    "A": [
-        {"emoji": "✈️", "nome": "Avião"},
-        {"emoji": "🌳", "nome": "Árvore"},
-        {"emoji": "🎨", "nome": "Arte"},
-        {"emoji": "🏹", "nome": "Arco e Flecha"},
-        {"emoji": "🐜", "nome": "Aranha"},
-        {"emoji": "⚓", "nome": "Âncora"},
-        {"emoji": "🎭", "nome": "Ator"},
-        {"emoji": "🚑", "nome": "Ambulância"},
-        {"emoji": "🌈", "nome": "Arco-íris"},
-        {"emoji": "🍚", "nome": "Arroz"}
-    ],
-    "B": [
-        {"emoji": "🎈", "nome": "Balão"},
-        {"emoji": "🚲", "nome": "Bicicleta"},
-        {"emoji": "🍌", "nome": "Banana"},
-        {"emoji": "🔋", "nome": "Bateria"},
-        {"emoji": "🏀", "nome": "Basquete"},
-        {"emoji": "🐝", "nome": "Abelha"},
-        {"emoji": "🍟", "nome": "Batata Frita"},
-        {"emoji": "⚖", "nome": "Balança"},
-        {"emoji": "🍆", "nome": "Berinjela"},
-        {"emoji": "⚽", "nome": "Bola"}
-    ],
-    "C": [
-        {"emoji": "🏡", "nome": "Casa"},
-        {"emoji": "🏰", "nome": "Castelo"},
-        {"emoji": "🏙️", "nome": "Cidade"},
-        {"emoji": "🐍", "nome": "Cobra"},
-        {"emoji": "🐶", "nome": "Cachorro"},
-        {"emoji": "☕", "nome": "Café"},
-        {"emoji": "🍵", "nome": "Chá"},
-        {"emoji": "🚗", "nome": "Carro"},
-        {"emoji": "🎠", "nome": "Carrossel"},
-        {"emoji": "🦌", "nome": "Cervo"},
-        {"emoji": "🥕", "nome": "Cenoura"},
-        {"emoji": "🔑", "nome": "Chave"},
-        {"emoji": "🦉", "nome": "Coruja"},
-        {"emoji": "🏃", "nome": "Corrida"}
-    ],
-    "D": [
-        {"emoji": "🎲", "nome": "Dado"},
-        {"emoji": "🐉", "nome": "Dragão"},
-        {"emoji": "💎", "nome": "Diamante"},
-        {"emoji": "🎯", "nome": "Dardo"},
-        {"emoji": "📅", "nome": "Data"},        
-    ],
-    "E": [
-        {"emoji": "⭐", "nome": "Estrela"},
-        {"emoji": "📧", "nome": "E-mail"},
-        {"emoji": "🐘", "nome": "Elefante"},
-        {"emoji": "🔌", "nome": "Energia"},
-        {"emoji": "🛤", "nome": "Estrada"},        
-    ],
-    "F": [
-        {"emoji": "🎗", "nome": "Fita"},
-        {"emoji": "🌸", "nome": "Flor"},
-        {"emoji": "🐜", "nome": "Formiga"},
-        {"emoji": "🔥", "nome": "Fogo"},
-        {"emoji": "🎺", "nome": "Flauta"},
-        {"emoji": "🏁", "nome": "Final"},
-        {"emoji": "🍂", "nome": "Folha"},
-        {"emoji": "🚀", "nome": "Foguete"},
-        {"emoji": "🌹", "nome": "Flor"}
-    ],
-    "G": [
-        {"emoji": "🐬", "nome": "Golfinho"},
-        {"emoji": "🐱", "nome": "Gato"},
-        {"emoji": "🦒", "nome": "Girafa"},
-        {"emoji": "☂️", "nome": "Guarda-chuva"},
-        {"emoji": "🎸", "nome": "Guitarra"},
-        {"emoji": "🥅", "nome": "Gol"},
-        {"emoji": "🏌️", "nome": "Golfe"}
-    ],
-    "H": [
-        {"emoji": "🏥", "nome": "Hospital"},
-        {"emoji": "🚁", "nome": "Helicóptero"},
-        {"emoji": "🐹", "nome": "Hamster"}
-    ],
-    "I": [
-        {"emoji": "🏝", "nome": "Ilha"},
-        {"emoji": "💡", "nome": "Ideia"},
-        {"emoji": "📱", "nome": "Internet"},
-        {"emoji": "🖼", "nome": "Imagem"}
-    ],
-    "J": [
-        {"emoji": "🎷", "nome": "Jazz"},
-        {"emoji": "🚙", "nome": "Jipe"}
-    ],
-    "K": [
-        {"emoji": "🥝", "nome": "Kiwi"},
-        {"emoji": "🤹", "nome": "Karatê"},
-        {"emoji": "🥋", "nome": "Kimono"}
-    ],
-    "L": [
-        {"emoji": "🍋", "nome": "Limão"},
-        {"emoji": "📚", "nome": "Livro"},
-        {"emoji": "💡", "nome": "Lâmpada"},
-        {"emoji": "🦁", "nome": "Leão"},
-        {"emoji": "🌙", "nome": "Lua"},
-        {"emoji": "🍊", "nome": "Laranja"},
-        {"emoji": "🏞️", "nome": "Lago"},
-        {"emoji": "🛳", "nome": "Lancha"}
-    ],
-    "M": [
-        {"emoji": "🎶", "nome": "Música"},
-        {"emoji": "🎤", "nome": "Microfone"},
-        {"emoji": "🍎", "nome": "Maçã"},
-        {"emoji": "🐵", "nome": "Macaco"},
-        {"emoji": "🍈", "nome": "Melão"},
-        {"emoji": "🌊", "nome": "Mar"},
-        {"emoji": "🏔", "nome": "Montanha"},
-        {"emoji": "🗺", "nome": "Mapa"},
-        {"emoji": "✉️", "nome": "Mensagem"},
-        {"emoji": "🚇", "nome": "Metrô"},
-        {"emoji": "🦇", "nome": "Morcego"},
-        {"emoji": "🔨", "nome": "Machado"}
-    ],
-    "N": [
-        {"emoji": "❄️", "nome": "Neve"},
-        {"emoji": "🚢", "nome": "Navio"}
-    ],
-    "O": [
-        {"emoji": "🥚", "nome": "Ovo"},
-        {"emoji": "🏢", "nome": "Oficina"},
-        {"emoji": "🎨", "nome": "Obra de Arte"},
-        {"emoji": "🚌", "nome": "Ônibus"}
-    ],
-    "P": [
-        {"emoji": "🐠", "nome": "Peixe"},
-        {"emoji": "🍕", "nome": "Pizza"},
-        {"emoji": "🐧", "nome": "Pinguim"},
-        {"emoji": "🎁", "nome": "Presente"},
-        {"emoji": "🚪", "nome": "Porta"},
-        {"emoji": "🐙", "nome": "Polvo"},
-        {"emoji": "📦", "nome": "Pacote"},
-        {"emoji": "🥞", "nome": "Panqueca"},
-        {"emoji": "🥖", "nome": "Pão"}
-    ],
-    "Q": [
-        {"emoji": "👑", "nome": "Queijo"},
-        {"emoji": "🃏", "nome": "Quebra-cabeça"},
-        {"emoji": "🖼", "nome": "Quadro"}
-    ],
-    "R": [
-        {"emoji": "🦊", "nome": "Raposa"},
-        {"emoji": "📻", "nome": "Rádio"},
-        {"emoji": "🦏", "nome": "Rinoceronte"},
-        {"emoji": "🤖", "nome": "Robo"},
-    ],
-    "S": [
-        {"emoji": "🚦", "nome": "Semáforo"},
-        {"emoji": "🌞", "nome": "Sol"},
-        {"emoji": "🥗", "nome": "Salada"},
-        {"emoji": "🔔", "nome": "Sino de Natal"}
-    ],
-    "T": [
-        {"emoji": "🎩", "nome": "Teatro"},
-        {"emoji": "🌮", "nome": "Taco"},
-        {"emoji": "🚆", "nome": "Trem"},
-        {"emoji": "🎹", "nome": "Teclado"},
-        {"emoji": "🎺", "nome": "Trompete"},
-        {"emoji": "📞", "nome": "Telefone"},
-        {"emoji": "🌍", "nome": "Terra"},
-        {"emoji": "🏆", "nome": "Troféu"},
-        {"emoji": "🥁", "nome": "Tambor"}
-    ],
-    "U": [
-        {"emoji": "🦄", "nome": "Unicórnio"},
-        {"emoji": "🍇", "nome": "Uva"}
-    ],
-    "V": [
-        {"emoji": "🎻", "nome": "Violino"},
-        {"emoji": "🌋", "nome": "Vulcão"},
-        {"emoji": "🍷", "nome": "Vinho"},
-        {"emoji": "🎮", "nome": "Videogame"},
-        {"emoji": "📹", "nome": "Vídeo"},
-        {"emoji": "🚐", "nome": "Van"},
-        {"emoji": "🔊", "nome": "Volume"}        
-    ],
-    "X": [
-        {"emoji": "❌", "nome": "Xis"}
-    ],
-    "Z": [
-        {"emoji": "🦓", "nome": "Zebra"}
-    ]
-};
+    // Sistema de estrelas - Sempre começa do zero
+    let stars = 0;
+    let previousStars = 0;
+    document.getElementById('stars-count').textContent = stars;
 
-        let currentGame = null;
-        let speechSynth = window.speechSynthesis;
+    const numbers = Array.from({length: 20}, (_, i) => i + 1);
+    const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
 
-        function startGame(mode) {
-            document.getElementById('main-menu').style.display = 'none';
-            document.getElementById('game-area').style.display = 'block';
-            document.getElementById('feedback').textContent = '';
-            currentGame = mode;
+    const emojiDatabase = {
+        "A": [
+            {"emoji": "✈️", "nome": "Avião"},
+            {"emoji": "🌳", "nome": "Árvore"},
+            {"emoji": "🎨", "nome": "Arte"},
+            {"emoji": "🏹", "nome": "Arco e Flecha"},
+            {"emoji": "🐜", "nome": "Aranha"},
+            {"emoji": "⚓", "nome": "Âncora"},
+            {"emoji": "🎭", "nome": "Ator"},
+            {"emoji": "🚑", "nome": "Ambulância"},
+            {"emoji": "🌈", "nome": "Arco-íris"},
+            {"emoji": "🍚", "nome": "Arroz"}
+        ],
+        "B": [
+            {"emoji": "🎈", "nome": "Balão"},
+            {"emoji": "🚲", "nome": "Bicicleta"},
+            {"emoji": "🍌", "nome": "Banana"},
+            {"emoji": "🔋", "nome": "Bateria"},
+            {"emoji": "🏀", "nome": "Basquete"},
+            {"emoji": "🐝", "nome": "Abelha"},
+            {"emoji": "🍟", "nome": "Batata Frita"},
+            {"emoji": "⚖", "nome": "Balança"},
+            {"emoji": "🍆", "nome": "Berinjela"},
+            {"emoji": "⚽", "nome": "Bola"}
+        ],
+        "C": [
+            {"emoji": "🏡", "nome": "Casa"},
+            {"emoji": "🏰", "nome": "Castelo"},
+            {"emoji": "🏙️", "nome": "Cidade"},
+            {"emoji": "🐍", "nome": "Cobra"},
+            {"emoji": "🐶", "nome": "Cachorro"},
+            {"emoji": "☕", "nome": "Café"},
+            {"emoji": "🍵", "nome": "Chá"},
+            {"emoji": "🚗", "nome": "Carro"},
+            {"emoji": "🎠", "nome": "Carrossel"},
+            {"emoji": "🦌", "nome": "Cervo"},
+            {"emoji": "🥕", "nome": "Cenoura"},
+            {"emoji": "🔑", "nome": "Chave"},
+            {"emoji": "🦉", "nome": "Coruja"},
+            {"emoji": "🏃", "nome": "Corrida"}
+        ],
+        "D": [
+            {"emoji": "🎲", "nome": "Dado"},
+            {"emoji": "🐉", "nome": "Dragão"},
+            {"emoji": "💎", "nome": "Diamante"},
+            {"emoji": "🎯", "nome": "Dardo"},
+            {"emoji": "📅", "nome": "Data"},
+        ],
+        "E": [
+            {"emoji": "⭐", "nome": "Estrela"},
+            {"emoji": "📧", "nome": "E-mail"},
+            {"emoji": "🐘", "nome": "Elefante"},
+            {"emoji": "🔌", "nome": "Energia"},
+            {"emoji": "🛤", "nome": "Estrada"},
+        ],
+        "F": [
+            {"emoji": "🎗", "nome": "Fita"},
+            {"emoji": "🌸", "nome": "Flor"},
+            {"emoji": "🐜", "nome": "Formiga"},
+            {"emoji": "🔥", "nome": "Fogo"},
+            {"emoji": "🎺", "nome": "Flauta"},
+            {"emoji": "🏁", "nome": "Final"},
+            {"emoji": "🍂", "nome": "Folha"},
+            {"emoji": "🚀", "nome": "Foguete"},
+            {"emoji": "🌹", "nome": "Flor"}
+        ],
+        "G": [
+            {"emoji": "🐬", "nome": "Golfinho"},
+            {"emoji": "🐱", "nome": "Gato"},
+            {"emoji": "🦒", "nome": "Girafa"},
+            {"emoji": "☂️", "nome": "Guarda-chuva"},
+            {"emoji": "🎸", "nome": "Guitarra"},
+            {"emoji": "🥅", "nome": "Gol"},
+            {"emoji": "🏌️", "nome": "Golfe"}
+        ],
+        "H": [
+            {"emoji": "🏥", "nome": "Hospital"},
+            {"emoji": "🚁", "nome": "Helicóptero"},
+            {"emoji": "🐹", "nome": "Hamster"}
+        ],
+        "I": [
+            {"emoji": "🏝", "nome": "Ilha"},
+            {"emoji": "💡", "nome": "Ideia"},
+            {"emoji": "📱", "nome": "Internet"},
+            {"emoji": "🖼", "nome": "Imagem"}
+        ],
+        "J": [
+            {"emoji": "🎷", "nome": "Jazz"},
+            {"emoji": "🚙", "nome": "Jipe"}
+        ],
+        "K": [
+            {"emoji": "🥝", "nome": "Kiwi"},
+            {"emoji": "🤹", "nome": "Karatê"},
+            {"emoji": "🥋", "nome": "Kimono"}
+        ],
+        "L": [
+            {"emoji": "🍋", "nome": "Limão"},
+            {"emoji": "📚", "nome": "Livro"},
+            {"emoji": "💡", "nome": "Lâmpada"},
+            {"emoji": "🦁", "nome": "Leão"},
+            {"emoji": "🌙", "nome": "Lua"},
+            {"emoji": "🍊", "nome": "Laranja"},
+            {"emoji": "🏞️", "nome": "Lago"},
+            {"emoji": "🛳", "nome": "Lancha"}
+        ],
+        "M": [
+            {"emoji": "🎶", "nome": "Música"},
+            {"emoji": "🎤", "nome": "Microfone"},
+            {"emoji": "🍎", "nome": "Maçã"},
+            {"emoji": "🐵", "nome": "Macaco"},
+            {"emoji": "🍈", "nome": "Melão"},
+            {"emoji": "🌊", "nome": "Mar"},
+            {"emoji": "🏔", "nome": "Montanha"},
+            {"emoji": "🗺", "nome": "Mapa"},
+            {"emoji": "✉️", "nome": "Mensagem"},
+            {"emoji": "🚇", "nome": "Metrô"},
+            {"emoji": "🦇", "nome": "Morcego"},
+            {"emoji": "🔨", "nome": "Machado"}
+        ],
+        "N": [
+            {"emoji": "❄️", "nome": "Neve"},
+            {"emoji": "🚢", "nome": "Navio"}
+        ],
+        "O": [
+            {"emoji": "🥚", "nome": "Ovo"},
+            {"emoji": "🏢", "nome": "Oficina"},
+            {"emoji": "🎨", "nome": "Obra de Arte"},
+            {"emoji": "🚌", "nome": "Ônibus"}
+        ],
+        "P": [
+            {"emoji": "🐠", "nome": "Peixe"},
+            {"emoji": "🍕", "nome": "Pizza"},
+            {"emoji": "🐧", "nome": "Pinguim"},
+            {"emoji": "🎁", "nome": "Presente"},
+            {"emoji": "🚪", "nome": "Porta"},
+            {"emoji": "🐙", "nome": "Polvo"},
+            {"emoji": "📦", "nome": "Pacote"},
+            {"emoji": "🥞", "nome": "Panqueca"},
+            {"emoji": "🥖", "nome": "Pão"}
+        ],
+        "Q": [
+            {"emoji": "👑", "nome": "Queijo"},
+            {"emoji": "🃏", "nome": "Quebra-cabeça"},
+            {"emoji": "🖼", "nome": "Quadro"}
+        ],
+        "R": [
+            {"emoji": "🦊", "nome": "Raposa"},
+            {"emoji": "📻", "nome": "Rádio"},
+            {"emoji": "🦏", "nome": "Rinoceronte"},
+            {"emoji": "🤖", "nome": "Robo"},
+        ],
+        "S": [
+            {"emoji": "🚦", "nome": "Semáforo"},
+            {"emoji": "🌞", "nome": "Sol"},
+            {"emoji": "🥗", "nome": "Salada"},
+            {"emoji": "🔔", "nome": "Sino de Natal"}
+        ],
+        "T": [
+            {"emoji": "🎩", "nome": "Teatro"},
+            {"emoji": "🌮", "nome": "Taco"},
+            {"emoji": "🚆", "nome": "Trem"},
+            {"emoji": "🎹", "nome": "Teclado"},
+            {"emoji": "🎺", "nome": "Trompete"},
+            {"emoji": "📞", "nome": "Telefone"},
+            {"emoji": "🌍", "nome": "Terra"},
+            {"emoji": "🏆", "nome": "Troféu"},
+            {"emoji": "🥁", "nome": "Tambor"}
+        ],
+        "U": [
+            {"emoji": "🦄", "nome": "Unicórnio"},
+            {"emoji": "🍇", "nome": "Uva"}
+        ],
+        "V": [
+            {"emoji": "🎻", "nome": "Violino"},
+            {"emoji": "🌋", "nome": "Vulcão"},
+            {"emoji": "🍷", "nome": "Vinho"},
+            {"emoji": "🎮", "nome": "Videogame"},
+            {"emoji": "📹", "nome": "Vídeo"},
+            {"emoji": "🚐", "nome": "Van"},
+            {"emoji": "🔊", "nome": "Volume"}
+        ],
+        "X": [
+            {"emoji": "❌", "nome": "Xis"}
+        ],
+        "Z": [
+            {"emoji": "🦓", "nome": "Zebra"}
+        ]
+    };
 
-            if(mode === 'numbers') initNumbersGame();
-            else if(mode === 'letters') initLettersGame();
-            else if(mode === 'counting') initCountingGame();
-            else if(mode === 'word') initWordGame();
-            else if(mode === 'shadows') initShadowGame();
-            else if(mode === 'puzzle') initPuzzleGame();
-            else if(mode === 'colors') initColorGame();
-            else if(mode === 'weather') initWeatherGame();
+    let currentGame = null;
+    let speechSynth = window.speechSynthesis;
+
+    function startGame(mode) {
+        // Removendo a classe d-none e mostrando a área do jogo
+        document.getElementById('main-menu').style.display = 'none';
+        const gameArea = document.getElementById('game-area');
+        gameArea.classList.remove('d-none');
+        gameArea.style.display = 'block';
+
+        document.getElementById('feedback').textContent = '';
+        currentGame = mode;
+
+        if(mode === 'numbers') initNumbersGame();
+        else if(mode === 'letters') initLettersGame();
+        else if(mode === 'counting') initCountingGame();
+        else if(mode === 'word') initWordGame();
+        else if(mode === 'shadows') initShadowGame();
+        else if(mode === 'puzzle') initPuzzleGame();
+        else if(mode === 'colors') initColorGame();
+        else if(mode === 'weather') initWeatherGame();
+    }
+
+    function showMainMenu() {
+        if(stars > previousStars) {
+            speak(`${playerName}, você tem ${stars} estrelas! Muito bem!`);
+            previousStars = stars;
+        } else if(stars < previousStars && stars > 0) {
+            speak(`${playerName}, agora você tem ${stars} estrelas. Vamos recuperar!`);
+            previousStars = stars;
         }
 
-        function showMainMenu() {
-            if(stars > previousStars) {
-                speak(`${playerName}, você tem ${stars} estrelas! Muito bem!`); // Nome apenas aqui
-                previousStars = stars;
-            } else if(stars < previousStars && stars > 0) {
-                speak(`${playerName}, agora você tem ${stars} estrelas. Vamos recuperar!`); // Nome apenas aqui
-                previousStars = stars;
-            }
-            
-            document.getElementById('main-menu').style.display = 'block';
-            document.getElementById('game-area').style.display = 'none';
-        }
+        // Adicionando a classe d-none de volta ao esconder a área do jogo
+        document.getElementById('main-menu').style.display = 'block';
+        const gameArea = document.getElementById('game-area');
+        gameArea.classList.add('d-none');
+        gameArea.style.display = 'none';
+    }
 
-        function initNumbersGame() {
-            const content = document.getElementById('content');
-            const targetNumber = numbers[Math.floor(Math.random() * 20)];
-            
-            content.innerHTML = `
+    function initNumbersGame() {
+        const content = document.getElementById('content');
+        const targetNumber = numbers[Math.floor(Math.random() * 20)];
+
+        content.innerHTML = `
                 <h2>Encontre o número:</h2>
                 <div class="target-display">${targetNumber}</div>
                 <div>Clique no número igual ao mostrado acima</div>
             `;
 
-            const options = shuffle([targetNumber, ...shuffle(numbers.filter(n => n !== targetNumber)).slice(0, 4)]);
-            options.forEach(num => {
-                const div = document.createElement('div');
-                div.className = 'number-option';
-                div.textContent = num;
-                div.onclick = () => checkNumber(num === targetNumber);
-                content.appendChild(div);
-            });
-            
-            speak(`Encontre o número ${targetNumber}`);
-        }
+        const options = shuffle([targetNumber, ...shuffle(numbers.filter(n => n !== targetNumber)).slice(0, 4)]);
+        options.forEach(num => {
+            const div = document.createElement('div');
+            div.className = 'number-option';
+            div.textContent = num;
+            div.onclick = () => checkNumber(num === targetNumber);
+            content.appendChild(div);
+        });
 
-        function initLettersGame() {
-            const content = document.getElementById('content');
-            const validLetters = Object.keys(emojiDatabase);
-            const targetLetter = validLetters[Math.floor(Math.random() * validLetters.length)];
-            const validEmojis = emojiDatabase[targetLetter];
-            
-            content.innerHTML = `
+        speak(`Encontre o número ${targetNumber}`);
+    }
+
+    function initLettersGame() {
+        const content = document.getElementById('content');
+        const validLetters = Object.keys(emojiDatabase);
+        const targetLetter = validLetters[Math.floor(Math.random() * validLetters.length)];
+        const validEmojis = emojiDatabase[targetLetter];
+
+        content.innerHTML = `
                 <h2>Encontre emojis que começam com:</h2>
                 <div class="target-display">${targetLetter}</div>
                 <div class="emoji-grid"></div>
             `;
 
-            const grid = document.querySelector('.emoji-grid');
-            const allEmojis = Object.values(emojiDatabase).flat();
-            
-            const correctOptions = shuffle([...validEmojis]).slice(0, 3);
-            const incorrectOptions = shuffle(allEmojis.filter(e => !validEmojis.includes(e))).slice(0, 7);
-            const mixedOptions = shuffle([...correctOptions, ...incorrectOptions]);
+        const grid = document.querySelector('.emoji-grid');
+        const allEmojis = Object.values(emojiDatabase).flat();
 
-            mixedOptions.forEach(emojiObj => {
-                const div = document.createElement('div');
-                div.className = 'emoji-option';
-                div.innerHTML = `
+        const correctOptions = shuffle([...validEmojis]).slice(0, 3);
+        const incorrectOptions = shuffle(allEmojis.filter(e => !validEmojis.includes(e))).slice(0, 7);
+        const mixedOptions = shuffle([...correctOptions, ...incorrectOptions]);
+
+        mixedOptions.forEach(emojiObj => {
+            const div = document.createElement('div');
+            div.className = 'emoji-option';
+            div.innerHTML = `
                     <div>${emojiObj.emoji}</div>
                     <div class="emoji-name">${emojiObj.nome}</div>
                 `;
-                div.onclick = () => checkEmoji(validEmojis.includes(emojiObj), emojiObj.nome);
-                grid.appendChild(div);
-            });
+            div.onclick = () => checkEmoji(validEmojis.includes(emojiObj), emojiObj.nome);
+            grid.appendChild(div);
+        });
 
-            speak(`Encontre coisas que começam com a letra ${targetLetter}`);
-        }
+        speak(`Encontre coisas que começam com a letra ${targetLetter}`);
+    }
 
-        function initCountingGame() {
-            const content = document.getElementById('content');
-            const targetCount = Math.floor(Math.random() * 20) + 1;
-            const targetEmoji = shuffle(['🍎', '⭐', '🐻', '🎈', '🍪'])[0];
+    function initCountingGame() {
+        const content = document.getElementById('content');
+        const targetCount = Math.floor(Math.random() * 20) + 1;
+        const targetEmoji = shuffle(['🍎', '⭐', '🐻', '🎈', '🍪'])[0];
 
-            content.innerHTML = `
+        content.innerHTML = `
                 <div class="counting-game">
                     <h2>Conte até:</h2>
                     <div class="target-display">${targetCount} ${targetEmoji}</div>
@@ -707,147 +802,145 @@
                 </div>
             `;
 
-            const grid = document.querySelector('.emoji-grid');
-            const options = shuffle([targetEmoji, ...shuffle(['🐶','🍉','🚗','🎮','🍕','🏀','🐠','🍩','🚂','🌻']).slice(0, 9)]);
-            
-            options.forEach(emoji => {
-                const div = document.createElement('div');
-                div.className = 'emoji-option';
-                div.textContent = emoji;
-                div.onclick = () => handleCountClick(emoji === targetEmoji, targetCount);
-                grid.appendChild(div);
-            });
+        const grid = document.querySelector('.emoji-grid');
+        const options = shuffle([targetEmoji, ...shuffle(['🐶','🍉','🚗','🎮','🍕','🏀','🐠','🍩','🚂','🌻']).slice(0, 9)]);
 
-            speak(`Clique ${targetCount} vezes no ${getEmojiName(targetEmoji)}`);
+        options.forEach(emoji => {
+            const div = document.createElement('div');
+            div.className = 'emoji-option';
+            div.textContent = emoji;
+            div.onclick = () => handleCountClick(emoji === targetEmoji, targetCount);
+            grid.appendChild(div);
+        });
+
+        speak(`Clique ${targetCount} vezes no ${getEmojiName(targetEmoji)}`);
+    }
+
+    function handleCountClick(isCorrect, target) {
+        if(!isCorrect) {
+            speak("Esse não é o emoji correto!");
+            updateStars(-1);
+            showFeedback('❌ Emoji errado!', false);
+            return;
         }
 
-        function handleCountClick(isCorrect, target) {
-            if(!isCorrect) {
-                speak("Esse não é o emoji correto!");
-                updateStars(-1);
-                showFeedback('❌ Emoji errado!', false);
-                return;
-            }
+        const counter = document.getElementById('counter');
+        let count = parseInt(counter.textContent) + 1;
+        counter.textContent = count;
+        speak(count.toString());
 
-            const counter = document.getElementById('counter');
-            let count = parseInt(counter.textContent) + 1;
-            counter.textContent = count;
-            speak(count.toString());
-
-            if(count === target) {
-                updateStars(1);
-                showFeedback('🎉 Parabéns! Contagem correta!', true);
-                setTimeout(() => startGame('counting'), 2000);
-            }
+        if(count === target) {
+            updateStars(1);
+            showFeedback('🎉 Parabéns! Contagem correta!', true);
+            setTimeout(() => startGame('counting'), 2000);
         }
+    }
 
-        function checkNumber(isCorrect) {
-            if(isCorrect) {
-                updateStars(1);
-                showFeedback('🎯 Correto! Você é demais!', true);
-                speak("Parabéns! Número correto!");
-                setTimeout(() => startGame('numbers'), 2000);
-            } else {
-                updateStars(-1);
-                showFeedback('🤔 Tente novamente!', false);
-                speak("Ops! Esse não é o número");
-            }
+    function checkNumber(isCorrect) {
+        if(isCorrect) {
+            updateStars(1);
+            showFeedback('🎯 Correto! Você é demais!', true);
+            setTimeout(() => startGame('numbers'), 2000);
+        } else {
+            updateStars(-1);
+            showFeedback('🤔 Tente novamente!', false);
+            speak("Ops! Esse não é o número");
         }
+    }
 
-        function checkEmoji(isCorrect, nome) {
-            if(isCorrect) {
-                updateStars(1);
-                showFeedback('🌈 Certo! Combinação perfeita!', true);
-                speak(`Isso mesmo! ${nome} começa com ${nome[0]}!`);
-                setTimeout(() => startGame('letters'), 2000);
-            } else {
-                updateStars(-1);
-                showFeedback(`💡 "${nome}" começa com ${nome[0].toUpperCase()}!`, false);
-                speak(`Ops! ${nome} começa com ${nome[0].toUpperCase()}!`);
-            }
+    function checkEmoji(isCorrect, nome) {
+        if(isCorrect) {
+            updateStars(1);
+            showFeedback('🌈 Certo! Combinação perfeita!', true);
+            setTimeout(() => startGame('letters'), 2000);
+        } else {
+            updateStars(-1);
+            showFeedback(`💡 "${nome}" começa com ${nome[0].toUpperCase()}!`, false);
+            speak(`Ops! ${nome} começa com ${nome[0].toUpperCase()}!`);
         }
+    }
 
-        function initWordGame() {
-            const content = document.getElementById('content');
-            content.innerHTML = '<h2>Monte a palavra do emoji:</h2>';
+    function initWordGame() {
+        const content = document.getElementById('content');
+        content.innerHTML = '<h2>Monte a palavra do emoji:</h2>';
 
-            // Seleciona um emoji aleatório
-            const allEmojis = Object.values(emojiDatabase).flat();
-            const randomEmoji = shuffle(allEmojis)[0];
-            const originalName = randomEmoji.nome.toUpperCase();
+        // Seleciona um emoji aleatório
+        const allEmojis = Object.values(emojiDatabase).flat();
+        const randomEmoji = shuffle(allEmojis)[0];
+        const originalName = randomEmoji.nome.toUpperCase();
 
-            // Processa as letras mantendo acentos
-            const targetLetters = Array.from(originalName).filter(c => c !== ' ' && c !== '-');
+        // Processa as letras mantendo acentos
+        const targetLetters = Array.from(originalName).filter(c => c !== ' ' && c !== '-');
 
-            // Cria a exibição do alvo
-            let targetDisplay = '';
-            targetLetters.forEach((letter, index) => {
-                targetDisplay += `<span class="letter-box" id="target-letter-${index}">${letter}</span>`;
-            });
+        // Cria a exibição do alvo
+        let targetDisplay = '';
+        targetLetters.forEach((letter, index) => {
+            targetDisplay += `<span class="letter-box" id="target-letter-${index}">${letter}</span>`;
+        });
 
-            content.innerHTML += `
+        content.innerHTML += `
         <div class="word-target">
             ${randomEmoji.emoji} <div id="target-word">${targetDisplay}</div>
         </div>
         <div class="scrambled-letters" id="scrambled-letters"></div>
     `;
 
-            // Prepara as letras embaralhadas (exatamente as da palavra)
-            let scrambledLetters = shuffle([...targetLetters]);
+        // Prepara as letras embaralhadas (exatamente as da palavra)
+        let scrambledLetters = shuffle([...targetLetters]);
 
-            // Exibe as letras embaralhadas
-            const lettersContainer = document.getElementById('scrambled-letters');
-            scrambledLetters.forEach((letter) => {
-                const div = document.createElement('div');
-                div.className = 'word-letter';
-                div.textContent = letter;
-                div.onclick = function() {
-                    handleLetterClick(this, targetLetters);
-                };
-                lettersContainer.appendChild(div);
-            });
+        // Exibe as letras embaralhadas
+        const lettersContainer = document.getElementById('scrambled-letters');
+        scrambledLetters.forEach((letter) => {
+            const div = document.createElement('div');
+            div.className = 'word-letter';
+            div.textContent = letter;
+            div.onclick = function() {
+                handleLetterClick(this, targetLetters);
+            };
+            lettersContainer.appendChild(div);
+        });
 
-            speak(`Monte a palavra: ${randomEmoji.nome}`); // Usa o nome original com acentos
-        }
+        speak(`Monte a palavra: ${randomEmoji.nome}`); // Usa o nome original com acentos
+    }
 
-        function handleLetterClick(letterElement, targetLetters) {
-            const revealedLetters = document.querySelectorAll('#target-word .revealed');
-            const nextIndex = revealedLetters.length;
+    function handleLetterClick(letterElement, targetLetters) {
+        const revealedLetters = document.querySelectorAll('#target-word .revealed');
+        const nextIndex = revealedLetters.length;
 
-            // Narra a letra clicada
-            speak(letterElement.textContent);
+        // Narra a letra clicada
+        speak(letterElement.textContent);
 
-            if(nextIndex < targetLetters.length) {
-                const correctLetter = targetLetters[nextIndex];
+        if(nextIndex < targetLetters.length) {
+            const correctLetter = targetLetters[nextIndex];
 
-                if(letterElement.textContent === correctLetter) {
-                    // Revela a letra correta
-                    document.getElementById(`target-letter-${nextIndex}`).classList.add('revealed');
-                    // Esconde a letra clicada
-                    letterElement.style.visibility = 'hidden';
+            if(letterElement.textContent === correctLetter) {
+                // Revela a letra correta
+                document.getElementById(`target-letter-${nextIndex}`).classList.add('revealed');
+                // Esconde a letra clicada
+                letterElement.style.visibility = 'hidden';
 
-                    // Verifica se completou
-                    if(nextIndex === targetLetters.length - 1) {
-                        showFeedback('🎉 Parabéns! Palavra correta!', true);
-                        updateStars(1);
-                        speak("Palavra correta! Muito bem!");
-                        setTimeout(() => startGame('word'), 2000);
-                    }
-                } else {
-                    showFeedback('😊 Tente novamente!', false);
-                    speak("Essa não é a letra correta");
+                // Verifica se completou
+                if(nextIndex === targetLetters.length - 1) {
+                    showFeedback('🎉 Parabéns! Palavra correta!', true);
+                    updateStars(1);
+                    setTimeout(() => startGame('word'), 2000);
                 }
+            } else {
+                showFeedback('😊 Tente novamente!', false);
+                speak("Essa não é a letra correta");
+                updateStars(-1);
             }
         }
+    }
 
-        function initShadowGame() {
-            const items = ['🐱', '🚗', '🏠', '🍎'];
-            const content = document.getElementById('content');
-            content.innerHTML = '<h2>Arraste os itens para suas sombras:</h2>';
+    function initShadowGame() {
+        const items = ['🐱', '🚗', '🏠', '🍎'];
+        const content = document.getElementById('content');
+        content.innerHTML = '<h2>Arraste os itens para suas sombras:</h2>';
 
-            // Áreas de soltar primeiro
-            content.innerHTML += '<div class="shadow-container">' +
-                shuffle(items).map(item => `
+        // Áreas de soltar primeiro
+        content.innerHTML += '<div class="shadow-container">' +
+            shuffle(items).map(item => `
             <div class="shadow-slot"
                  data-expected="${item}"
                  ondrop="dropShadow(event, '${item}')"
@@ -856,9 +949,9 @@
             </div>
         `).join('') + '</div>';
 
-            // Itens arrastáveis depois
-            content.innerHTML += '<div class="shadow-container">' +
-                shuffle(items).map(item => `
+        // Itens arrastáveis depois
+        content.innerHTML += '<div class="shadow-container">' +
+            shuffle(items).map(item => `
             <div class="shadow-item"
                  draggable="true"
                  ondragstart="startDrag(event, '${item}')"
@@ -867,73 +960,75 @@
             </div>
         `).join('') + '</div>';
 
-            window.shadowGameState = {
-                correctMatches: 0,
-                totalItems: items.length
-            };
+        window.shadowGameState = {
+            correctMatches: 0,
+            totalItems: items.length
+        };
 
-            speak("Arraste os itens para suas figuras identicas");
+        speak("Arraste os itens para suas figuras identicas");
 
-        }
+    }
 
-        let draggedItem = null;
+    let draggedItem = null;
 
-        function startDrag(ev, emoji) {
-            draggedItem = emoji;
-            ev.target.classList.add('dragging');
-            ev.dataTransfer.setData("text/plain", emoji);
-        }
+    function startDrag(ev, emoji) {
+        draggedItem = emoji;
+        ev.target.classList.add('dragging');
+        ev.dataTransfer.setData("text/plain", emoji);
+    }
 
-        function endDrag(ev) {
-            ev.target.classList.remove('dragging');
-        }
+    function endDrag(ev) {
+        ev.target.classList.remove('dragging');
+    }
 
-        function allowDrop(ev) {
-            ev.preventDefault();
-        }
+    function allowDrop(ev) {
+        ev.preventDefault();
+    }
 
-        function dropShadow(ev, expectedEmoji) {
-            ev.preventDefault();
-            const slot = ev.target.closest('.shadow-slot');
+    function dropShadow(ev, expectedEmoji) {
+        ev.preventDefault();
+        const slot = ev.target.closest('.shadow-slot');
 
-            if (draggedItem === expectedEmoji) {
-                slot.innerHTML = `<div style="font-size:80px">${draggedItem}</div>`;
-                slot.classList.add('shadow-match');
-                slot.classList.remove('shadow-slot');
-                window.shadowGameState.correctMatches++;
+        if (draggedItem === expectedEmoji) {
+            slot.innerHTML = `<div style="font-size:80px">${draggedItem}</div>`;
+            slot.classList.add('shadow-match');
+            slot.classList.remove('shadow-slot');
+            window.shadowGameState.correctMatches++;
 
-                if(window.shadowGameState.correctMatches === window.shadowGameState.totalItems) {
-                    updateStars(1);
-                    showFeedback('🎉 Parabéns! Todas sombras combinadas!', true);
-                    setTimeout(() => startGame('shadows'), 2000);
-                }
-            } else {
-                slot.classList.add('shadow-mismatch');
-                setTimeout(() => slot.classList.remove('shadow-mismatch'), 1000);
+            if(window.shadowGameState.correctMatches === window.shadowGameState.totalItems) {
+                updateStars(1);
+                showFeedback('🎉 Parabéns! Todas sombras combinadas!', true);
+                setTimeout(() => startGame('shadows'), 2000);
             }
-
-            draggedItem = null;
+        } else {
+            slot.classList.add('shadow-mismatch');
+            setTimeout(() => slot.classList.remove('shadow-mismatch'), 1000);
+            speak('Essa não é a mesma figura, você perdeu uma estrela')
+            updateStars(-1);
         }
 
-        // Jogo 2: Quebra-Cabeça Numérico
-        function initPuzzleGame() {
-            window.puzzleGameState = {
-                selectedNumber: null,
-                correctMatches: 0,
-                totalPairs: 5
-            };
+        draggedItem = null;
+    }
 
-            const content = document.getElementById('content');
-            content.innerHTML = '<h2>Combine os números com a quantidade correta:</h2>';
+    // Jogo 2: Quebra-Cabeça Numérico
+    function initPuzzleGame() {
+        window.puzzleGameState = {
+            selectedNumber: null,
+            correctMatches: 0,
+            totalPairs: 5
+        };
 
-            // Gera números aleatórios de 1 a 10
-            const numbers = shuffle([...Array(10)].map((_, i) => i + 1)).slice(0, 5);
+        const content = document.getElementById('content');
+        content.innerHTML = '<h2>Combine os números com a quantidade correta:</h2>';
 
-            // Define os emojis disponíveis
-            const emojis = ['🍎', '⭐', '🎈', '🐱', '🚗', '🎮', '🍕', '🐶', '🌺', '🎨'];
+        // Gera números aleatórios de 1 a 10
+        const numbers = shuffle([...Array(10)].map((_, i) => i + 1)).slice(0, 5);
 
-            // Container para os números
-            content.innerHTML += `
+        // Define os emojis disponíveis
+        const emojis = ['🍎', '⭐', '🎈', '🐱', '🚗', '🎮', '🍕', '🐶', '🌺', '🎨'];
+
+        // Container para os números
+        content.innerHTML += `
         <div class="numbers-container">
             ${numbers.map(num => `
                 <div class="puzzle-piece number-piece"
@@ -944,8 +1039,8 @@
             `).join('')}
         </div>`;
 
-            // Container para os grupos de emojis
-            content.innerHTML += `
+        // Container para os grupos de emojis
+        content.innerHTML += `
         <div class="quantities-container">
             ${shuffle(numbers).map(num => `
                 <div class="puzzle-piece emoji-piece"
@@ -960,79 +1055,79 @@
             `).join('')}
         </div>`;
 
-            speak(`Conte o número de figuras e combine os números com a quantidade correta de emojis`);
+        speak(`Conte o número de figuras e combine os números com a quantidade correta de emojis`);
 
+    }
+
+    function selectNumber(element, number) {
+        // Limpa seleção anterior
+        document.querySelectorAll('.number-piece').forEach(piece => {
+            piece.classList.remove('selected');
+        });
+
+        // Seleciona o novo número
+        element.classList.add('selected');
+        window.puzzleGameState.selectedNumber = number;
+    }
+
+    function matchQuantity(element, quantity) {
+        if (window.puzzleGameState.selectedNumber === null) {
+            showFeedback('Selecione um número primeiro!', false);
+            return;
         }
 
-        function selectNumber(element, number) {
-            // Limpa seleção anterior
-            document.querySelectorAll('.number-piece').forEach(piece => {
+        if (quantity === window.puzzleGameState.selectedNumber) {
+            // Par correto encontrado
+            element.classList.add('matched');
+            document.querySelector(`.number-piece[data-number="${quantity}"]`).classList.add('matched');
+            window.puzzleGameState.correctMatches++;
+            showFeedback('🎯 Combinação correta!', true);
+
+            // Verifica se completou todos os pares
+            if (window.puzzleGameState.correctMatches === window.puzzleGameState.totalPairs) {
+                updateStars(1);
+                showFeedback('🎉 Parabéns! Você completou o quebra-cabeça!', true);
+                setTimeout(() => startGame('puzzle'), 2000);
+            }
+        } else {
+            showFeedback('❌ Tente novamente!', false);
+            element.classList.add('wrong');
+            setTimeout(() => {
+                element.classList.remove('wrong');
+            }, 500);
+        }
+
+        // Limpa a seleção após cada tentativa
+        window.puzzleGameState.selectedNumber = null;
+        document.querySelectorAll('.number-piece').forEach(piece => {
+            if (!piece.classList.contains('matched')) {
                 piece.classList.remove('selected');
-            });
-
-            // Seleciona o novo número
-            element.classList.add('selected');
-            window.puzzleGameState.selectedNumber = number;
-        }
-
-        function matchQuantity(element, quantity) {
-            if (window.puzzleGameState.selectedNumber === null) {
-                showFeedback('Selecione um número primeiro!', false);
-                return;
             }
+        });
+    }
 
-            if (quantity === window.puzzleGameState.selectedNumber) {
-                // Par correto encontrado
-                element.classList.add('matched');
-                document.querySelector(`.number-piece[data-number="${quantity}"]`).classList.add('matched');
-                window.puzzleGameState.correctMatches++;
-                showFeedback('🎯 Combinação correta!', true);
+    // Jogo 3: Classificação por Cores
+    function initColorGame() {
+        // Array com várias cores possíveis
+        const allColors = [
+            { name: 'Vermelho', hex: '#FF0000' },
+            { name: 'Azul', hex: '#0000FF' },
+            { name: 'Verde', hex: '#00FF00' },
+            { name: 'Amarelo', hex: '#FFD700' },
+            { name: 'Roxo', hex: '#800080' },
+            { name: 'Laranja', hex: '#FFA500' },
+            { name: 'Rosa', hex: '#FF69B4' },
+            { name: 'Marrom', hex: '#8B4513' }
+        ];
 
-                // Verifica se completou todos os pares
-                if (window.puzzleGameState.correctMatches === window.puzzleGameState.totalPairs) {
-                    updateStars(1);
-                    showFeedback('🎉 Parabéns! Você completou o quebra-cabeça!', true);
-                    setTimeout(() => startGame('puzzle'), 2000);
-                }
-            } else {
-                showFeedback('❌ Tente novamente!', false);
-                element.classList.add('wrong');
-                setTimeout(() => {
-                    element.classList.remove('wrong');
-                }, 500);
-            }
+        // Seleciona 3 cores aleatórias para cada rodada
+        const roundColors = shuffle(allColors).slice(0, 3);
 
-            // Limpa a seleção após cada tentativa
-            window.puzzleGameState.selectedNumber = null;
-            document.querySelectorAll('.number-piece').forEach(piece => {
-                if (!piece.classList.contains('matched')) {
-                    piece.classList.remove('selected');
-                }
-            });
-        }
+        const content = document.getElementById('content');
+        content.innerHTML = '<h2>Arraste as cores para as caixas corretas:</h2>';
 
-        // Jogo 3: Classificação por Cores
-        function initColorGame() {
-            // Array com várias cores possíveis
-            const allColors = [
-                { name: 'Vermelho', hex: '#FF0000' },
-                { name: 'Azul', hex: '#0000FF' },
-                { name: 'Verde', hex: '#00FF00' },
-                { name: 'Amarelo', hex: '#FFD700' },
-                { name: 'Roxo', hex: '#800080' },
-                { name: 'Laranja', hex: '#FFA500' },
-                { name: 'Rosa', hex: '#FF69B4' },
-                { name: 'Marrom', hex: '#8B4513' }
-            ];
-
-            // Seleciona 3 cores aleatórias para cada rodada
-            const roundColors = shuffle(allColors).slice(0, 3);
-
-            const content = document.getElementById('content');
-            content.innerHTML = '<h2>Arraste as cores para as caixas corretas:</h2>';
-
-            // Container para as bolas coloridas no topo
-            content.innerHTML += `
+        // Container para as bolas coloridas no topo
+        content.innerHTML += `
         <div style="margin: 20px; display: flex; justify-content: center; gap: 15px;">
             ${roundColors.map(color => `
                 <div class="color-item"
@@ -1045,8 +1140,8 @@
         </div>
     `;
 
-            // Container para as caixas de classificação
-            content.innerHTML += `
+        // Container para as caixas de classificação
+        content.innerHTML += `
         <div style="margin-top:30px; display: flex; justify-content: center; gap: 20px;">
             ${roundColors.map(color => `
                 <div class="color-bin"
@@ -1060,34 +1155,34 @@
         </div>
     `;
 
-            // Inicializa o estado do jogo
-            window.colorGameState = {
-                totalColors: roundColors.length,
-                correctMatches: 0
-            };
+        // Inicializa o estado do jogo
+        window.colorGameState = {
+            totalColors: roundColors.length,
+            correctMatches: 0
+        };
 
-            speak(`Combine as cores acima nas caixas correspondentes`);
+        speak(`Combine as cores acima nas caixas correspondentes`);
 
-        }
+    }
 
-        // Jogo 4: Estação Meteorológica
-        function initWeatherGame() {
-            const weatherData = [
-                { icon: '☀️', correctItems: ['🕶️', '🎩', '🧴'], title: 'Ensolarado' },
-                { icon: '🌧️', correctItems: ['☂️', '🧥', '🥾'], title: 'Chuvoso' },
-                { icon: '❄️', correctItems: ['🧤', '🧣', '🎿'], title: 'Frio' }
-            ];
+    // Jogo 4: Estação Meteorológica
+    function initWeatherGame() {
+        const weatherData = [
+            { icon: '☀️', correctItems: ['🕶️', '🎩', '🧴'], title: 'Ensolarado' },
+            { icon: '🌧️', correctItems: ['☂️', '🧥', '🥾'], title: 'Chuvoso' },
+            { icon: '❄️', correctItems: ['🧤', '🧣', '🎿'], title: 'Frio' }
+        ];
 
-            const content = document.getElementById('content');
+        const content = document.getElementById('content');
 
-            // Escolhe um clima aleatório
-            const currentWeather = shuffle(weatherData)[0];
+        // Escolhe um clima aleatório
+        const currentWeather = shuffle(weatherData)[0];
 
-            // Cria todas as opções possíveis (corretas + incorretas)
-            const incorrectItems = ['🎸', '📘', '🎈', '🎪', '🎭', '🎨'];
-            const allItems = shuffle([...currentWeather.correctItems, ...shuffle(incorrectItems).slice(0, 3)]);
+        // Cria todas as opções possíveis (corretas + incorretas)
+        const incorrectItems = ['🎸', '📘', '🎈', '🎪', '🎭', '🎨'];
+        const allItems = shuffle([...currentWeather.correctItems, ...shuffle(incorrectItems).slice(0, 3)]);
 
-            content.innerHTML = `
+        content.innerHTML = `
         <h2>Escolha os itens para o clima:</h2>
         <div class="weather-card">
             <div style="font-size:60px">${currentWeather.icon}</div>
@@ -1104,170 +1199,169 @@
         </div>
     `;
 
-            // Adiciona contador de acertos ao estado global
-            window.weatherGameState = {
-                correctCount: 0,
-                totalCorrect: currentWeather.correctItems.length,
-                currentIcon: currentWeather.icon
-            };
+        // Adiciona contador de acertos ao estado global
+        window.weatherGameState = {
+            correctCount: 0,
+            totalCorrect: currentWeather.correctItems.length,
+            currentIcon: currentWeather.icon
+        };
 
-            speak(`Selecione as figuras que você usaria para o clima `+currentWeather.title);
+        speak(`Selecione as figuras que você usaria para o clima `+currentWeather.title);
 
+    }
+
+    function handleWeatherItem(element, item, correctIcon) {
+        if (element.classList.contains('selected')) {
+            return; // Impede selecionar o mesmo item duas vezes
         }
 
-        function handleWeatherItem(element, item, correctIcon) {
-            if (element.classList.contains('selected')) {
-                return; // Impede selecionar o mesmo item duas vezes
-            }
+        const correctItems = {
+            '☀️': ['🕶️', '🎩', '🧴'],
+            '🌧️': ['☂️', '🧥', '🥾'],
+            '❄️': ['🧤', '🧣', '🎿']
+        }[correctIcon];
 
-            const correctItems = {
-                '☀️': ['🕶️', '🎩', '🧴'],
-                '🌧️': ['☂️', '🧥', '🥾'],
-                '❄️': ['🧤', '🧣', '🎿']
-            }[correctIcon];
+        if (correctItems.includes(item)) {
+            element.classList.add('selected');
+            element.style.background = '#C8E6C9';
+            element.style.transform = 'scale(1.1)';
+            element.style.border = '2px solid #4CAF50';
+            showFeedback('✔️ Item correto!', true);
 
-            if (correctItems.includes(item)) {
-                element.classList.add('selected');
-                element.style.background = '#C8E6C9';
-                element.style.transform = 'scale(1.1)';
-                element.style.border = '2px solid #4CAF50';
-                showFeedback('✔️ Item correto!', true);
+            // Incrementa o contador de acertos
+            window.weatherGameState.correctCount++;
 
-                // Incrementa o contador de acertos
-                window.weatherGameState.correctCount++;
-
-                // Verifica se completou todos os itens corretos
-                if (window.weatherGameState.correctCount === window.weatherGameState.totalCorrect) {
-                    updateStars(1);
-                    showFeedback('🎉 Parabéns! Você completou o desafio!', true);
-                    setTimeout(() => startGame('weather'), 2000);
-                }
-            } else {
-                element.style.background = '#FFCDD2';
-                element.style.animation = 'shake 0.5s';
-                showFeedback('❌ Não é para este clima', false);
-                speak("Não é para este clima");
-                setTimeout(() => {
-                    element.style.background = '';
-                    element.style.animation = '';
-                }, 1000);
-            }
-        }
-
-        // Funções de arrastar/soltar genéricas
-        function allowDrop(ev) {
-            ev.preventDefault();
-        }
-
-        function drag(ev) {
-            ev.dataTransfer.setData("text", ev.target.innerHTML);
-        }
-
-        let draggedColor = '';
-
-        function dragColor(ev, color) {
-            draggedColor = color;
-            ev.dataTransfer.setData("text/plain", color);
-            // Adiciona efeito visual durante o arrasto
-            ev.target.style.opacity = '0.5';
-        }
-
-        function dropColor(ev, targetColor) {
-            ev.preventDefault();
-            // Restaura opacidade do item arrastado
-            document.querySelectorAll('.color-item').forEach(item => item.style.opacity = '1');
-
-            const bin = ev.target.closest('.color-bin');
-
-            // Verifica se a caixa já está preenchida
-            if (bin.getAttribute('data-filled') === 'true') {
-                showFeedback('Esta caixa já está preenchida!', false);
-                return;
-            }
-
-            if (draggedColor === targetColor) {
-                bin.style.backgroundColor = draggedColor;
-                bin.setAttribute('data-filled', 'true');
-                window.colorGameState.correctMatches++;
-                showFeedback('🌟 Cor correta!', true);
-
-                // Verifica se todas as cores foram corretamente classificadas
-                if (window.colorGameState.correctMatches === window.colorGameState.totalColors) {
-                    updateStars(1);
-                    showFeedback('🎉 Parabéns! Você completou todas as cores!', true);
-
-                    // Reinicia o jogo após 2 segundos
-                    setTimeout(() => {
-                        startGame('colors');
-                    }, 2000);
-                }
-            } else {
-                showFeedback('😊 Tente outra cor', false);
-                bin.style.animation = 'shake 0.5s';
-                setTimeout(() => {
-                    bin.style.animation = '';
-                }, 500);
-            }
-        }
-
-        function checkWeatherItem(item, correctIcon) {
-            const isValid = {
-                '🕶️': '☀️', '🎩': '☀️',
-                '☂️': '🌧️', '🧥': '🌧️',
-                '🧤': '❄️', '🧣': '❄️'
-            }[item] === correctIcon;
-
-            if(isValid) {
-                showFeedback('🌈 Combinação perfeita!', true);
+            // Verifica se completou todos os itens corretos
+            if (window.weatherGameState.correctCount === window.weatherGameState.totalCorrect) {
                 updateStars(1);
-            } else {
-                showFeedback('💡 Não é para esse clima', false);
+                showFeedback('🎉 Parabéns! Você completou o desafio!', true);
+                setTimeout(() => startGame('weather'), 2000);
+            }
+        } else {
+            element.style.background = '#FFCDD2';
+            element.style.animation = 'shake 0.5s';
+            showFeedback('❌ Não é para este clima', false);
+            speak("Não é para este clima");
+            setTimeout(() => {
+                element.style.background = '';
+                element.style.animation = '';
+            }, 1000);
+        }
+    }
+
+    // Funções de arrastar/soltar genéricas
+    function allowDrop(ev) {
+        ev.preventDefault();
+    }
+
+    function drag(ev) {
+        ev.dataTransfer.setData("text", ev.target.innerHTML);
+    }
+
+    let draggedColor = '';
+
+    function dragColor(ev, color) {
+        draggedColor = color;
+        ev.dataTransfer.setData("text/plain", color);
+        // Adiciona efeito visual durante o arrasto
+        ev.target.style.opacity = '0.5';
+    }
+
+    function dropColor(ev, targetColor) {
+        ev.preventDefault();
+        // Restaura opacidade do item arrastado
+        document.querySelectorAll('.color-item').forEach(item => item.style.opacity = '1');
+
+        const bin = ev.target.closest('.color-bin');
+
+        // Verifica se a caixa já está preenchida
+        if (bin.getAttribute('data-filled') === 'true') {
+            showFeedback('Esta caixa já está preenchida!', false);
+            return;
+        }
+
+        if (draggedColor === targetColor) {
+            bin.style.backgroundColor = draggedColor;
+            bin.setAttribute('data-filled', 'true');
+            window.colorGameState.correctMatches++;
+            showFeedback('🌟 Cor correta!', true);
+
+            // Verifica se todas as cores foram corretamente classificadas
+            if (window.colorGameState.correctMatches === window.colorGameState.totalColors) {
+                updateStars(1);
+                showFeedback('🎉 Parabéns! Você completou todas as cores!', true);
+
+                // Reinicia o jogo após 2 segundos
+                setTimeout(() => {
+                    startGame('colors');
+                }, 2000);
+            }
+        } else {
+            showFeedback('😊 Tente outra cor', false);
+            bin.style.animation = 'shake 0.5s';
+            setTimeout(() => {
+                bin.style.animation = '';
+            }, 500);
+        }
+    }
+
+    function checkWeatherItem(item, correctIcon) {
+        const isValid = {
+            '🕶️': '☀️', '🎩': '☀️',
+            '☂️': '🌧️', '🧥': '🌧️',
+            '🧤': '❄️', '🧣': '❄️'
+        }[item] === correctIcon;
+
+        if(isValid) {
+            showFeedback('🌈 Combinação perfeita!', true);
+            updateStars(1);
+        } else {
+            showFeedback('💡 Não é para esse clima', false);
+        }
+    }
+
+    function updateStars(change) {
+        const newStars = Math.max(0, stars + change);
+        if(newStars !== stars) {
+            stars = newStars;
+            localStorage.setItem('stars', stars.toString());
+            document.getElementById('stars-count').textContent = stars;
+
+            if(change > 0) {
+                speak(`Muito bem!`);
+            } else if(change < 0 && stars > 0) {
+                speak('Não desista! Continue tentando!');
             }
         }
+    }
 
-        function updateStars(change) {
-            const newStars = Math.max(0, stars + change);
-            if(newStars !== stars) {
-                stars = newStars;
-                localStorage.setItem('stars', stars.toString());
-                document.getElementById('stars-count').textContent = stars;
-                
-                if(change > 0) {
-                    speak(`Muito bem!`);
-                } else if(change < 0 && stars > 0) {
-                    speak('Não desista! Continue tentando!');
-                }
-            }
-        }
+    function showFeedback(message, isCorrect) {
+        const feedback = document.getElementById('feedback');
+        feedback.textContent = message;
+        feedback.style.color = isCorrect ? '#2E7D32' : '#C62828';
+    }
 
-        function showFeedback(message, isCorrect) {
-            const feedback = document.getElementById('feedback');
-            feedback.textContent = message;
-            feedback.style.color = isCorrect ? '#2E7D32' : '#C62828';
-        }
+    function speak(text) {
+        if(speechSynth.speaking) speechSynth.cancel();
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'pt-BR';
+        utterance.rate = 0.9;
+        speechSynth.speak(utterance);
+    }
 
-        function speak(text) {
-            if(speechSynth.speaking) speechSynth.cancel();
-            const utterance = new SpeechSynthesisUtterance(text);
-            utterance.lang = 'pt-BR';
-            utterance.rate = 0.9;
-            speechSynth.speak(utterance);
-        }
+    function shuffle(array) {
+        return array.sort(() => Math.random() - 0.5);
+    }
 
-        function shuffle(array) {
-            return array.sort(() => Math.random() - 0.5);
-        }
-
-        function getEmojiName(emoji) {
-            const names = {
-                '🍎': 'maçã', '⭐': 'estrela', '🐻': 'urso',
-                '🎈': 'balão', '🍪': 'biscoito', '🐶': 'cachorro',
-                '🍉': 'melancia', '🚗': 'carro', '🎮': 'videogame',
-                '🍕': 'pizza', '🏀': 'bola', '🐠': 'peixe',
-                '🍩': 'rosquinha', '🚂': 'trem', '🌻': 'girassol'
-            };
-            return names[emoji] || 'objeto';
-        }
-    </script>
+    function getEmojiName(emoji) {
+        const names = {
+            '🍎': 'maçã', '⭐': 'estrela', '🐻': 'urso',
+            '🎈': 'balão', '🍪': 'biscoito', '🐶': 'cachorro',
+            '🍉': 'melancia', '🚗': 'carro', '🎮': 'videogame',
+            '🍕': 'pizza', '🏀': 'bola', '🐠': 'peixe',
+            '🍩': 'rosquinha', '🚂': 'trem', '🌻': 'girassol'
+        };
+        return names[emoji] || 'objeto';
+    }
+</script>
 </body>
-</html>
