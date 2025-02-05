@@ -1364,16 +1364,58 @@
         content.innerHTML = '<h2>Classifique os itens em suas categorias:</h2>';
 
         const categories = [
-            { name: 'Animais', icon: '🐶', items: ['🐱','🐙','🐶','🐷','🦊'] },
-            { name: 'Frutas', icon: '🍎', items: ['🍎','🍌','🍇','🍊','🥝'] },
-            { name: 'Veículos', icon: '🚗', items: ['🚗','✈️','🚲','🚌','⛵'] }
+            {
+                name: 'Animais',
+                icon: '🐶',
+                items: [
+                    '🐱','🐙','🐶','🐷','🦊',
+                    '🦁','🐯','🐺','🐸','🦓',
+                    '🦒','🐵','🐼','🐹','🐰',
+                    '🐻','🐨','🐔','🦆','🦅',
+                    '🦉','🐢','🐍','🦋','🦇',
+                    '🦔','🦣','🐊','🐛','🦕',
+                    '🦖'
+                ]
+            },
+            {
+                name: 'Frutas',
+                icon: '🍎',
+                items: [
+                    '🍎','🍌','🍇','🍊','🥝',
+                    '🍐','🍍','🍑','🍒','🍉',
+                    '🍓','🥭','🍅','🍏','🍋',
+                    '🥥','🫐'
+                ]
+            },
+            {
+                name: 'Veículos',
+                icon: '🚗',
+                items: [
+                    '🚗','✈️','🚲','🚌','⛵',
+                    '🚕','🚙','🚎','🏎️','🚓',
+                    '🚑','🚒','🚐','🛵','🏍️',
+                    '🚂','🚆','🚇','🚝','🚞',
+                    '🚊','🛩️','🚤','⛴️','🚢',
+                    '🛥️','🛳️','🚀','🚁','🚡',
+                    '🚠','🚟','🦼'
+                ]
+            }
         ];
 
         // Monta array de todos os itens de todas as categorias
         const allCategoryItems = [];
         categories.forEach(cat => {
-            // Cada cat tem: { name, icon, items: [...] }
-            allCategoryItems.push(...cat.items.map(i => ({ emoji: i, category: cat.name })));
+            // Copia o array de itens e embaralha
+            const shuffledItems = [...cat.items];
+            shuffle(shuffledItems);
+
+            // Seleciona apenas 5
+            const fiveItems = shuffledItems.slice(0, 5);
+
+            // Monta o array final, adicionando categoria
+            fiveItems.forEach(item => {
+                allCategoryItems.push({ emoji: item, category: cat.name });
+            });
         });
 
         // HTML principal
@@ -1418,6 +1460,10 @@
         };
 
         speak("Arraste cada item para a categoria correta");
+    }
+
+    function shuffle(array) {
+        return array.sort(() => Math.random() - 0.5);
     }
 
     let draggedCategoryItem = { emoji: '', category: '', element: null };
