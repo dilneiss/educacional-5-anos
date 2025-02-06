@@ -1892,38 +1892,14 @@
         const chosenItems = [];
         categories.forEach(cat => {
             const shuffled = shuffle(cat.items);
-            const selected = shuffled.slice(0,5);
+            const selected = shuffled.slice(0,10);
             // push com { emoji, category: cat.name }
             selected.forEach( em => {
                 chosenItems.push({ emoji: em, category: cat.name });
             });
         });
-        // 3) Precisamos de extras, mas apenas do *pool* de categorias.
-        //    Removemos do pool os 15 já usados e selecionamos +5
-        const usedSet = new Set(chosenItems.map(obj => obj.emoji));
-        const remainingPool = allCategoryData.filter(obj => !usedSet.has(obj.emoji));
-        const extra5 = shuffle(remainingPool).slice(0,5);
-        // 4) Juntamos
-        const finalItems = chosenItems.concat(extra5);
 
-        // Evitar repetição exata do jogo anterior
-        const currentSet=JSON.stringify(finalItems.map(i=>i.emoji).sort());
-        if(currentSet === JSON.stringify(lastCategoriesSet?.map(i=>i.emoji).sort())){
-            // Se "igual" ao anterior, embaralha novamente (caso raro)
-            finalItems.length=0;
-            // re-pegar
-            const chosenItemsAgain=[];
-            categories.forEach(cat => {
-                const sh=shuffle(cat.items);
-                const sel=sh.slice(0,5);
-                sel.forEach(em => chosenItemsAgain.push({ emoji: em, category: cat.name }));
-            });
-            const used2 = new Set(chosenItemsAgain.map(o => o.emoji));
-            const remain2 = allCategoryData.filter(o => !used2.has(o.emoji));
-            const extraAgain = shuffle(remain2).slice(0,5);
-            finalItems.push(...chosenItemsAgain, ...extraAgain);
-        }
-        lastCategoriesSet = finalItems; // para referência
+        lastCategoriesSet = chosenItems; // para referência
 
         // Montamos as bins
         let html = `<div class="category-game-container" style="margin-bottom:5px;">`;
@@ -1942,7 +1918,7 @@
 
         // Montamos a lista de itens
         html += `<div class="category-game-container" style="flex-wrap:wrap;" id="cat-items-container">`;
-        const shuffledFinal = shuffle(finalItems);
+        const shuffledFinal = shuffle(chosenItems);
         shuffledFinal.forEach(obj=>{
             html += `
         <div class="category-item"
@@ -2016,19 +1992,14 @@
         window.categoryGameState.selectedItem = null;
         window.categoryGameState.selectedElement = null;
 
-        if (window.categoryGameState.placedCount === window.categoryGameState.finalCount) {
-            if (window.categoryGameState.correct === window.categoryGameState.totalItems) {
-                showFeedback("Categorias completadas!", true);
-                updateStars(1);
-                locked = true;
-                // Dê um tempinho para exibir a mensagem e depois recomeçar
-                setTimeout(() => {
-                    scheduleReplayGame("categories");
-                }, 1200);
-            } else {
-                showFeedback("Alguns itens estão em categorias erradas. Verifique novamente!", false);
-                speak("Alguns itens ainda estão errados. Corrija antes de terminar.");
-            }
+        if (window.categoryGameState.correct === window.categoryGameState.totalItems) {
+            showFeedback("Categorias completadas!", true);
+            updateStars(1);
+            locked = true;
+            // Dê um tempinho para exibir a mensagem e depois recomeçar
+            setTimeout(() => {
+                scheduleReplayGame("categories");
+            }, 1200);
         }
     }
 
