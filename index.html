@@ -479,6 +479,12 @@
             animation: shake 0.5s;
         }
 
+        /* Destaque forte para o item selecionado */
+        .selected {
+            outline: 3px dashed #76ff03;
+            outline-offset: -3px;
+        }
+
         .numbers-container {
             display: flex;
             justify-content: center;
@@ -618,6 +624,10 @@
         }
         .weather-item:hover {
             background: #e0e0e0;
+        }
+        .weather-correct {
+            background: #c8e6c9 !important;
+            border: 2px solid #4caf50;
         }
 
         .category-game-container {
@@ -1535,9 +1545,12 @@
         }
     }
 
+    /*
+     * SOMBRAS: pode clicar sombra ou emoji primeiro. Após acerto, remover selected + destacar só o verde.
+     */
     function initShadowGame() {
         const content = document.getElementById("content");
-        content.innerHTML = "<h2>Toque em um emoji e depois em sua sombra:</h2>";
+        content.innerHTML = "<h2>Toque em uma sombra ou em um emoji, depois no par correto:</h2>";
         const allShadowEmojis = Object.values(emojiDatabase).flat().map(o => o.emoji);
         let uniqueEmojis = Array.from(new Set(allShadowEmojis));
         let chosenEmojis = shuffle(uniqueEmojis).slice(0, 4);
@@ -1550,13 +1563,13 @@
             <div class="shadow-column" id="shadow-slots">
               ${chosenEmojis.map(e=>`
                 <div class="shadow-slot" data-expected="${e}"
-                     onclick="selectShadowSlot(this,'${e}')"></div>
+                     onclick="handleShadowClick(this,'slot','${e}')"></div>
               `).join("")}
             </div>
             <div class="shadow-column" id="shadow-items">
               ${shuffle(chosenEmojis).map(e=>`
                 <div class="shadow-item"
-                     onclick="selectShadowItem(this,'${e}')">
+                     onclick="handleShadowClick(this,'item','${e}')">
                   ${e}
                 </div>
               `).join("")}
@@ -1564,57 +1577,69 @@
           </div>
         `;
         window.shadowGameState = {
-            correctMatches:0,
-            totalItems: chosenEmojis.length,
-            selectedEmoji: null,
-            selectedElement: null
+            selected: null
         };
-        speak("Toque em um emoji e depois na sua sombra correspondente");
-    }
-    function selectShadowItem(el, emoji) {
-        if(locked) return;
-        if(window.shadowGameState.selectedElement){
-            window.shadowGameState.selectedElement.style.opacity = "1";
-        }
-        window.shadowGameState.selectedEmoji = emoji;
-        window.shadowGameState.selectedElement = el;
-        el.style.opacity = "0.5";
-    }
-    function selectShadowSlot(slotEl, expectedEmoji) {
-        if(locked) return;
-        const selected = window.shadowGameState.selectedEmoji;
-        const selectedEl = window.shadowGameState.selectedElement;
-        if(!selected) return;
-        if(selected === expectedEmoji){
-            slotEl.classList.add("shadow-match");
-            if(selectedEl) selectedEl.style.display = "none";
-            window.shadowGameState.correctMatches++;
-            showFeedback("Correto!", true);
-            if(window.shadowGameState.correctMatches === window.shadowGameState.totalItems){
-                locked = true;
-                updateStars(1);
-                scheduleReplayGame("shadows");
-            }
-        } else {
-            slotEl.classList.add("shadow-mismatch");
-            setTimeout(()=> slotEl.classList.remove("shadow-mismatch"),1000);
-            speak("Ops! Não é a sombra certa");
-            updateStars(-1);
-            showFeedback("Sombra incorreta!", false);
-        }
-        if(selectedEl) selectedEl.style.opacity = "1";
-        window.shadowGameState.selectedEmoji=null;
-        window.shadowGameState.selectedElement=null;
+        speak("Clique primeiro na sombra ou no emoji, depois selecione seu par.");
     }
 
+    function handleShadowClick(el, type, emoji) {
+        if(locked) return;
+        const st = window.shadowGameState;
+        if(!st.selected) {
+            st.selected = { element: el, type, emoji };
+            el.classList.add("selected");
+            return;
+        }
+        if(st.selected.element === el) {
+            el.classList.remove("selected");
+            st.selected = null;
+            return;
+        }
+        const isMatch = (st.selected.emoji === emoji) && (st.selected.type !== type);
+        const previouslySelectedEl = st.selected.element;
+        if(isMatch) {
+            previouslySelectedEl.classList.remove("selected");
+            previouslySelectedEl.classList.add("shadow-match");
+            el.classList.add("shadow-match");
+            el.classList.remove("selected");
+            showFeedback("Correto!", true);
+            speak("Muito bem!");
+            checkAllShadowMatched();
+        } else {
+            previouslySelectedEl.classList.add("shadow-mismatch");
+            el.classList.add("shadow-mismatch");
+            speak("Ops! Não é o par certo");
+            showFeedback("Não é o par certo!", false);
+            updateStars(-1);
+            setTimeout(()=>{
+                previouslySelectedEl.classList.remove("shadow-mismatch","selected");
+                el.classList.remove("shadow-mismatch","selected");
+            },800);
+        }
+        st.selected = null;
+    }
+
+    function checkAllShadowMatched() {
+        const slots = document.querySelectorAll(".shadow-slot");
+        const matchedSlots = Array.from(slots).filter(s => s.classList.contains("shadow-match"));
+        if(matchedSlots.length === slots.length) {
+            locked = true;
+            updateStars(1);
+            scheduleReplayGame("shadows");
+        }
+    }
+
+    /*
+     * QUEBRA-CABEÇA: pode clicar número ou quantidade primeiro. Após acerto, remover selected e deixar só matched.
+     */
     function initPuzzleGame() {
         window.puzzleGameState = {
-            selectedNumber:null,
+            selected: null,
             correctMatches:0,
             totalPairs:5
         };
         const content = document.getElementById("content");
-        content.innerHTML = "<h2>Combine os números com a quantidade:</h2>";
+        content.innerHTML = "<h2>Combine os números com a quantidade (em qualquer ordem):</h2>";
         let randomNums = shuffle([...Array(9)].map((_,i)=> i+1)).slice(0,5);
         while(JSON.stringify(randomNums)===JSON.stringify(lastPuzzleSet)){
             randomNums = shuffle([...Array(9)].map((_,i)=> i+1)).slice(0,5);
@@ -1625,8 +1650,8 @@
           <div class="numbers-container">
             ${randomNums.map(num=>`
               <div class="puzzle-piece number-piece"
-                   data-number="${num}"
-                   onclick="selectNumber(this,${num})">
+                   data-num="${num}"
+                   onclick="handlePuzzleClick(this,'number',${num})">
                 ${num}
               </div>
             `).join("")}
@@ -1634,8 +1659,8 @@
           <div class="quantities-container">
             ${shuffle(randomNums).map(num=>`
               <div class="puzzle-piece emoji-piece"
-                   data-number="${num}"
-                   onclick="matchQuantity(this,${num})">
+                   data-num="${num}"
+                   onclick="handlePuzzleClick(this,'emoji',${num})">
                 <div class="puzzle-emoji-grid">
                   ${Array(num).fill(emojis[num-1]).map(e=>`<div class="emoji-cell">${e}</div>`).join("")}
                 </div>
@@ -1645,43 +1670,52 @@
         `;
         speak("Conte o número de figuras e combine com o número correto");
     }
-    function selectNumber(el, number){
+
+    function handlePuzzleClick(el, type, num) {
         if(locked) return;
-        document.querySelectorAll(".number-piece").forEach(p=> p.classList.remove("selected"));
-        el.classList.add("selected");
-        window.puzzleGameState.selectedNumber = number;
-    }
-    function matchQuantity(el, quantity){
-        if(locked) return;
-        if(window.puzzleGameState.selectedNumber===null){
-            showFeedback("Selecione um número primeiro!", false);
+        const st = window.puzzleGameState;
+        if(!st.selected) {
+            el.classList.add("selected");
+            st.selected = { el, type, num };
             return;
         }
-        if(quantity === window.puzzleGameState.selectedNumber){
+        if(st.selected.el === el) {
+            el.classList.remove("selected");
+            st.selected = null;
+            return;
+        }
+        const isPair = (st.selected.num === num) && (st.selected.type !== type);
+        if(isPair) {
+            st.selected.el.classList.remove("selected");
+            st.selected.el.classList.add("matched");
             el.classList.add("matched");
-            document.querySelector(`.number-piece[data-number="${quantity}"]`).classList.add("matched");
-            window.puzzleGameState.correctMatches++;
+            el.classList.remove("selected");
+            st.correctMatches++;
             showFeedback("Combinação correta!", true);
-            if(window.puzzleGameState.correctMatches===window.puzzleGameState.totalPairs){
+            if(st.correctMatches === st.totalPairs) {
                 locked = true;
                 updateStars(1);
                 showFeedback("Você completou o quebra-cabeça!", true);
                 scheduleReplayGame("puzzle");
             }
+            st.selected = null;
         } else {
             showFeedback("Tente novamente!", false);
-            el.classList.add("wrong");
-            setTimeout(()=> el.classList.remove("wrong"),500);
+            speak("Não combinam!");
             updateStars(-1);
+            st.selected.el.classList.add("wrong");
+            el.classList.add("wrong");
+            setTimeout(()=>{
+                st.selected.el.classList.remove("wrong","selected");
+                el.classList.remove("wrong");
+            },600);
+            st.selected = null;
         }
-        window.puzzleGameState.selectedNumber = null;
-        document.querySelectorAll(".number-piece").forEach(p=>{
-            if(!p.classList.contains("matched")){
-                p.classList.remove("selected");
-            }
-        });
     }
 
+    /*
+     * CORES: pode clicar primeiro na cor ou na caixa. Após acerto, remover destaque de selecionado.
+     */
     function initColorGame() {
         const allColors = [
             { name: "Vermelho", hex:"#FF0000" },
@@ -1694,7 +1728,7 @@
             { name: "Marrom",   hex:"#8B4513" },
         ];
         const content = document.getElementById("content");
-        content.innerHTML = "<h2>Toque em uma cor e depois na caixa correta:</h2>";
+        content.innerHTML = "<h2>Toque em uma cor ou em uma caixa, depois escolha seu par correspondente:</h2>";
         let roundColors = shuffle(allColors).slice(0,3);
         while(JSON.stringify(roundColors)===JSON.stringify(lastColorsSet)){
             roundColors = shuffle(allColors).slice(0,3);
@@ -1706,72 +1740,81 @@
               <div class="color-item"
                    style="background:${c.hex}"
                    data-colorname="${c.name}"
-                   onclick="selectColorItem(this,'${c.hex}')"></div>
+                   onclick="handleColorClick(this,'color','${c.hex}')"></div>
             `).join("")}
           </div>
           <div class="color-area" id="colorBins">
             ${roundColors.map(c=>`
               <div class="color-bin"
                    style="border-color:${c.hex}"
-                   data-targetcolor="${c.hex}"
+                   data-color="${c.hex}"
                    data-filled="false"
-                   onclick="placeColor(this,'${c.hex}')">
+                   onclick="handleColorClick(this,'bin','${c.hex}')">
                 <span style="color:${c.hex}">${c.name}</span>
               </div>
             `).join("")}
           </div>
         `;
         window.colorGameState = {
-            totalColors: roundColors.length,
+            selected: null,
             correctMatches:0,
-            selectedColor:null,
-            selectedElement:null
+            total: roundColors.length
         };
-        speak("Combine as cores nas caixas correspondentes");
+        speak("Combine as cores com as caixas correspondentes");
     }
-    function selectColorItem(el, color){
+
+    function handleColorClick(el, type, colorHex){
         if(locked) return;
-        if(window.colorGameState.selectedElement){
-            window.colorGameState.selectedElement.style.opacity="1";
-        }
-        window.colorGameState.selectedColor = color;
-        window.colorGameState.selectedElement = el;
-        el.style.opacity="0.5";
-    }
-    function placeColor(binEl, targetColor){
-        if(locked) return;
-        const selected = window.colorGameState.selectedColor;
-        const selectedEl = window.colorGameState.selectedElement;
-        if(!selected) return;
-        if(binEl.getAttribute("data-filled")==="true"){
-            showFeedback("Esta caixa já está preenchida!", false);
-            if(selectedEl) selectedEl.style.opacity="1";
-            window.colorGameState.selectedColor=null;
-            window.colorGameState.selectedElement=null;
+        const st = window.colorGameState;
+        if(!st.selected) {
+            el.classList.add("selected");
+            st.selected = { el, type, colorHex };
             return;
         }
-        if(selected===targetColor){
-            binEl.style.backgroundColor = selected;
-            binEl.setAttribute("data-filled","true");
-            window.colorGameState.correctMatches++;
-            showFeedback("Cor correta!", true);
-            if(selectedEl) selectedEl.style.display="none";
-            if(window.colorGameState.correctMatches===window.colorGameState.totalColors){
-                locked=true;
+        if(st.selected.el === el) {
+            el.classList.remove("selected");
+            st.selected = null;
+            return;
+        }
+        if(st.selected.colorHex === colorHex && st.selected.type !== type) {
+            if(type === "bin") {
+                el.classList.remove("selected");
+                st.selected.el.classList.remove("selected");
+                el.style.backgroundColor = colorHex;
+                el.setAttribute("data-filled","true");
+                st.correctMatches++;
+                showFeedback("Cor correta!", true);
+                speak("Muito bem!");
+                st.selected.el.style.display = "none";
+            } else {
+                st.selected.el.classList.remove("selected");
+                el.classList.remove("selected");
+                st.selected.el.style.backgroundColor = st.selected.colorHex;
+                st.selected.el.setAttribute("data-filled","true");
+                st.correctMatches++;
+                showFeedback("Cor correta!", true);
+                speak("Muito bem!");
+                el.style.display = "none";
+            }
+            st.selected = null;
+            if(st.correctMatches === st.total) {
+                locked = true;
                 updateStars(1);
                 showFeedback("Cores completas!", true);
                 scheduleReplayGame("colors");
             }
         } else {
             showFeedback("Tente outra cor", false);
-            binEl.style.animation="shake 0.5s";
-            setTimeout(()=> binEl.style.animation="",500);
-            updateStars(-1);
             speak("Cor incorreta, tente novamente");
+            updateStars(-1);
+            st.selected.el.classList.add("wrong");
+            el.classList.add("wrong");
+            setTimeout(()=>{
+                st.selected.el.classList.remove("wrong","selected");
+                el.classList.remove("wrong","selected");
+            },600);
+            st.selected = null;
         }
-        if(selectedEl) selectedEl.style.opacity="1";
-        window.colorGameState.selectedColor=null;
-        window.colorGameState.selectedElement=null;
     }
 
     function initWeatherGame(){
@@ -1819,6 +1862,7 @@
         }[correctIcon];
         if(el.classList.contains("selected")) return;
         if(correctItems.includes(item)){
+            el.classList.add("weather-correct");
             el.classList.add("selected");
             showFeedback("Item correto!", true);
             window.weatherGameState.correctCount++;
@@ -1920,6 +1964,7 @@
     function selectCategoryItem(el){
         if(locked) return;
         if(window.categoryGameState.selectedElement){
+            window.categoryGameState.selectedElement.classList.remove("selected");
             window.categoryGameState.selectedElement.style.opacity="1";
         }
         window.categoryGameState.selectedItem={
@@ -1927,6 +1972,7 @@
             category: el.getAttribute("data-cat")
         };
         window.categoryGameState.selectedElement=el;
+        el.classList.add("selected");
         el.style.opacity="0.5";
     }
     function placeInCategory(binEl, targetCategory) {
@@ -1954,7 +2000,10 @@
             speak("Essa não é a categoria certa");
             updateStars(-1);
         }
-        if (selEl) selEl.style.opacity = "1";
+        if (selEl) {
+            selEl.classList.remove("selected");
+            selEl.style.opacity = "1";
+        }
         window.categoryGameState.selectedItem = null;
         window.categoryGameState.selectedElement = null;
         if (window.categoryGameState.correct === window.categoryGameState.totalItems) {
