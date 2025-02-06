@@ -829,13 +829,32 @@
             max-width: 60px;
             max-height: 60px;
         }
-        #congratsModal .balloons {
+        #congratsModal {
             text-align: center;
-            margin-bottom: 10px;
+            background: linear-gradient(to bottom, #fff9c4, #fff176);
+            animation: pop 0.5s ease-in-out;
         }
+        #congratsModal h2 {
+            font-size: 2rem;
+            color: #d32f2f;
+        }
+        #congratsModal p#congratsText {
+            font-size: 1.2rem;
+            color: #333;
+        }
+        @keyframes pop {
+            0% { transform: scale(0.7); }
+            100% { transform: scale(1); }
+        }
+        /* Animação para os balões flutuarem */
         #congratsModal .balloons img {
-            width: 60px;
-            margin: 0 3px;
+            width: 70px;
+            margin: 0 5px;
+            animation: float 2s ease-in-out infinite alternate;
+        }
+        @keyframes float {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-15px); }
         }
     </style>
 </head>
@@ -853,16 +872,27 @@
 
 <!-- MODAL PARABÉNS -->
 <div class="modal-base" id="congratsModal">
-    <h2>Parabéns!</h2>
+    <!-- Mude "Parabéns!" para algo mais chamativo -->
+    <h2>Uau, Parabéns!</h2>
+
+    <!-- Ajuste a div de balões para ter a animação e ficar maior -->
     <div class="balloons">
-        <img src="https://cdn-icons-png.flaticon.com/512/2553/2553619.png" alt="Balloon">
-        <img src="https://cdn-icons-png.flaticon.com/512/2553/2553619.png" alt="Balloon">
-        <img src="https://cdn-icons-png.flaticon.com/512/2553/2553619.png" alt="Balloon">
+        <img src="img/balao.png" alt="Balloon">
+        <img src="img/balao.png" alt="Balloon" style="animation-duration:2.2s;">
+        <img src="img/balao.png" alt="Balloon" style="animation-duration:1.8s;">
     </div>
+
+    <!-- Deixe o texto centralizado e com fonte maior -->
     <p id="congratsText">Você atingiu sua meta de estrelas!</p>
-    <div style="margin-top: 10px;">
-        <button class="btn btn-info" onclick="continueAfterGoal()">Continuar Jogando</button>
-        <button class="btn btn-outline-secondary" onclick="restartGame()">Recomeçar</button>
+
+    <!-- Inclua os ícones nos botões -->
+    <div style="margin-top: 20px;">
+        <button class="btn btn-info" onclick="continueAfterGoal()">
+            <i class="bi bi-play-fill"></i> Continuar Jogando
+        </button>
+        <button class="btn btn-outline-secondary" onclick="restartGame()">
+            <i class="bi bi-arrow-repeat"></i> Recomeçar
+        </button>
     </div>
 </div>
 
@@ -2287,7 +2317,6 @@
     }
     function restartGame(){
         stopConfetti();
-        localStorage.removeItem("playerName");
         localStorage.removeItem("stars");
         localStorage.removeItem("playerGoal");
         localStorage.removeItem("hasReachedGoal");
