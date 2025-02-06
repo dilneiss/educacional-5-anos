@@ -872,20 +872,13 @@
 
 <!-- MODAL PARABÉNS -->
 <div class="modal-base" id="congratsModal">
-    <!-- Mude "Parabéns!" para algo mais chamativo -->
     <h2>Uau, Parabéns!</h2>
-
-    <!-- Ajuste a div de balões para ter a animação e ficar maior -->
     <div class="balloons">
         <img src="img/balao.png" alt="Balloon">
         <img src="img/balao.png" alt="Balloon" style="animation-duration:2.2s;">
         <img src="img/balao.png" alt="Balloon" style="animation-duration:1.8s;">
     </div>
-
-    <!-- Deixe o texto centralizado e com fonte maior -->
     <p id="congratsText">Você atingiu sua meta de estrelas!</p>
-
-    <!-- Inclua os ícones nos botões -->
     <div style="margin-top: 20px;">
         <button class="btn btn-info" onclick="continueAfterGoal()">
             <i class="bi bi-play-fill"></i> Continuar Jogando
@@ -960,7 +953,7 @@
 
     let playerName = savedName;
     let stars = savedStars;
-    let previousStars = stars;
+    let previousStars = stars; // Mantém o registro das estrelas anteriores
     let currentGame = null;
     let speechSynth = window.speechSynthesis;
     let nextGameTimeout = null;
@@ -1206,9 +1199,22 @@
         backToMenuBtn.style.display = "none";
     }
 
+    // ADAPTAÇÃO PARA MOSTRAR MENSAGENS DE IMPACTO AO RETORNAR AO MENU
     function cancelNextGameAndMenu() {
         clearTimeoutIfAny();
         locked = false;
+
+        // Verifica se ganhou ou perdeu estrelas em relação ao valor anterior
+        if (stars > previousStars) {
+            speak("Uau, você conseguiu mais estrelas! Que incrível! Continue assim!");
+            showFeedback("Uau, você conseguiu mais estrelas! Que incrível! Continue assim!", true);
+        } else if (stars < previousStars) {
+            speak("Não fique triste, você vai conseguir na próxima! Continue tentando!");
+            showFeedback("Não fique triste, você vai conseguir na próxima! Continue tentando!", false);
+        }
+        // Atualiza o registro de estrelas anteriores
+        previousStars = stars;
+
         showMainMenu();
     }
 
@@ -1918,17 +1924,15 @@
                 allCategoryData.push({ emoji: em, category: cat.name });
             }
         }
-        // 2) Pegar 5 itens de cada categoria (total 15) para irem como corretos
+        // 2) Pegar 5 itens de cada categoria (ou 10...) para irem como corretos
         const chosenItems = [];
         categories.forEach(cat => {
             const shuffled = shuffle(cat.items);
             const selected = shuffled.slice(0,10);
-            // push com { emoji, category: cat.name }
             selected.forEach( em => {
                 chosenItems.push({ emoji: em, category: cat.name });
             });
         });
-
         lastCategoriesSet = chosenItems; // para referência
 
         // Montamos as bins
@@ -1963,8 +1967,7 @@
 
         content.innerHTML = "<h2>Classifique os itens em suas categorias:</h2>" + html;
 
-        // Precisamos contar quantos são realmente "corretos" (aqueles que pertencem a cada cat)
-        const totalCorrect = chosenItems.length; // 5 de cada cat = 15
+        const totalCorrect = chosenItems.length;
         window.categoryGameState = {
             totalItems: totalCorrect,
             correct:0,
@@ -1991,8 +1994,6 @@
         const selItem = window.categoryGameState.selectedItem;
         const selEl   = window.categoryGameState.selectedElement;
         if (!selItem) return;
-
-        window.categoryGameState.placedCount++;
 
         if (selItem.category === targetCategory) {
             binEl.classList.add("category-matched");
@@ -2026,13 +2027,11 @@
             showFeedback("Categorias completadas!", true);
             updateStars(1);
             locked = true;
-            // Dê um tempinho para exibir a mensagem e depois recomeçar
             setTimeout(() => {
                 scheduleReplayGame("categories");
             }, 1200);
         }
     }
-
 
     /**********************
      * 10) FORMAR PALAVRA (LEITURA)
@@ -2122,7 +2121,6 @@
         const content = document.getElementById("content");
         content.innerHTML="<h2>Encontre a primeira letra do Pal:</h2>";
 
-        /* Garantir que não seja o mesmo do anterior */
         let availablePals = palworldData;
         if(lastPalworld){
             availablePals = palworldData.filter(p => p.name !== lastPalworld);
