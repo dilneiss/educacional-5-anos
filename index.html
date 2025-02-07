@@ -41,8 +41,11 @@
             flex-direction: column;
             min-height: 100vh;
             overflow: hidden;
+            /* para não ficar oculto atrás do menu fixo */
+            padding-top: 60px;
         }
 
+        /* MENU TOPO FIXO */
         .top-bar {
             display: flex;
             align-items: center;
@@ -50,7 +53,10 @@
             background: rgba(255, 255, 255, 0.95);
             padding: 6px 15px;
             box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
-            position: relative;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
             z-index: 10;
         }
         #backToMenuBtn {
@@ -479,7 +485,6 @@
             animation: shake 0.5s;
         }
 
-        /* Destaque forte para o item selecionado */
         .selected {
             outline: 3px dashed #76ff03;
             outline-offset: -3px;
@@ -905,6 +910,48 @@
             0%   { transform: translateY(0); }
             100% { transform: translateY(-15px); }
         }
+
+        /* ESTILOS PARA NOVO JOGO "BATALHA DE POKEMONS" */
+        .pokemon-battle-top {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .pokemon-battle-top img {
+            max-width: 150px;
+        }
+        .pokemon-battle-name {
+            font-size: 1.1rem;
+            font-weight: bold;
+            margin: 5px 0;
+        }
+        .pokemon-battle-stats {
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+        .pokemon-battle-list {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            max-width: 95%;
+            margin: 0 auto;
+        }
+        .pokemon-battle-item {
+            background: #fff9c4;
+            border: 2px solid #000;
+            border-radius: 8px;
+            width: 120px;
+            text-align: center;
+            padding: 5px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .pokemon-battle-item img {
+            max-width: 80px;
+        }
+        .pokemon-battle-item:hover {
+            background: #fff2a8;
+        }
     </style>
 </head>
 <body oncontextmenu="return false;">
@@ -1079,6 +1126,7 @@
         { name: "Raticate",   img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/20.png" },
     ];
 
+
     const startMenuEl = document.getElementById("start-menu");
     const continueBtnContainer = document.getElementById("continue-btn-container");
     const continueGameBtn = document.getElementById("continueGameBtn");
@@ -1181,18 +1229,19 @@
         }
         mainMenuEl.innerHTML = "";
         const gameConfigs = [
-            { id: "numbers",   label: "Números" },
-            { id: "letters",   label: "Letras" },
-            { id: "counting",  label: "Contar" },
-            { id: "word",      label: "Palavras" },
-            { id: "shadows",   label: "Sombras" },
-            { id: "puzzle",    label: "Quebra-cabeça" },
-            { id: "colors",    label: "Cores" },
-            { id: "weather",   label: "Clima" },
-            { id: "categories",label: "Categorias" },
-            { id: "reading",   label: "Formar Palavra" },
-            { id: "palworld",  label: "Palworld" },
-            { id: "pokemon",   label: "Pokemon" }
+            { id: "numbers",       label: "Números" },
+            { id: "letters",       label: "Letras" },
+            { id: "counting",      label: "Contar" },
+            { id: "word",          label: "Palavras" },
+            { id: "shadows",       label: "Sombras" },
+            { id: "puzzle",        label: "Quebra-cabeça" },
+            { id: "colors",        label: "Cores" },
+            { id: "weather",       label: "Clima" },
+            { id: "categories",    label: "Categorias" },
+            { id: "reading",       label: "Formar Palavra" },
+            { id: "palworld",      label: "Palworld" },
+            { id: "pokemon",       label: "Pokemon" },
+            { id: "pokemonBattle", label: "PokéBattle" }
         ];
         gameConfigs.forEach((cfg) => {
             const starsInThisGame = gameStars[cfg.id] || 0;
@@ -1252,18 +1301,19 @@
         document.getElementById("feedback").textContent = "";
         document.getElementById("content").innerHTML = "";
         switch (mode) {
-            case "numbers":   initNumbersGame(); break;
-            case "letters":   initLettersGame(); break;
-            case "counting":  initCountingGame(); break;
-            case "word":      initWordGame(); break;
-            case "shadows":   initShadowGame(); break;
-            case "puzzle":    initPuzzleGame(); break;
-            case "colors":    initColorGame(); break;
-            case "weather":   initWeatherGame(); break;
-            case "categories":initCategoryGame(); break;
-            case "reading":   initReadingGame(); break;
-            case "palworld":  initPalworldGame(); break;
-            case "pokemon":   initPokemonGame(); break;
+            case "numbers":       initNumbersGame(); break;
+            case "letters":       initLettersGame(); break;
+            case "counting":      initCountingGame(); break;
+            case "word":          initWordGame(); break;
+            case "shadows":       initShadowGame(); break;
+            case "puzzle":        initPuzzleGame(); break;
+            case "colors":        initColorGame(); break;
+            case "weather":       initWeatherGame(); break;
+            case "categories":    initCategoryGame(); break;
+            case "reading":       initReadingGame(); break;
+            case "palworld":      initPalworldGame(); break;
+            case "pokemon":       initPokemonGame(); break;
+            case "pokemonBattle": initPokemonBattleGame(); break;
         }
     }
 
@@ -1545,9 +1595,6 @@
         }
     }
 
-    /*
-     * SOMBRAS: pode clicar sombra ou emoji primeiro. Após acerto, remover selected + destacar só o verde.
-     */
     function initShadowGame() {
         const content = document.getElementById("content");
         content.innerHTML = "<h2>Toque em uma sombra ou em um emoji, depois no par correto:</h2>";
@@ -1629,9 +1676,6 @@
         }
     }
 
-    /*
-     * QUEBRA-CABEÇA: pode clicar número ou quantidade primeiro. Após acerto, remover selected e deixar só matched.
-     */
     function initPuzzleGame() {
         window.puzzleGameState = {
             selected: null,
@@ -1713,9 +1757,6 @@
         }
     }
 
-    /*
-     * CORES: pode clicar primeiro na cor ou na caixa. Após acerto, remover destaque de selecionado.
-     */
     function initColorGame() {
         const allColors = [
             { name: "Vermelho", hex:"#FF0000" },
@@ -1885,6 +1926,7 @@
         }
     }
 
+    /* ALTERAÇÃO AQUI: DAR UMA ESTRELA EM CADA ACERTO NO JOGO CATEGORIAS */
     function initCategoryGame(){
         const content = document.getElementById("content");
         content.innerHTML="<h2>Classifique os itens em suas categorias:</h2>";
@@ -1993,6 +2035,10 @@
             window.categoryGameState.correct++;
             showFeedback("Correto!", true);
             speak(`Muito bem! ${selItem.emoji} é da categoria ${targetCategory}`);
+
+            /* NOVO: A CADA ACERTO TAMBÉM GANHAR 1 ESTRELA */
+            updateStars(1);
+
         } else {
             binEl.classList.add("category-wrong");
             setTimeout(() => binEl.classList.remove("category-wrong"), 800);
@@ -2187,6 +2233,120 @@
             showFeedback("Letra errada!", false);
             speak(`A primeira letra é ${correct}`);
             locked=false;
+        }
+    }
+
+    /* NOVO JOGO DE BATALHA DE POKEMONS */
+    function randomInt(min, max){
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+    function initPokemonBattleGame(){
+        const content = document.getElementById("content");
+        content.innerHTML="<h2>Escolha o Pokémon que possui poder de defesa menor que o poder de luta do Pokémon do topo:</h2>";
+
+        const battlePokemonData = [
+            { name: "Bulbasaur",  img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png" },
+            { name: "Ivysaur",    img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/2.png" },
+            { name: "Venusaur",   img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/3.png" },
+            { name: "Charmander", img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/4.png" },
+            { name: "Charmeleon", img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/5.png" },
+            { name: "Charizard",  img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/6.png" },
+            { name: "Squirtle",   img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/7.png" },
+            { name: "Wartortle",  img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/8.png" },
+            { name: "Blastoise",  img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/9.png" },
+            { name: "Caterpie",   img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10.png" },
+            { name: "Metapod",    img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/11.png" },
+            { name: "Butterfree", img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/12.png" },
+            { name: "Weedle",     img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/13.png" },
+            { name: "Kakuna",     img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/14.png" },
+            { name: "Beedrill",   img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/15.png" },
+            { name: "Pidgey",     img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/16.png" },
+            { name: "Pidgeotto",  img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/17.png" },
+            { name: "Pidgeot",    img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/18.png" },
+            { name: "Rattata",    img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/19.png" },
+            { name: "Raticate",   img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/20.png" },
+        ];
+
+        const topPokemon = battlePokemonData[Math.floor(Math.random() * battlePokemonData.length)];
+        const topFight = randomInt(20, 200);
+        const topDefense = randomInt(20, 200);
+
+        content.innerHTML += `
+          <div class="pokemon-battle-top">
+            <img src="${topPokemon.img}" alt="${topPokemon.name}" />
+            <div class="pokemon-battle-name">${topPokemon.name}</div>
+            <div class="pokemon-battle-stats">⚔️ ${topFight}</div>
+          </div>
+        `;
+
+        let correctPokemon = null;
+        do {
+            correctPokemon = battlePokemonData[Math.floor(Math.random()*battlePokemonData.length)];
+        } while(correctPokemon.name === topPokemon.name);
+
+        let correctDefense = randomInt(20,200);
+        while(!(correctDefense < topFight)) {
+            correctDefense = randomInt(20,200);
+        }
+        let correctFight = randomInt(20,200);
+
+        const incorrectList = [];
+        while(incorrectList.length < 4){
+            let candidate = battlePokemonData[Math.floor(Math.random()*battlePokemonData.length)];
+            if(candidate.name !== topPokemon.name && candidate.name !== correctPokemon.name){
+                const candDef = randomInt(20,200);
+                if(candDef >= topFight){
+                    incorrectList.push({
+                        name: candidate.name,
+                        img: candidate.img,
+                        fight: randomInt(20,200),
+                        defense: candDef
+                    });
+                }
+            }
+        }
+
+        const correctChoice = {
+            name: correctPokemon.name,
+            img: correctPokemon.img,
+            fight: correctFight,
+            defense: correctDefense
+        };
+
+        const finalList = [ correctChoice, ...incorrectList ];
+        const finalShuffled = shuffle(finalList);
+
+        content.innerHTML += `<div class="pokemon-battle-list" id="pokemonBattleList"></div>`;
+        const listEl = document.getElementById("pokemonBattleList");
+        finalShuffled.forEach(p => {
+            const item = document.createElement("div");
+            item.className = "pokemon-battle-item";
+            item.innerHTML = `
+              <img src="${p.img}" alt="${p.name}" />
+              <div class="pokemon-battle-name">${p.name}</div>
+              <div class="pokemon-battle-stats">🛡️ ${p.defense}</div>
+            `;
+            item.onclick = () => {
+                if(locked) return;
+                handlePokemonBattleChoice(p, topFight);
+            };
+            listEl.appendChild(item);
+        });
+
+        speak(`O poder de luta de ${topPokemon.name} é ${topFight}. Selecione um Pokémon que tenha poder de defesa menor que ${topFight}.`);
+    }
+
+    function handlePokemonBattleChoice(p, topFight){
+        locked = true;
+        if(p.defense < topFight){
+            updateStars(1);
+            showFeedback("Certo!", true);
+            scheduleReplayGame("pokemonBattle");
+        } else {
+            updateStars(-1);
+            showFeedback("Errado!", false);
+            speak("Esse Pokémon não tem defesa menor. Tente novamente!");
+            locked = false;
         }
     }
 
