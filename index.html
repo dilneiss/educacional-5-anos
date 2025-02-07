@@ -911,7 +911,7 @@
             100% { transform: translateY(-15px); }
         }
 
-        /* ESTILOS PARA NOVO JOGO "BATALHA DE POKEMONS" */
+        /* ADAPTADO PARA MOSTRAR OS POKÉMONS EM UMA LINHA SÓ NO CELULAR */
         .pokemon-battle-top {
             text-align: center;
             margin-bottom: 10px;
@@ -920,7 +920,7 @@
             max-width: 150px;
         }
         .pokemon-battle-name {
-            font-size: 1.1rem;
+            font-size: 0.8rem;
             font-weight: bold;
             margin: 5px 0;
         }
@@ -930,17 +930,18 @@
         }
         .pokemon-battle-list {
             display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
+            flex-wrap: nowrap; /* não quebrar linha */
+            overflow-x: auto;  /* rolagem horizontal */
+            -webkit-overflow-scrolling: touch;
             gap: 10px;
-            max-width: 95%;
-            margin: 0 auto;
+            max-width: 100%;
         }
         .pokemon-battle-item {
             background: #fff9c4;
             border: 2px solid #000;
             border-radius: 8px;
-            width: 120px;
+            width: 18%;
+            flex: 0 0 auto;
             text-align: center;
             padding: 5px;
             cursor: pointer;
@@ -1125,7 +1126,6 @@
         { name: "Rattata",    img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/19.png" },
         { name: "Raticate",   img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/20.png" },
     ];
-
 
     const startMenuEl = document.getElementById("start-menu");
     const continueBtnContainer = document.getElementById("continue-btn-container");
@@ -1926,7 +1926,7 @@
         }
     }
 
-    /* ALTERAÇÃO AQUI: DAR UMA ESTRELA EM CADA ACERTO NO JOGO CATEGORIAS */
+    /* ALTERADO: A CADA ACERTO NO JOGO "CATEGORIAS" DAR 1 ESTRELA TAMBÉM */
     function initCategoryGame(){
         const content = document.getElementById("content");
         content.innerHTML="<h2>Classifique os itens em suas categorias:</h2>";
@@ -2036,7 +2036,7 @@
             showFeedback("Correto!", true);
             speak(`Muito bem! ${selItem.emoji} é da categoria ${targetCategory}`);
 
-            /* NOVO: A CADA ACERTO TAMBÉM GANHAR 1 ESTRELA */
+            /* NOVO: A CADA ACERTO GANHAR 1 ESTRELA */
             updateStars(1);
 
         } else {
@@ -2236,7 +2236,6 @@
         }
     }
 
-    /* NOVO JOGO DE BATALHA DE POKEMONS */
     function randomInt(min, max){
         return Math.floor(Math.random() * (max - min + 1)) + min;
     }
