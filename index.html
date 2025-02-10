@@ -1423,7 +1423,8 @@
             { id: "palworld",      label: "Palworld" },
             { id: "pokemon",       label: "Pokemon" },
             { id: "pokemonBattle", label: "PokéBattle" },
-            { id: "habitat", label: "Habitats" }
+            { id: "habitat", label: "Habitats" },
+            { id: "combos", label: "Combinações" }
         ];
         gameConfigs.forEach((cfg) => {
             const starsInThisGame = gameStars[cfg.id] || 0;
@@ -1497,6 +1498,7 @@
             case "pokemon":       initPokemonGame(); break;
             case "pokemonBattle": initPokemonBattleGame(); break;
             case "habitat":       initHabitatGame(); break;
+            case "combos": initCombosGame(); break;
         }
     }
 
@@ -2686,6 +2688,215 @@
         return false;
     }
 
+    const combosData = [
+        {
+            itemA: "Menino",
+            itemAImg: "👦",
+            itemB: "Boné",
+            itemBImg: "🧢"
+        },
+        {
+            itemA: "Menina",
+            itemAImg: "👧",
+            itemB: "Laço",
+            itemBImg: "🎀"
+        },
+        {
+            itemA: "Flor",
+            itemAImg: "🌷",
+            itemB: "Vaso",
+            itemBImg: "🏺"
+        },
+        {
+            itemA: "Passarinho",
+            itemAImg: "🐦",
+            itemB: "Gaiola",
+            itemBImg: "🦜🏠"
+        },
+        {
+            itemA: "Peixe",
+            itemAImg: "🐟",
+            itemB: "Aquário",
+            itemBImg: "🐟🏠"
+        },
+        {
+            itemA: "Café",
+            itemAImg: "☕",
+            itemB: "Xícara",
+            itemBImg: "🍵"
+        },
+        {
+            itemA: "Pincel",
+            itemAImg: "🖌️",
+            itemB: "Tinta",
+            itemBImg: "🎨"
+        },
+        {
+            itemA: "Bola",
+            itemAImg: "⚽",
+            itemB: "Gol",
+            itemBImg: "🥅"
+        },
+        {
+            itemA: "Livro",
+            itemAImg: "📖",
+            itemB: "Estante",
+            itemBImg: "🪑"
+        },
+        {
+            itemA: "Sapato",
+            itemAImg: "👟",
+            itemB: "Pé",
+            itemBImg: "🦶"
+        },
+        {
+            itemA: "Celular",
+            itemAImg: "📱",
+            itemB: "Carregador",
+            itemBImg: "🔌"
+        },
+        {
+            itemA: "Chave",
+            itemAImg: "🔑",
+            itemB: "Fechadura",
+            itemBImg: "🚪"
+        }
+    ];
+
+    /* Para evitar repetir o mesmo conjunto de combinações em sequência */
+    let lastCombosSet = null;
+
+    /* Função principal para iniciar o jogo de Combinações */
+    function initCombosGame() {
+        locked = false;
+        const content = document.getElementById("content");
+        content.innerHTML = "<h2>Combine os itens corretos:</h2>";
+
+        // Embaralha o array e seleciona 5 combinações
+        let shuffled = shuffle([...combosData]);
+        let selected = shuffled.slice(0, 5);
+
+        // Evita sortear o mesmo conjunto de 5 logo em seguida
+        if (JSON.stringify(selected) === JSON.stringify(lastCombosSet)) {
+            shuffled = shuffle([...combosData]);
+            selected = shuffled.slice(0, 5);
+        }
+        lastCombosSet = selected;
+
+        // Atribui um ID interno para cada par
+        selected.forEach((pair, i) => {
+            pair.__id = i;
+        });
+
+        // Armazena estado
+        window.combosGameState = {
+            pairs: selected,
+            selected: null,
+            correctMatches: 0,
+            total: selected.length
+        };
+
+        /*
+         * Monta layout:
+         * - Coluna esquerda: itemA (não embaralha)
+         * - Coluna direita: itemB (embaralha)
+         */
+        const leftColumnHTML = selected.map(pair => `
+    <div class="combos-item"
+         style="border:2px solid #000; border-radius:8px; background:#fff9c4; padding:8px; text-align:center; cursor:pointer;"
+         onclick="handleCombosClick(this, 'itemA', ${pair.__id})">
+      <div style="font-size:2rem;">${pair.itemAImg}</div>
+      <div style="font-size:0.9rem; margin-top:4px;">${pair.itemA}</div>
+    </div>
+  `).join("");
+
+        const rightColumnHTML = shuffle([...selected]).map(pair => `
+    <div class="combos-item"
+         style="border:2px solid #000; border-radius:8px; background:#c8e6c9; padding:8px; text-align:center; cursor:pointer;"
+         onclick="handleCombosClick(this, 'itemB', ${pair.__id})">
+      <div style="font-size:2rem;">${pair.itemBImg}</div>
+      <div style="font-size:0.9rem; margin-top:4px;">${pair.itemB}</div>
+    </div>
+  `).join("");
+
+        content.innerHTML += `
+    <div style="display:flex; flex-direction:row; gap:10px; justify-content:center; align-items:flex-start; flex-wrap:wrap; width:100%;">
+      <div style="flex:1; max-width:200px; display:flex; flex-direction:column; gap:10px; margin:0 auto;">
+        ${leftColumnHTML}
+      </div>
+      <div style="flex:1; max-width:200px; display:flex; flex-direction:column; gap:10px; margin:0 auto;">
+        ${rightColumnHTML}
+      </div>
+    </div>
+  `;
+
+        speak("Toque em um item e depois no outro que faz par com ele.");
+    }
+
+    /* Clique em cada lado (itemA ou itemB) */
+    function handleCombosClick(el, type, pairId) {
+        if (locked) return;
+
+        const state = window.combosGameState;
+
+        // Se nada está selecionado
+        if (!state.selected) {
+            state.selected = { element: el, type, pairId };
+            el.classList.add("selected");
+            return;
+        }
+
+        // Se clicou no mesmo elemento, des-seleciona
+        if (state.selected.element === el) {
+            el.classList.remove("selected");
+            state.selected = null;
+            return;
+        }
+
+        // Temos um selecionado e clicamos em outro
+        const sel1 = state.selected;
+        const sel2 = { element: el, type, pairId };
+
+        const isMatch = checkCombosMatch(sel1, sel2, state);
+
+        if (isMatch) {
+            sel1.element.classList.remove("selected");
+            sel2.element.classList.remove("selected");
+            sel1.element.classList.add("shadow-match");
+            sel2.element.classList.add("shadow-match");
+            showFeedback("Correto!", true);
+            speak("Muito bem!");
+            state.correctMatches++;
+            updateStars(1);
+
+            if (state.correctMatches === state.total) {
+                locked = true;
+                showFeedback("Você acertou todos os pares!", true);
+                scheduleReplayGame("combos");
+            }
+        } else {
+            sel1.element.classList.add("shadow-mismatch");
+            sel2.element.classList.add("shadow-mismatch");
+            showFeedback("Não combinam!", false);
+            speak("Não é o par certo. Tente novamente.");
+            updateStars(-1);
+
+            setTimeout(() => {
+                sel1.element.classList.remove("shadow-mismatch", "selected");
+                sel2.element.classList.remove("shadow-mismatch", "selected");
+            }, 700);
+        }
+
+        state.selected = null;
+    }
+
+    /* Verifica se dois cliques formam um par correto */
+    function checkCombosMatch(a, b, state) {
+        // Precisam ser tipos diferentes (itemA e itemB)
+        if (a.type === b.type) return false;
+        // Verifica se apontam para o mesmo pairId
+        return (a.pairId === b.pairId);
+    }
 
     function speak(text){
         if(speechSynth.speaking) speechSynth.cancel();
