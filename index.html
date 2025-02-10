@@ -1422,7 +1422,8 @@
             { id: "reading",       label: "Formar Palavra" },
             { id: "palworld",      label: "Palworld" },
             { id: "pokemon",       label: "Pokemon" },
-            { id: "pokemonBattle", label: "PokéBattle" }
+            { id: "pokemonBattle", label: "PokéBattle" },
+            { id: "habitat", label: "Habitats" }
         ];
         gameConfigs.forEach((cfg) => {
             const starsInThisGame = gameStars[cfg.id] || 0;
@@ -1495,6 +1496,7 @@
             case "palworld":      initPalworldGame(); break;
             case "pokemon":       initPokemonGame(); break;
             case "pokemonBattle": initPokemonBattleGame(); break;
+            case "habitat":       initHabitatGame(); break;
         }
     }
 
@@ -2506,6 +2508,184 @@
             locked = false;
         }
     }
+
+    /* ARRAY COM PARES DE ANIMAIS E HABITATS */
+    const habitatPairsData = [
+        { animal: "Abelha",  animalImg: "🐝", habitat: "Colméia",   habitatImg: "🍯"    },
+        { animal: "Peixe",   animalImg: "🐟", habitat: "Rio",       habitatImg: "🌊"    },
+        { animal: "Cachorro",animalImg: "🐶", habitat: "Casinha",   habitatImg: "🏠"    },
+        { animal: "Aranha",  animalImg: "🕷", habitat: "Teia",      habitatImg: "🕸"    },
+        { animal: "Coelho",  animalImg: "🐰", habitat: "Toca",      habitatImg: "🕳"    },
+        { animal: "Cavalo",  animalImg: "🐴", habitat: "Estábulo",  habitatImg: "🐎🏠"   },
+        { animal: "Galinha", animalImg: "🐔", habitat: "Galinheiro",habitatImg: "🪺"    },
+        { animal: "Gato",    animalImg: "🐱", habitat: "Sofá",      habitatImg: "🛋"    },
+        { animal: "Formiga", animalImg: "🐜", habitat: "Formigueiro",habitatImg:"🐜🏠"  },
+        { animal: "Caracol", animalImg: "🐌", habitat: "Concha",    habitatImg: "🐚"    },
+        { animal: "Pássaro", animalImg: "🐦", habitat: "Ninho",     habitatImg: "🪹"    },
+        { animal: "Vaca",    animalImg: "🐮", habitat: "Curral",    habitatImg: "🐄🏠"   }
+    ];
+
+    /* Para evitar repetir exatamente a mesma seleção de pares em sequência */
+    let lastHabitatSet = null;
+
+    /* Função principal do jogo de Habitats */
+    function initHabitatGame() {
+        locked = false;
+        const content = document.getElementById("content");
+        content.innerHTML = "<h2>Combine o animal com seu habitat:</h2>";
+
+        // Embaralha todos os pares e pega 5 (ajuste conforme desejar)
+        let shuffled = shuffle([...habitatPairsData]);
+        let selectedPairs = shuffled.slice(0, 5);
+
+        // Se for igual ao último sorteio, embaralha de novo
+        if (JSON.stringify(selectedPairs) === JSON.stringify(lastHabitatSet)) {
+            shuffled = shuffle([...habitatPairsData]);
+            selectedPairs = shuffled.slice(0, 5);
+        }
+        lastHabitatSet = selectedPairs;
+
+        // Atribui um ID interno para cada par, assim podemos identificar corretamente mesmo após shuffle
+        selectedPairs.forEach((pair, i) => {
+            pair.__id = i; // um índice de 0 a 4, por exemplo
+        });
+
+        // Salva no estado global
+        window.habitatGameState = {
+            pairs: selectedPairs,
+            selected: null,       // quem está selecionado
+            correctMatches: 0,    // quantos pares corretos já foram encontrados
+            total: selectedPairs.length
+        };
+
+        // Monta o layout: esquerda (animais) e direita (habitats)
+        // - Não shuffle na esquerda, mas shuffle na direita para a criança não ver a mesma ordem
+        const leftColumnHTML = selectedPairs.map(pair => `
+      <div class="habitat-item"
+           style="border:2px solid #000; border-radius:8px; background:#fff9c4; padding:8px; text-align:center; cursor:pointer; transition:0.2s;"
+           onclick="handleHabitatClick(this, 'animal', ${pair.__id})"
+           data-habitat="${pair.habitat}">
+        <div style="font-size:2rem;">${pair.animalImg}</div>
+        <div style="font-size:0.9rem; margin-top:4px;">${pair.animal}</div>
+      </div>
+    `).join("");
+
+        // Coluna da direita: habitats embaralhados, mas cada elemento mantém o mesmo __id do seu par
+        const rightColumnHTML = shuffle([...selectedPairs]).map(pair => `
+      <div class="habitat-item"
+           style="border:2px solid #000; border-radius:8px; background:#c8e6c9; padding:8px; text-align:center; cursor:pointer; transition:0.2s;"
+           onclick="handleHabitatClick(this, 'habitat', ${pair.__id})"
+           data-habitat="${pair.habitat}">
+        <div style="font-size:2rem;">${pair.habitatImg}</div>
+        <div style="font-size:0.9rem; margin-top:4px;">${pair.habitat}</div>
+      </div>
+    `).join("");
+
+        // Renderiza as duas colunas
+        content.innerHTML += `
+      <div style="display:flex; flex-direction:row; gap:10px; justify-content:center; align-items:flex-start; flex-wrap:wrap; width:100%;">
+        <!-- Coluna da Esquerda (Animais) -->
+        <div style="flex:1; max-width:200px; display:flex; flex-direction:column; gap:10px; margin:0 auto;">
+          ${leftColumnHTML}
+        </div>
+        <!-- Coluna da Direita (Habitats) -->
+        <div style="flex:1; max-width:200px; display:flex; flex-direction:column; gap:10px; margin:0 auto;">
+          ${rightColumnHTML}
+        </div>
+      </div>
+    `;
+
+        speak("Selecione primeiro o animal ou seu habitat e depois toque no par correspondente.");
+    }
+
+    /* Função de clique nos elementos (animais ou habitats) */
+    function handleHabitatClick(el, type, pairId) {
+        if (locked) return;
+        const state = window.habitatGameState;
+
+        // Se não há nenhum selecionado
+        if (!state.selected) {
+            state.selected = { element: el, type, pairId };
+            el.classList.add("selected");
+            return;
+        }
+
+        // Se clicou no mesmo elemento, des-seleciona
+        if (state.selected.element === el) {
+            el.classList.remove("selected");
+            state.selected = null;
+            return;
+        }
+
+        // Já existe um selecionado e clicamos em outro
+        const pair1 = state.selected;             // { element, type, pairId }
+        const pair2 = { element: el, type, pairId };
+
+        // Verifica se é um match
+        const isMatch = checkHabitatMatch(pair1, pair2, state);
+
+        if (isMatch) {
+            // Marcar como correto
+            pair1.element.classList.remove("selected");
+            pair2.element.classList.remove("selected");
+            pair1.element.classList.add("shadow-match");
+            pair2.element.classList.add("shadow-match");
+            showFeedback("Correto!", true);
+            speak("Muito bem!");
+
+            state.correctMatches++;
+            updateStars(1);
+
+            // Se completou todos
+            if (state.correctMatches === state.total) {
+                locked = true;
+                showFeedback("Você combinou todos os animais e habitats!", true);
+                scheduleReplayGame("habitat");
+            }
+        } else {
+            // Resposta errada
+            pair1.element.classList.add("shadow-mismatch");
+            pair2.element.classList.add("shadow-mismatch");
+            showFeedback("Não é o par certo!", false);
+            speak("Ops! Tente novamente.");
+            updateStars(-1);
+
+            setTimeout(() => {
+                pair1.element.classList.remove("shadow-mismatch", "selected");
+                pair2.element.classList.remove("shadow-mismatch", "selected");
+            }, 700);
+        }
+
+        // Limpa a seleção
+        state.selected = null;
+    }
+
+    /* Verifica se os dois cliques formam um par correto */
+    function checkHabitatMatch(sel1, sel2, state) {
+        // Precisamos que sejam tipos diferentes (animal/habitat)
+        if (sel1.type === sel2.type) {
+            return false;
+        }
+
+        // Pega o "par" da lista principal pelo pairId
+        const pair1Obj = state.pairs[sel1.pairId]; // ex: {animal:"Cavalo", habitat:"Estábulo", ...}
+        const pair2Obj = state.pairs[sel2.pairId];
+
+        // Se "sel1" é animal e "sel2" é habitat, então checamos se pair1Obj e pair2Obj são o mesmo par
+        if (sel1.type === "animal" && sel2.type === "habitat") {
+            // Precisamos que sel1.pairId === sel2.pairId, ou seja, ambos apontam pro MESMO item do array
+            // E também podemos checar se habitat bate com data-habitat
+            return (sel1.pairId === sel2.pairId);
+        }
+
+        // Caso contrário, se "sel1" é habitat e "sel2" é animal
+        if (sel1.type === "habitat" && sel2.type === "animal") {
+            return (sel1.pairId === sel2.pairId);
+        }
+
+        return false;
+    }
+
 
     function speak(text){
         if(speechSynth.speaking) speechSynth.cancel();
