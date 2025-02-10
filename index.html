@@ -1425,7 +1425,8 @@
             { id: "pokemonBattle", label: "PokéBattle" },
             { id: "habitat", label: "Habitats" },
             { id: "combos", label: "Combinações" },
-            { id: "arms", label: "Braços" }
+            { id: "arms", label: "Braços" },
+            { id: "litleFarm", label: "Fazendinha" }
         ];
         gameConfigs.forEach((cfg) => {
             const starsInThisGame = gameStars[cfg.id] || 0;
@@ -1501,6 +1502,7 @@
             case "habitat":       initHabitatGame(); break;
             case "combos": initCombosGame(); break;
             case "arms": initArmsGame(); break;
+            case "litleFarm": initLitleFarmGame(); break;
         }
     }
 
@@ -1600,6 +1602,81 @@
             childImg: "img/menino_2levantados.webp",
             positionName: "2 braços levantados",
             positionImg: "img/menino_2levantados.webp",
+        },
+    ];
+
+    const litleFarmData = [
+        {
+            childImg: "img/fazendinha_opcao1.webp",
+            positionImg: "img/fazendinha_opcao1.webp"
+        },
+        {
+            childImg: "img/fazendinha_opcao2.webp",
+            positionImg: "img/fazendinha_opcao2.webp"
+        },
+        {
+            childImg: "img/fazendinha_opcao3.webp",
+            positionImg: "img/fazendinha_opcao3.webp"
+        },
+        {
+            childImg: "img/fazendinha_opcao4.webp",
+            positionImg: "img/fazendinha_opcao4.webp"
+        },
+        {
+            childImg: "img/fazendinha_opcao5.webp",
+            positionImg: "img/fazendinha_opcao5.webp"
+        },
+        {
+            childImg: "img/fazendinha_opcao6.webp",
+            positionImg: "img/fazendinha_opcao6.webp"
+        },
+        {
+            childImg: "img/fazendinha_opcao7.webp",
+            positionImg: "img/fazendinha_opcao7.webp"
+        },
+        {
+            childImg: "img/fazendinha_opcao8.webp",
+            positionImg: "img/fazendinha_opcao8.webp"
+        },
+        {
+            childImg: "img/fazendinha_opcao9.webp",
+            positionImg: "img/fazendinha_opcao9.webp"
+        },
+        {
+            childImg: "img/fazendinha_opcao10.webp",
+            positionImg: "img/fazendinha_opcao10.webp"
+        },
+        {
+            childImg: "img/fazendinha_opcao11.webp",
+            positionImg: "img/fazendinha_opcao11.webp"
+        },
+        {
+            childImg: "img/fazendinha_opcao12.webp",
+            positionImg: "img/fazendinha_opcao12.webp"
+        },
+        {
+            childImg: "img/fazendinha_opcao13.webp",
+            positionImg: "img/fazendinha_opcao13.webp"
+        },
+        {
+            childImg: "img/fazendinha_opcao14.webp",
+            positionImg: "img/fazendinha_opcao14.webp"
+        },
+        {
+            childImg: "img/fazendinha_opcao15.webp",
+            positionImg: "img/fazendinha_opcao15.webp"
+        },
+        {
+            childImg: "img/fazendinha_opcao16.webp",
+            positionImg: "img/fazendinha_opcao16.webp"
+        },
+        {
+            childImg: "img/fazendinha_opcao17.webp",
+            positionImg: "img/fazendinha_opcao17.webp"
+        },
+        {
+            childImg: "img/fazendinha_opcao18.webp",
+            positionImg: "img/fazendinha_opcao18.webp"
         },
     ];
 
@@ -3078,6 +3155,142 @@
         return (a.pairId === b.pairId);
     }
 
+    /* Variável para guardar o último conjunto sorteado e evitar repetição */
+    let lastFarmSet = null;
+
+    /* Função principal do jogo de Fazendinha */
+    function initLitleFarmGame() {
+        locked = false;
+        const content = document.getElementById("content");
+        content.innerHTML = "<h2>Combine as imagens iguais da fazendinha:</h2>";
+
+        // Embaralha o array e seleciona 5 pares (você pode alterar para 6, 7, etc.)
+        let shuffled = shuffle([...litleFarmData]);
+        let selected = shuffled.slice(0, 5);
+
+        // Evita repetir o mesmo conjunto
+        if (JSON.stringify(selected) === JSON.stringify(lastFarmSet)) {
+            shuffled = shuffle([...litleFarmData]);
+            selected = shuffled.slice(0, 5);
+        }
+        lastFarmSet = selected;
+
+        // Atribui um ID interno para cada par
+        selected.forEach((item, i) => {
+            item.__id = i;
+        });
+
+        // Estado do jogo
+        window.litleFarmGameState = {
+            pairs: selected,
+            selected: null,
+            correctMatches: 0,
+            total: selected.length
+        };
+
+        /*
+         * Criamos duas colunas:
+         *   - Esquerda: childImg (sem embaralhar)
+         *   - Direita: positionImg (embaralhada)
+         */
+        const leftColumnHTML = selected.map(item => `
+    <div class="farm-item"
+         style="border:2px solid #000; border-radius:8px; background:#fff9c4; padding:8px; text-align:center; cursor:pointer;"
+         onclick="handleFarmClick(this, 'child', ${item.__id})">
+      <img src="${item.childImg}" alt="Fazendinha" style="max-width:100%; height:auto; border-radius:5px;" />
+    </div>
+  `).join("");
+
+        const rightColumnHTML = shuffle([...selected]).map(item => `
+    <div class="farm-item"
+         style="border:2px solid #000; border-radius:8px; background:#c8e6c9; padding:8px; text-align:center; cursor:pointer;"
+         onclick="handleFarmClick(this, 'position', ${item.__id})">
+      <img src="${item.positionImg}" alt="Fazendinha" style="max-width:100%; height:auto; border-radius:5px;" />
+    </div>
+  `).join("");
+
+        // Renderiza
+        content.innerHTML += `
+    <div style="display:flex; flex-direction:row; gap:10px; justify-content:center; align-items:flex-start; flex-wrap:wrap; width:100%;">
+      <div style="flex:1; max-width:220px; display:flex; flex-direction:column; gap:10px; margin:0 auto;">
+        ${leftColumnHTML}
+      </div>
+      <div style="flex:1; max-width:220px; display:flex; flex-direction:column; gap:10px; margin:0 auto;">
+        ${rightColumnHTML}
+      </div>
+    </div>
+  `;
+
+        speak("Selecione a imagem da fazendinha e depois a correspondente.");
+    }
+
+    /* Função de clique nos itens (lado esquerdo = 'child', lado direito = 'position') */
+    function handleFarmClick(el, type, pairId) {
+        if (locked) return;
+
+        const state = window.litleFarmGameState;
+
+        // Se não há nada selecionado
+        if (!state.selected) {
+            state.selected = { element: el, type, pairId };
+            el.classList.add("selected");
+            return;
+        }
+
+        // Se clicou no mesmo elemento, des-seleciona
+        if (state.selected.element === el) {
+            el.classList.remove("selected");
+            state.selected = null;
+            return;
+        }
+
+        // Já temos um selecionado, então comparamos com o atual
+        const sel1 = state.selected;
+        const sel2 = { element: el, type, pairId };
+
+        const isMatch = checkFarmMatch(sel1, sel2, state);
+
+        if (isMatch) {
+            sel1.element.classList.remove("selected");
+            sel2.element.classList.remove("selected");
+            sel1.element.classList.add("shadow-match");
+            sel2.element.classList.add("shadow-match");
+            showFeedback("Correto!", true);
+            speak("Muito bem!");
+            state.correctMatches++;
+            updateStars(1);
+
+            // Se completou todos
+            if (state.correctMatches === state.total) {
+                locked = true;
+                showFeedback("Parabéns, você encontrou todas as combinações!", true);
+                scheduleReplayGame("litleFarm");
+            }
+        } else {
+            // Se não corresponde
+            sel1.element.classList.add("shadow-mismatch");
+            sel2.element.classList.add("shadow-mismatch");
+            showFeedback("Não é o par certo!", false);
+            speak("Tente novamente.");
+            updateStars(-1);
+
+            setTimeout(() => {
+                sel1.element.classList.remove("shadow-mismatch", "selected");
+                sel2.element.classList.remove("shadow-mismatch", "selected");
+            }, 700);
+        }
+
+        // Limpa a seleção
+        state.selected = null;
+    }
+
+    /* Verifica se formam o par válido */
+    function checkFarmMatch(a, b, state) {
+        // Precisamos que um seja 'child' e o outro 'position'
+        if (a.type === b.type) return false;
+        // Precisam ter o mesmo __id
+        return (a.pairId === b.pairId);
+    }
 
     function speak(text){
         if(speechSynth.speaking) speechSynth.cancel();
