@@ -1424,7 +1424,8 @@
             { id: "pokemon",       label: "Pokemon" },
             { id: "pokemonBattle", label: "PokéBattle" },
             { id: "habitat", label: "Habitats" },
-            { id: "combos", label: "Combinações" }
+            { id: "combos", label: "Combinações" },
+            { id: "arms", label: "Braços" }
         ];
         gameConfigs.forEach((cfg) => {
             const starsInThisGame = gameStars[cfg.id] || 0;
@@ -1499,6 +1500,7 @@
             case "pokemonBattle": initPokemonBattleGame(); break;
             case "habitat":       initHabitatGame(); break;
             case "combos": initCombosGame(); break;
+            case "arms": initArmsGame(); break;
         }
     }
 
@@ -1566,6 +1568,40 @@
         X: [{ emoji: "❌", nome: "Xis" }],
         Z: [{ emoji: "🦓", nome: "Zebra" }]
     };
+
+    /* Array de exemplos com figuras reais (você deve colocar os caminhos corretos de imagens). */
+    const armsData = [
+        {
+            childDesc: "Menino com 2 braços abertos",
+            childImg: "img/menino_2abertos.webp",
+            positionName: "2 braços abertos",
+            positionImg: "img/menino_2abertos.webp"
+        },
+        {
+            childDesc: "Menino com 1 braço aberto e outro levantado",
+            childImg: "img/menino_1aberto1levantado.webp",
+            positionName: "1 braço aberto + 1 levantado",
+            positionImg: "img/menino_1aberto1levantado.webp"
+        },
+        {
+            childDesc: "Menino com 1 braço abaixado e outro levantado",
+            childImg: "img/menino_1abaixado_1levantado.webp",
+            positionName: "1 braço abaixado + 1 levantado",
+            positionImg: "img/menino_1abaixado_1levantado.webp"
+        },
+        {
+            childDesc: "Menino com 2 braços abaixados",
+            childImg: "img/menino_2abaixados.webp",
+            positionName: "2 braços abaixados",
+            positionImg: "img/menino_2abaixados.webp"
+        },
+        {
+            childDesc: "Menino com 2 braços levantados",
+            childImg: "img/menino_2levantados.webp",
+            positionName: "2 braços levantados",
+            positionImg: "img/menino_2levantados.webp",
+        },
+    ];
 
     function initNumbersGame() {
         const content = document.getElementById("content");
@@ -2897,6 +2933,151 @@
         // Verifica se apontam para o mesmo pairId
         return (a.pairId === b.pairId);
     }
+
+    /* Guardar o último conjunto sorteado para não repetir imediatamente */
+    let lastArmsSet = null;
+
+    /* Função principal do jogo de Braços */
+    function initArmsGame() {
+        locked = false;
+        const content = document.getElementById("content");
+        content.innerHTML = "<h2>Combine a criança com a posição correspondente dos braços:</h2>";
+
+        // Embaralha e pega 5 (ou ajuste conforme desejar)
+        let shuffled = shuffle([...armsData]);
+        let selected = shuffled.slice(0, 5);
+
+        // Evita repetir o mesmo conjunto
+        if (JSON.stringify(selected) === JSON.stringify(lastArmsSet)) {
+            shuffled = shuffle([...armsData]);
+            selected = shuffled.slice(0, 5);
+        }
+        lastArmsSet = selected;
+
+        // Define um ID interno para cada item
+        selected.forEach((pose, i) => {
+            pose.__id = i;
+        });
+
+        // Guarda estado do jogo
+        window.armsGameState = {
+            pairs: selected,
+            selected: null,
+            correctMatches: 0,
+            total: selected.length
+        };
+
+        // Coluna da esquerda (a criança), sem embaralhar
+        const leftColumnHTML = selected.map(pose => `
+    <div class="arms-item"
+         style="border:2px solid #000; border-radius:8px; background:#fff9c4; padding:8px; text-align:center; cursor:pointer;"
+         onclick="handleArmsClick(this, 'child', ${pose.__id})">
+      <div>
+        <img src="${pose.childImg}" alt="Criança" style="max-width:100%; height:auto; border-radius:5px;" />
+      </div>
+      <div style="font-size:0.9rem; margin-top:4px;">
+        ${pose.childDesc}
+      </div>
+    </div>
+  `).join("");
+
+        // Coluna da direita (posição correspondente), embaralhada
+        const rightColumnHTML = shuffle([...selected]).map(pose => `
+    <div class="arms-item"
+         style="border:2px solid #000; border-radius:8px; background:#c8e6c9; padding:8px; text-align:center; cursor:pointer;"
+         onclick="handleArmsClick(this, 'position', ${pose.__id})">
+      <div>
+        <img src="${pose.positionImg}" alt="Posição" style="max-width:100%; height:auto; border-radius:5px;" />
+      </div>
+      <div style="font-size:0.9rem; margin-top:4px;">
+        ${pose.positionName}
+      </div>
+    </div>
+  `).join("");
+
+        // Monta a UI
+        content.innerHTML += `
+    <div style="display:flex; flex-direction:row; gap:10px; justify-content:center; align-items:flex-start; flex-wrap:wrap; width:100%;">
+      <!-- Coluna da Esquerda -->
+      <div style="flex:1; max-width:220px; display:flex; flex-direction:column; gap:10px; margin:0 auto;">
+        ${leftColumnHTML}
+      </div>
+      <!-- Coluna da Direita -->
+      <div style="flex:1; max-width:220px; display:flex; flex-direction:column; gap:10px; margin:0 auto;">
+        ${rightColumnHTML}
+      </div>
+    </div>
+  `;
+
+        speak("Escolha a criança e depois a posição dos braços que corresponde.");
+    }
+
+    /* Clique nos itens (lado esquerdo = 'child', lado direito = 'position') */
+    function handleArmsClick(el, type, pairId) {
+        if (locked) return;
+
+        const state = window.armsGameState;
+
+        // Se nada está selecionado ainda
+        if (!state.selected) {
+            state.selected = { element: el, type, pairId };
+            el.classList.add("selected");
+            return;
+        }
+
+        // Se clicou no mesmo elemento, des-seleciona
+        if (state.selected.element === el) {
+            el.classList.remove("selected");
+            state.selected = null;
+            return;
+        }
+
+        // Já temos um selecionado e clicamos em outro
+        const sel1 = state.selected;
+        const sel2 = { element: el, type, pairId };
+
+        // Verifica se é um par
+        const isMatch = checkArmsMatch(sel1, sel2, state);
+
+        if (isMatch) {
+            sel1.element.classList.remove("selected");
+            sel2.element.classList.remove("selected");
+            sel1.element.classList.add("shadow-match");
+            sel2.element.classList.add("shadow-match");
+            showFeedback("Correto!", true);
+            speak("Muito bem!");
+            state.correctMatches++;
+            updateStars(1);
+
+            if (state.correctMatches === state.total) {
+                locked = true;
+                showFeedback("Você encontrou todos os pares!", true);
+                scheduleReplayGame("arms");
+            }
+        } else {
+            sel1.element.classList.add("shadow-mismatch");
+            sel2.element.classList.add("shadow-mismatch");
+            showFeedback("Não é o par certo!", false);
+            speak("Tente novamente.");
+            updateStars(-1);
+
+            setTimeout(() => {
+                sel1.element.classList.remove("shadow-mismatch", "selected");
+                sel2.element.classList.remove("shadow-mismatch", "selected");
+            }, 700);
+        }
+
+        state.selected = null;
+    }
+
+    /* Verifica se formam o par válido */
+    function checkArmsMatch(a, b, state) {
+        // Precisamos que um seja 'child' e o outro 'position'
+        if (a.type === b.type) return false;
+        // Precisam ter o mesmo __id
+        return (a.pairId === b.pairId);
+    }
+
 
     function speak(text){
         if(speechSynth.speaking) speechSynth.cancel();
